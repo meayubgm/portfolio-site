@@ -1,0 +1,87 @@
+/* Google Fonts — Space Grotesk（見出し）、Inter（本文・UI）、
+   JetBrains Mono（モノ・ラベル）、Noto Sans JP（日本語本文フォールバック）、
+   IBM Plex Sans JP（LINE Seed JP の代替。LINE Seed JP は再配布不可のため） */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+/* ============================================================
+   Frost & Blueprint デザイントークンを Tailwind テーマに統合。
+   ここで定義した変数はそのままユーティリティになる:
+   --color-navy       -> bg-navy / text-navy / border-navy
+   --font-display     -> font-display
+   --radius-card      -> rounded-card
+   --shadow-card-hover-> shadow-card-hover
+   ============================================================ */
+@theme {
+  /* base ice/frost surfaces */
+  --color-ice-0: #f6f9fc;
+  --color-ice-1: #edf3f9;
+  --color-ice-2: #e2ecf5;
+
+  /* ink */
+  --color-navy: #12213d;
+  --color-slate: #4c5c74;
+  --color-slate-soft: #7c8aa0;
+
+  /* glow / accent blues */
+  --color-glow-a: #6baedb;
+  --color-glow-b: #a8d8f0;
+  --color-glow-c: #3a7ca5;
+
+  /* blueprint indigo */
+  --color-indigo: #4a4fe0;
+
+  /* frost glass borders */
+  --color-frost-border: rgba(58, 124, 165, 0.18);
+  --color-frost-border-strong: rgba(58, 124, 165, 0.32);
+
+  /* white overlays for glass cards */
+  --color-glass-55: rgba(255, 255, 255, 0.55);
+  --color-glass-60: rgba(255, 255, 255, 0.6);
+  --color-glass-85: rgba(255, 255, 255, 0.85);
+
+  /* indigo overlays */
+  --color-indigo-grid: rgba(74, 79, 224, 0.06);
+  --color-indigo-soft: rgba(74, 79, 224, 0.14);
+
+  /* fonts */
+  --font-display: 'Space Grotesk', 'IBM Plex Sans JP', sans-serif;
+  --font-body: 'Inter', 'Noto Sans JP', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* radii */
+  --radius-card: 20px;
+  --radius-btn: 12px;
+  --radius-tag: 8px;
+
+  /* shadows */
+  --shadow-card-hover: 0 18px 40px -22px rgba(18, 33, 61, 0.25);
+}
+
+/* トークン化しない値（背景グリッド用） */
+:root {
+  --grid-cell: 48px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--color-ice-0);
+    background-image: linear-gradient(var(--color-indigo-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-indigo-grid) 1px, transparent 1px);
+    background-size: var(--grid-cell) var(--grid-cell);
+    background-attachment: fixed;
+    color: var(--color-navy);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+}

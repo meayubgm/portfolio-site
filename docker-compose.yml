@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: portfolio-site
+    ports:
+      - "3000:3000"
+    volumes:
+      # ホストのソースをマウントしてホットリロード
+      - .:/app
+      # node_modules と .next はコンテナ内のものを使う（ホスト側で上書きしない）
+      - /app/node_modules
+      - /app/.next
+    environment:
+      # macOS/Windows の Docker でファイル監視を確実に効かせる
+      - WATCHPACK_POLLING=true
+    command: npm run dev
