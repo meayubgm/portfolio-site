@@ -24,8 +24,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               "radial-gradient(ellipse at center, rgba(107,174,219,0.16) 0%, rgba(168,216,240,0.08) 35%, rgba(255,255,255,0) 70%)",
           }}
         />
-        <div className="relative z-[2] mx-auto max-w-[1120px] px-8 pb-[60px]">
-          <SiteNav />
+        <SiteNav />
+        <div className="relative z-[2] mx-auto max-w-[1800px] px-8 pt-[90px] pb-[60px]">
           {children}
         </div>
       </body>

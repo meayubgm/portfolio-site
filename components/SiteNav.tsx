@@ -8,7 +8,7 @@ export function SiteNav() {
   const isHome = pathname === "/";
 
   return (
-    <nav className="flex items-center justify-between pt-9">
+    <nav className="fixed top-0 left-0 right-0 z-50 flex w-full items-center justify-between px-8 pt-9 pb-6 backdrop-blur-xs shadow-xs">
       <Link
         href="/"
         className="font-display text-[18px] font-semibold tracking-[-0.02em] text-navy"
