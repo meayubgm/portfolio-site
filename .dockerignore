@@ -6,5 +6,5 @@ out
 npm-debug.log*
 *.tsbuildinfo
 Dockerfile
-docker-compose.yml
+compose.yaml
 README.md
