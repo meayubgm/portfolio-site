@@ -72,6 +72,12 @@
 - `package.json`: `lint` = `biome check && eslint . --max-warnings 0`（warning も失敗扱いにして CWV 違反を確実に検出）、`lint:fix` = `biome check --write && eslint . --fix`。`Makefile` の `make lint` / `make lint-fix` は npm script 経由で自動的に両ツール実行。
 - 検証: `eslint .` がクリーン完走（既存は `<img>` 不使用のため指摘0）、`--print-config` で `@next/next/*` 21ルールのロードを確認、標準入力の `<img>` で `no-img-element`（warning）検知を実証。`npm run lint` で Biome + ESLint 両方が走り exit 0、`npm run build` 成功。
 
+## 10. TypeScript 6.0 へアップグレード
+
+- `typescript` を 5.9.3（`^5.7.3` 表記）→ **6.0.3**（`^6.0.3`）へ。最新は 7.0.2（Go ネイティブ）だが、typescript-eslint 8.63 の peer が `typescript <6.1.0` で **TS7 は非対応**のため、ESLint を壊さない安定版 6 系を採用（ユーザー判断）。
+- 6.0.3 は typescript-eslint の peer 範囲内のため **typescript-eslint は変更不要・ESLint 維持**。
+- 検証（6.0 は breaking change を含む移行版のため実測）: `npx tsc --noEmit` exit 0（型エラーなし）、`npm run build` 成功（型チェック込み SSG）、`npm run lint`（Biome + ESLint）通過、3ルート HTTP 200。全て合格し採用。
+
 ## 未対応・注意点
 
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。

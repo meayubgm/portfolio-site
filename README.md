@@ -8,7 +8,7 @@
 | 領域 | 採用技術 |
 | --- | --- |
 | フレームワーク | Next.js 16 LTS（App Router / SSG・Turbopack） |
-| 言語 | TypeScript 5 / React 19 |
+| 言語 | TypeScript 6 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`） |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
 | Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals） |
