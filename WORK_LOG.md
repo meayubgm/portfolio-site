@@ -64,6 +64,14 @@
 - 検証: `biome check` クリーン（19ファイル）、`npm run build` 成功、3ルート HTTP 200。
   - 注意: dev サーバー稼働中に本番 `npm run build` を回すと共有 `.next` が上書きされ dev が 500（`required-server-files.json` 欠落）になる。dev を `make restart` すれば復旧する。
 
+## 9. ESLint（Next core-web-vitals）併用
+
+- Biome が持たない **Next.js 固有ルール（Core Web Vitals 系）** をチェックするため ESLint を併用。役割分担は **Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の core-web-vitals ルールのみ**（react/a11y は Biome に一任し重複回避。ユーザー選択）。
+- devDependency 追加: `eslint`（10.6.0）/ `@next/eslint-plugin-next`（16.2.10）/ `@typescript-eslint/parser`（8.63.0）。実行はコンテナ内。
+- `eslint.config.mjs`（Flat Config）を新規作成。`@next/eslint-plugin-next` の `configs["core-web-vitals"]`（既に Flat Config 形式・21ルール）をそのまま適用し、TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。`.next`/`out`/`build`/`next-env.d.ts` は ignore。
+- `package.json`: `lint` = `biome check && eslint . --max-warnings 0`（warning も失敗扱いにして CWV 違反を確実に検出）、`lint:fix` = `biome check --write && eslint . --fix`。`Makefile` の `make lint` / `make lint-fix` は npm script 経由で自動的に両ツール実行。
+- 検証: `eslint .` がクリーン完走（既存は `<img>` 不使用のため指摘0）、`--print-config` で `@next/next/*` 21ルールのロードを確認、標準入力の `<img>` で `no-img-element`（warning）検知を実証。`npm run lint` で Biome + ESLint 両方が走り exit 0、`npm run build` 成功。
+
 ## 未対応・注意点
 
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。

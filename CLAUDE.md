@@ -37,7 +37,7 @@ npm run start    # 本番サーバー
 
 テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。
 
-lint/format は **Biome 2**（`biome.json`）。`npm run lint`（= `biome check`）でチェック、`npm run lint:fix`（= `biome check --write`）で自動修正。Next.js 16 で `next lint` は廃止されたため ESLint/Prettier は使わず Biome に一本化している。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。
+lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）の併用。役割分担は明確で、**Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルールのみ**（`no-img-element` 等 Next 固有チェック。react/a11y は Biome に一任し重複を避ける）。`npm run lint`（= `biome check && eslint . --max-warnings 0`）でチェック、`npm run lint:fix`（= `biome check --write && eslint . --fix`）で自動修正。Prettier は使わない（整形は Biome 一択）。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。ESLint は TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。
 
 ## アーキテクチャ
 

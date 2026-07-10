@@ -37,10 +37,10 @@ restart: ## コンテナを再起動
 install: ## コンテナ内で依存をインストール
 	$(COMPOSE) exec app npm install
 
-lint: ## Biome で lint/format をチェック（書き込みなし）
+lint: ## Biome + ESLint(Next) で lint/format をチェック（書き込みなし）
 	$(COMPOSE) exec app npm run lint
 
-lint-fix: ## Biome で lint/format を自動修正
+lint-fix: ## Biome + ESLint で lint/format を自動修正
 	$(COMPOSE) exec app npm run lint:fix
 
 clean: ## コンテナとボリュームを削除
