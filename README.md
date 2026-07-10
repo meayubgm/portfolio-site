@@ -12,7 +12,8 @@
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`） |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
 | Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals） |
-| 開発環境 | Docker（Node 20 Alpine）+ Make |
+| テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
+| 開発環境 | Docker（Node 24 Alpine）+ Make |
 | デプロイ形態 | 静的生成（SSG） |
 
 型チェックは `npm run build`（`next build`）に含まれる。E2E テストは Playwright を使用（後述）。
