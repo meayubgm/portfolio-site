@@ -35,7 +35,18 @@ npm run build    # 本番ビルド（型チェック込み。型エラーはこ�
 npm run start    # 本番サーバー
 ```
 
-テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。
+型チェックは `npm run build`（`next build`）に含まれる。
+
+E2E テストは **Playwright**（`@playwright/test`）を使用。開発コンテナ（`node:24-alpine`）は
+Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、`compose.yaml` が公開する
+`http://localhost:3000` を叩く。手順は `make up`（Docker でアプリ起動）→ `make test-e2e`
+（= `npx playwright test`）。`playwright.config.ts` の `webServer` は `reuseExistingServer: true` で、
+Docker 未起動時や CI（Linux）では `npm run build && npm run start` でフォールバック起動する。
+初回はホストで `npm install` 後に `npx playwright install chromium webkit` でブラウザを取得する。
+spec は `e2e/`（Chromium / WebKit の2プロジェクト）。`e2e` と `playwright.config.ts` は
+`tsconfig.json` の `exclude` に入れ `next build` の型チェックから外している。
+Playwright MCP（`.mcp.json`）は探索的なブラウザ確認の補助であり、リグレッション検知は
+`@playwright/test` に一任する。
 
 lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）の併用。役割分担は明確で、**Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルールのみ**（`no-img-element` 等 Next 固有チェック。react/a11y は Biome に一任し重複を避ける）。`npm run lint`（= `biome check && eslint . --max-warnings 0`）でチェック、`npm run lint:fix`（= `biome check --write && eslint . --fix`）で自動修正。Prettier は使わない（整形は Biome 一択）。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。ESLint は TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。
 

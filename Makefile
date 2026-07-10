@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 
 .DEFAULT_GOAL := help
 
-.PHONY: help up down build rebuild logs ps sh restart install lint lint-fix clean
+.PHONY: help up down build rebuild logs ps sh restart install lint lint-fix test-e2e clean
 
 help: ## コマンド一覧を表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +42,9 @@ lint: ## Biome + ESLint(Next) で lint/format をチェック（書き込みな�
 
 lint-fix: ## Biome + ESLint で lint/format を自動修正
 	$(COMPOSE) exec app npm run lint:fix
+
+test-e2e: ## Playwright E2E を実行（ホストで実行。事前に make up が必要）
+	npx playwright test
 
 clean: ## コンテナとボリュームを削除
 	$(COMPOSE) down -v

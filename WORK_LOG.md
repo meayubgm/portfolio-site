@@ -78,10 +78,20 @@
 - 6.0.3 は typescript-eslint の peer 範囲内のため **typescript-eslint は変更不要・ESLint 維持**。
 - 検証（6.0 は breaking change を含む移行版のため実測）: `npx tsc --noEmit` exit 0（型エラーなし）、`npm run build` 成功（型チェック込み SSG）、`npm run lint`（Biome + ESLint）通過、3ルート HTTP 200。全て合格し採用。
 
+## 11. Playwright 導入（E2E テスト + MCP）
+
+- テストフレームワーク未導入だった状態に対し、**E2E テストとして Playwright（`@playwright/test`）を主軸に導入**。加えて **Playwright MCP** を探索的確認の補助として設定（ユーザー選択＝両方）。
+- **実行環境の判断**: 開発コンテナ（`node:24-alpine`）は Playwright のブラウザ非対応（musl 依存で追加セットアップ要）。よってブラウザは**ホスト（macOS）で実行**し、`compose.yaml` が公開する `http://localhost:3000` を叩く構成に。コンテナ側は一切変更なし。`@playwright/test` は JS のみのため `devDependencies` に追加しても alpine コンテナに無害（ブラウザは `playwright install` を明示実行しない限り落ちてこない）。
+- `playwright.config.ts` 新規: `testDir: e2e`、`baseURL: http://localhost:3000`、`projects` は **Chromium + WebKit**（フロントエンドのポートフォリオゆえクロスブラウザ担保に意味あり）。`webServer` は `reuseExistingServer: true` で、`make up` が :3000 を占有していれば再利用、未起動時や CI（Linux）では `npm run build && npm run start` でフォールバック起動。
+- テスト `e2e/`: `smoke.spec.ts`（3ルートの 200 表示・`<title>`・主要見出し）、`navigation.spec.ts`（`SiteNav` の遷移と active 判定 text-navy/text-slate、`GlassCard` の href カード全体クリック遷移、BREW→works 戻り）。セレクタは role / accessible name ベースを優先。
+- `.mcp.json` 新規: `@playwright/mcp`（`npx -y @playwright/mcp@latest`）をプロジェクトスコープで登録。既存の `claude-in-chrome` とは別系統、役割は対話的確認に限定。
+- 既存ファイル編集: `tsconfig.json` の `exclude` に `e2e` / `playwright.config.ts`（`include: **/*.ts` による `next build` 型チェック巻き込み回避）。`package.json` に `test:e2e` 系 scripts。`Makefile` に `make test-e2e`（ホスト実行）。`.gitignore` / `.dockerignore` に Playwright 生成物を追加。
+- 検証: ホストで `npm install` → `npx playwright install chromium webkit` → `make up` → `npx playwright test`（Chromium/WebKit 全 spec グリーン）。`npm run build`（型チェック込み SSG）と `npm run lint`（Biome + ESLint）が非破壊で通過することも確認。
+
 ## 未対応・注意点
 
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
-- テストフレームワークは未導入（型チェックは `npm run build` に含まれる）。
+- E2E テストは Playwright を導入済み（§11。ホスト実行・Chromium/WebKit）。ユニット/コンポーネントテストは未導入。型チェックは `npm run build` に含まれる。
 - Next.js 内部依存 `postcss` の moderate 脆弱性2件は Next 側の更新待ち（`audit fix --force` はダウングレードになるため実行しない）。
 - `GlassCard` のカード全体クリック遷移はキーボード操作非対応（a11y 負債・`biome-ignore` で抑制中）。role/tabIndex/onKeyDown での改善は別課題。

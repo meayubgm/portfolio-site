@@ -15,7 +15,7 @@
 | 開発環境 | Docker（Node 20 Alpine）+ Make |
 | デプロイ形態 | 静的生成（SSG） |
 
-テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。
+型チェックは `npm run build`（`next build`）に含まれる。E2E テストは Playwright を使用（後述）。
 
 ## 開発
 
@@ -42,6 +42,31 @@ npm run build    # 本番ビルド（型チェック込み）
 npm run start    # 本番サーバー
 ```
 
+## E2E テスト（Playwright）
+
+E2E テストは **Playwright**（`@playwright/test`）で実装。開発コンテナ（`node:24-alpine`）は
+Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、Docker が配信する
+`http://localhost:3000` を叩く。
+
+```bash
+# 初回のみ: ホストで依存とブラウザを取得
+npm install
+npx playwright install chromium webkit
+
+# 実行
+make up            # Docker でアプリ起動（:3000）
+make test-e2e      # = npx playwright test（Chromium / WebKit）
+npm run test:e2e:ui        # UI モードで実行
+npm run test:e2e:report    # 直近の HTML レポートを表示
+```
+
+`playwright.config.ts` の `webServer` は `reuseExistingServer: true`。`make up` が :3000 を
+占有していればそれを再利用し、Docker 未起動時や CI（Linux）では `npm run build && npm run start`
+でフォールバック起動する。spec は `e2e/` 配下。
+
+`.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助（Claude Code から使用）。
+リグレッション検知は `@playwright/test` に一任する。
+
 ## ディレクトリ構成
 
 ```
@@ -65,6 +90,9 @@ portfolio-site/
 │   └── Tag.tsx
 ├── lib/
 │   └── cases.ts            # 匿名化ケーススタディのデータ
+├── e2e/                    # Playwright E2E テスト（smoke / navigation）
+├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
+├── .mcp.json               # Playwright MCP（探索的確認の補助）
 ├── Dockerfile              # Node 24 Alpine / dev サーバー
 ├── compose.yaml            # サービス app / ポート3000 / ホットリロード
 ├── Makefile                # make up / down / logs / sh などのラッパー
