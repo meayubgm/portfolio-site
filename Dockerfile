@@ -1,5 +1,5 @@
 # 開発用イメージ（Next.js dev サーバー / ホットリロード）
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 

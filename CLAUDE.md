@@ -25,7 +25,7 @@ make help     # 全ターゲット一覧
 - Docker Compose v1 環境では `make up COMPOSE=docker-compose` のように上書きする。
 - ソースはコンテナへバインドマウントされ、`node_modules` と `.next` は匿名ボリュームでコンテナ内のものを使う。ホスト（macOS）は musl 非対応なので依存はコンテナ内でのみ解決する。
 - Next.js 16 は `next dev` / `next build` とも **Turbopack がデフォルト**。macOS の Docker Desktop（VirtioFS）はファイルイベントが透過するため、バインドマウント経由でも監視が効く。`WATCHPACK_POLLING=true` は Turbopack では参照されず、`next dev --webpack` に切り替えた場合のフォールバック用に残してある。
-- Node 要件は 20.9+（Next.js 16）。イメージは `node:20-alpine` で満たしている。
+- Node 要件は 20.9+（Next.js 16）。イメージは `node:24-alpine`（Active LTS）を使用。`@types/node` もランタイムに合わせて 24 系。
 
 Docker を使わない場合:
 
