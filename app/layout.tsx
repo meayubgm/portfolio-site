@@ -12,7 +12,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
-      <body>
+      {/* body への属性注入（ブラウザ拡張の cz-shortcut-listen 等）による hydration 警告を抑制。
+          body 自身の属性のみ対象で、子要素の不一致は引き続き検出される。 */}
+      <body suppressHydrationWarning>
         {/* ambient glow */}
         <div
           aria-hidden
