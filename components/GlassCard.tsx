@@ -27,12 +27,15 @@ export function GlassCard({
   const router = useRouter();
   const [mx, setMx] = useState("50%");
   const [my, setMy] = useState("20%");
+  const [hovered, setHovered] = useState(false);
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: カード全体クリック遷移は意図的な UI（<a> ネスト回避のため div + useRouter）
     // biome-ignore lint/a11y/useKeyWithClickEvents: 同上。プロトタイプ再現を優先し現状はキーボード操作非対応（a11y 改善は別課題）
     <div
       onClick={href ? () => router.push(href) : undefined}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         setMx(`${((e.clientX - r.left) / r.width) * 100}%`);
@@ -49,8 +52,9 @@ export function GlassCard({
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300"
         style={{
+          opacity: hovered ? 1 : 0,
           background: `radial-gradient(320px circle at ${mx} ${my}, rgba(107,174,219,0.22), transparent 60%)`,
         }}
       />
