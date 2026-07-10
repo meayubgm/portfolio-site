@@ -65,8 +65,8 @@ portfolio-site/
 │   └── Tag.tsx
 ├── lib/
 │   └── cases.ts            # 匿名化ケーススタディのデータ
-├── Dockerfile              # Node 20 Alpine / dev サーバー
-├── docker-compose.yml      # サービス app / ポート3000 / ホットリロード
+├── Dockerfile              # Node 24 Alpine / dev サーバー
+├── compose.yaml            # サービス app / ポート3000 / ホットリロード
 ├── Makefile                # make up / down / logs / sh などのラッパー
 ├── biome.json              # Biome（汎用 lint / format）設定
 ├── eslint.config.mjs       # ESLint（Next core-web-vitals ルール）設定
