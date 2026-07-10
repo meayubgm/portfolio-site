@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 
 .DEFAULT_GOAL := help
 
-.PHONY: help up down build rebuild logs ps sh restart install clean
+.PHONY: help up down build rebuild logs ps sh restart install lint lint-fix clean
 
 help: ## コマンド一覧を表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -36,6 +36,12 @@ restart: ## コンテナを再起動
 
 install: ## コンテナ内で依存をインストール
 	$(COMPOSE) exec app npm install
+
+lint: ## Biome で lint/format をチェック（書き込みなし）
+	$(COMPOSE) exec app npm run lint
+
+lint-fix: ## Biome で lint/format を自動修正
+	$(COMPOSE) exec app npm run lint:fix
 
 clean: ## コンテナとボリュームを削除
 	$(COMPOSE) down -v

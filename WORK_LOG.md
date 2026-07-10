@@ -54,9 +54,20 @@
 - 検証: コンテナ内 `npm run build` 成功（3ルートすべて静的生成）、`/`・`/works`・`/works/brew` が HTTP 200。
 - 既知の残課題: Next.js が内部依存する `postcss` の moderate 脆弱性2件。`audit fix --force` は next を 9 系へダウングレードするため未対応（Next 側の更新待ち。静的サイトかつ内部依存で実害は限定的）。
 
+## 8. Biome（linter + formatter）導入
+
+- ESLint/Prettier の代替として **Biome 2.5.3** を devDependency に固定版で追加（`--save-exact`）。依存解決・実行はコンテナ内（musl バイナリで Alpine 動作を確認）。
+- `biome.json` を新規作成。既存スタイルに寄せて無用な差分を抑制（`indentStyle: space`/`indentWidth: 2`、`quoteStyle`/`jsxQuoteStyle: double`、`semicolons: always`、`lineWidth: 100`）。`vcs.useIgnoreFile` で `.gitignore` 尊重、`rules.preset: recommended`、import 整理を有効化。
+- **Biome 対象外**: `app/globals.css`（Tailwind v4 の `@theme` 記法を CSS パーサが解釈できずパースエラー）と `tsconfig.json`（`next build` が自動整形し競合するため）を `files.includes` で除外。
+- lint 指摘への対応: `useTemplate` 2件は手動でテンプレートリテラル化。`GlassCard` の a11y 2件（`noStaticElementInteractions` / `useKeyWithClickEvents`）はカード全体クリック遷移という意図的設計のため `biome-ignore` で局所抑制（理由コメント付き）。**本来はキーボード操作非対応の a11y 負債であり、別途改善が望ましい**。
+- `package.json` に `lint`（`biome check`）/ `lint:fix`（`biome check --write`）、`Makefile` に `make lint` / `make lint-fix` を追加。
+- 検証: `biome check` クリーン（19ファイル）、`npm run build` 成功、3ルート HTTP 200。
+  - 注意: dev サーバー稼働中に本番 `npm run build` を回すと共有 `.next` が上書きされ dev が 500（`required-server-files.json` 欠落）になる。dev を `make restart` すれば復旧する。
+
 ## 未対応・注意点
 
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - テストフレームワークは未導入（型チェックは `npm run build` に含まれる）。
 - Next.js 内部依存 `postcss` の moderate 脆弱性2件は Next 側の更新待ち（`audit fix --force` はダウングレードになるため実行しない）。
+- `GlassCard` のカード全体クリック遷移はキーボード操作非対応（a11y 負債・`biome-ignore` で抑制中）。role/tabIndex/onKeyDown での改善は別課題。

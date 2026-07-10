@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { useState } from "react";
 
 type GlassCardProps = {
   span?: number;
@@ -29,12 +29,14 @@ export function GlassCard({
   const [my, setMy] = useState("20%");
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: カード全体クリック遷移は意図的な UI（<a> ネスト回避のため div + useRouter）
+    // biome-ignore lint/a11y/useKeyWithClickEvents: 同上。プロトタイプ再現を優先し現状はキーボード操作非対応（a11y 改善は別課題）
     <div
       onClick={href ? () => router.push(href) : undefined}
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
-        setMx(((e.clientX - r.left) / r.width) * 100 + "%");
-        setMy(((e.clientY - r.top) / r.height) * 100 + "%");
+        setMx(`${((e.clientX - r.left) / r.width) * 100}%`);
+        setMy(`${((e.clientY - r.top) / r.height) * 100}%`);
       }}
       style={{
         gridColumn: `span ${span}`,

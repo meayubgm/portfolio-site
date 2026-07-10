@@ -11,6 +11,7 @@
 | 言語 | TypeScript 5 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`） |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
+| Lint / Format | Biome 2（`biome.json` で一元管理） |
 | 開発環境 | Docker（Node 20 Alpine）+ Make |
 | デプロイ形態 | 静的生成（SSG） |
 
@@ -26,6 +27,7 @@ make down     # 停止・削除
 make logs     # ログ追跡
 make sh       # app コンテナのシェルに入る
 make rebuild  # キャッシュ無しで再ビルドして起動
+make lint     # Biome で lint/format をチェック（make lint-fix で自動修正）
 make help     # 全ターゲット一覧
 ```
 
@@ -66,6 +68,7 @@ portfolio-site/
 ├── Dockerfile              # Node 20 Alpine / dev サーバー
 ├── docker-compose.yml      # サービス app / ポート3000 / ホットリロード
 ├── Makefile                # make up / down / logs / sh などのラッパー
+├── biome.json              # Biome（lint / format）設定
 ├── next.config.mjs
 ├── postcss.config.mjs
 └── tsconfig.json

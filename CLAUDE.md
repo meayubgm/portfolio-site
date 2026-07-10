@@ -18,6 +18,7 @@ make down     # 停止・削除
 make logs     # ログ追跡
 make sh       # app コンテナのシェルに入る
 make rebuild  # キャッシュ無しで再ビルドして起動
+make lint     # Biome で lint/format をチェック（make lint-fix で自動修正）
 make help     # 全ターゲット一覧
 ```
 
@@ -34,7 +35,9 @@ npm run build    # 本番ビルド（型チェック込み。型エラーはこ�
 npm run start    # 本番サーバー
 ```
 
-テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。Next.js 16 で `next lint` は廃止されたため、lint スクリプトは持たない（導入する場合は ESLint Flat Config を別途追加する）。
+テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。
+
+lint/format は **Biome 2**（`biome.json`）。`npm run lint`（= `biome check`）でチェック、`npm run lint:fix`（= `biome check --write`）で自動修正。Next.js 16 で `next lint` は廃止されたため ESLint/Prettier は使わず Biome に一本化している。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。
 
 ## アーキテクチャ
 

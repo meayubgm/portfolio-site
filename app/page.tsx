@@ -78,7 +78,9 @@ export default function Home() {
         <GlassCard span={2}>
           <CardLabel>engineering</CardLabel>
           <h3 className="m-0 mb-[10px] font-display text-[20px] font-semibold">Engineering</h3>
-          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-soft">実務での使用経験ベースで記載</p>
+          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-soft">
+            実務での使用経験ベースで記載
+          </p>
           <div className="flex flex-col gap-[10px]">
             <SkillBar name="React / Next.js — 2023年〜" percent={88} />
             <SkillBar name="TypeScript" percent={82} />
@@ -102,7 +104,9 @@ export default function Home() {
         <GlassCard span={2} className="flex flex-col justify-between">
           <div>
             <CardLabel>contact</CardLabel>
-            <h3 className="m-0 mb-[10px] font-display text-[20px] font-semibold">Let&apos;s talk</h3>
+            <h3 className="m-0 mb-[10px] font-display text-[20px] font-semibold">
+              Let&apos;s talk
+            </h3>
             <p className="m-0 text-[14.5px] leading-[1.7] text-slate">お気軽にご連絡ください。</p>
           </div>
           <div>

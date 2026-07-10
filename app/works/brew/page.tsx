@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import type { CSSProperties, ReactNode } from "react";
 import { EyebrowLabel } from "@/components/EyebrowLabel";
 import { LinkRow } from "@/components/LinkRow";
 import { Tag } from "@/components/Tag";
@@ -74,10 +74,14 @@ export default function BrewCaseStudy() {
         <section>
           <MonoHeading>{"// 要件定義"}</MonoHeading>
           <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate">
-            <li>デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意</li>
+            <li>
+              デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
+            </li>
             <li>人数または豆量の入力から、メソッドごとの比率に応じて湯量を自動計算</li>
             <li>タイマーはカウントアップ式とし、各ステップの注湯タイミングでアラーム通知</li>
-            <li>ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）</li>
+            <li>
+              ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）
+            </li>
           </ul>
           <Body>
             工程を通じて意識したのは、単なるタイマーではなく「抽出ガイド」として機能させること。アラーム時に「今回注ぐ量」「累計注湯量」「次のステップまでの待機時間」をまとめて提示する設計にしました。
@@ -111,7 +115,7 @@ export default function BrewCaseStudy() {
                 モバイル — React Native + Expo
               </p>
               <p className="m-0 text-[14px] leading-[1.7] text-slate">
-                実機での動作確認・配布のしやすさを優先。Expo Goで実機検証しながら開発を進める前提で採用。
+                実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
               </p>
             </div>
           </div>
@@ -123,7 +127,7 @@ export default function BrewCaseStudy() {
         <section>
           <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
           <Body style={{ marginBottom: "24px" }}>
-            Expo Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
+            Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
           </Body>
           <MediaPlaceholder label="実機でタイマーが動作している様子" />
         </section>
