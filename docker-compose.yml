@@ -11,6 +11,8 @@ services:
       - /app/node_modules
       - /app/.next
     environment:
-      # macOS/Windows の Docker でファイル監視を確実に効かせる
+      # webpack(watchpack)利用時のファイル監視フォールバック用。
+      # Next.js 16 は Turbopack がデフォルトでこの変数を参照しないが、
+      # `next dev --webpack` に切り替えた場合の保険として残す。
       - WATCHPACK_POLLING=true
     command: npm run dev

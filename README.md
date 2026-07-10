@@ -7,7 +7,7 @@
 
 | 領域 | 採用技術 |
 | --- | --- |
-| フレームワーク | Next.js 15（App Router / SSG） |
+| フレームワーク | Next.js 16 LTS（App Router / SSG・Turbopack） |
 | 言語 | TypeScript 5 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`） |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |

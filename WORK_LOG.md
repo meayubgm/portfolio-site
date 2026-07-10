@@ -44,8 +44,19 @@
 - `/init` により Claude Code 向けの `CLAUDE.md` を作成（Docker+Make フロー、`@theme` トークン統合、Client/Server 切り分けなど非自明な設計方針）。
 - コミット `10fdfd1`（`docs: Claude Code 向けの CLAUDE.md を追加`）。
 
+## 7. Next.js 16 LTS へアップグレード
+
+- `next` を 15.1.6 → **16.2.10** へ。`react` / `react-dom` / `@types/*` も 19.2 系（19.2.7）に更新。依存解決はコンテナ内で実施。
+- 破壊的変更の影響を精査: 動的ルート／`cookies`・`headers`・`searchParams`／`middleware`／`next/image`／parallel routes をいずれも未使用のため、async params 化・proxy リネーム・image 系仕様変更は非該当。
+- Next.js 16 で `next lint` が廃止されたため `lint` スクリプトを削除（ESLint 設定は元々なく実質未使用）。
+- `next build` 実行時に `tsconfig.json` が自動更新（`jsx: preserve` → `react-jsx`、`include` に `.next/dev/types/**/*.ts` 追加）。16 の必須変更のため受け入れ。
+- Turbopack がデフォルト化。macOS の Docker Desktop（VirtioFS）ではバインドマウント経由でもファイル監視が効くことを実機確認（編集 → `✓ Compiled` を確認）。`WATCHPACK_POLLING` は Turbopack では参照されないため、`docker-compose.yml` のコメントを実態に合わせて更新。
+- 検証: コンテナ内 `npm run build` 成功（3ルートすべて静的生成）、`/`・`/works`・`/works/brew` が HTTP 200。
+- 既知の残課題: Next.js が内部依存する `postcss` の moderate 脆弱性2件。`audit fix --force` は next を 9 系へダウングレードするため未対応（Next 側の更新待ち。静的サイトかつ内部依存で実害は限定的）。
+
 ## 未対応・注意点
 
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - テストフレームワークは未導入（型チェックは `npm run build` に含まれる）。
+- Next.js 内部依存 `postcss` の moderate 脆弱性2件は Next 側の更新待ち（`audit fix --force` はダウングレードになるため実行しない）。

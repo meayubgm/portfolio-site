@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 フロントエンドエンジニア「A.Y / frontend（Ayuha Megumi）」の個人ポートフォリオサイト。
 Claude Design で作成したプロトタイプ（**Frost & Blueprint** デザインシステム）を、
-Next.js (App Router) + Tailwind CSS v4 で実装したもの。全ページ静的生成（SSG）。
+Next.js 16 (App Router) + Tailwind CSS v4 で実装したもの。全ページ静的生成（SSG）。
 
 ## 開発コマンド
 
@@ -23,17 +23,18 @@ make help     # 全ターゲット一覧
 
 - Docker Compose v1 環境では `make up COMPOSE=docker-compose` のように上書きする。
 - ソースはコンテナへバインドマウントされ、`node_modules` と `.next` は匿名ボリュームでコンテナ内のものを使う。ホスト（macOS）は musl 非対応なので依存はコンテナ内でのみ解決する。
-- macOS でファイル監視を効かせるため `WATCHPACK_POLLING=true` を設定済み。
+- Next.js 16 は `next dev` / `next build` とも **Turbopack がデフォルト**。macOS の Docker Desktop（VirtioFS）はファイルイベントが透過するため、バインドマウント経由でも監視が効く。`WATCHPACK_POLLING=true` は Turbopack では参照されず、`next dev --webpack` に切り替えた場合のフォールバック用に残してある。
+- Node 要件は 20.9+（Next.js 16）。イメージは `node:20-alpine` で満たしている。
 
 Docker を使わない場合:
 
 ```bash
 npm run dev      # 開発サーバー
-npm run build    # 本番ビルド（型チェック込み。lint/型エラーはここで検出）
+npm run build    # 本番ビルド（型チェック込み。型エラーはここで検出）
 npm run start    # 本番サーバー
 ```
 
-テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。
+テストフレームワークは未導入。型チェックは `npm run build`（`next build`）に含まれる。Next.js 16 で `next lint` は廃止されたため、lint スクリプトは持たない（導入する場合は ESLint Flat Config を別途追加する）。
 
 ## アーキテクチャ
 
