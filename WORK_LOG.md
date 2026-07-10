@@ -29,7 +29,7 @@
 
 ## 4. Docker + Make 開発環境
 
-- `Dockerfile`（Node 20 Alpine / dev サーバー）、`compose.yaml`（サービス `app` / ポート3000 / バインドマウント + 匿名ボリューム / `WATCHPACK_POLLING=true`）、`.dockerignore`、`Makefile` を追加。
+- `Dockerfile`（Node 24 Alpine / dev サーバー）、`compose.yaml`（サービス `app` / ポート3000 / バインドマウント + 匿名ボリューム / `WATCHPACK_POLLING=true`）、`.dockerignore`、`Makefile` を追加。
 - Makefile ターゲット: `up` / `down` / `build` / `rebuild` / `logs` / `ps` / `sh` / `restart` / `install` / `clean` / `help`。`COMPOSE` 変数で v1（`docker-compose`）にも切替可。
 - `make build` → `make up` で起動し、`/` と `/works` が HTTP 200、コンテナ稼働を確認。
 
