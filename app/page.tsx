@@ -17,7 +17,7 @@ export default function Home() {
             <EyebrowLabel>available for new roles</EyebrowLabel>
           </div>
         )}
-        <h1 className="m-0 mb-6 max-w-[840px] font-display text-[clamp(38px,5.4vw,60px)] font-semibold leading-[1.14] tracking-[-0.03em]">
+        <h1 className="m-0 mb-6 font-display text-[clamp(38px,5.4vw,60px)] font-semibold leading-[1.14] tracking-[-0.03em]">
           要件のヒアリングから、
           <span className="relative">
             デザインと実装
@@ -45,7 +45,7 @@ export default function Home() {
       <section className="grid grid-cols-6 gap-4 pb-[90px]">
         <GlassCard span={4} padding="lg">
           <CardLabel>about</CardLabel>
-          <p className="m-0 mt-1.5 max-w-[480px] font-display text-[21px] font-medium leading-[1.55] text-navy">
+          <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-navy">
             「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」、
             <b className="font-semibold text-glow-c">その両方の立場で会話できる</b>のが強みです。
           </p>

@@ -58,6 +58,12 @@ export function GlassCard({
           background: `radial-gradient(320px circle at ${mx} ${my}, rgba(107,174,219,0.22), transparent 60%)`,
         }}
       />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-3.5 right-4 text-indigo leading-none text-base font-display opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      >
+        +
+      </span>
       {children}
     </div>
   );
