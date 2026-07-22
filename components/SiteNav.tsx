@@ -11,20 +11,20 @@ export function SiteNav() {
     <nav className="fixed top-0 left-0 right-0 z-50 flex w-full items-center justify-between px-8 pt-9 pb-6 backdrop-blur-xs shadow-xs">
       <Link
         href="/"
-        className="font-display text-[18px] font-semibold tracking-[-0.02em] text-navy"
+        className="font-display text-[18px] font-semibold tracking-[-0.02em] text-slate-900"
       >
-        A.<span className="text-glow-c">Y</span> / frontend
+        A.<span className="text-sky-700">Y</span> / frontend
       </Link>
       <div className="flex gap-9 font-body text-[14px]">
-        <Link href="/" className={isHome ? "text-navy" : "text-slate"}>
+        <Link href="/" className={isHome ? "text-slate-900" : "text-slate-600"}>
           home
         </Link>
-        <Link href="/works" className={!isHome ? "text-navy" : "text-slate"}>
+        <Link href="/works" className={!isHome ? "text-slate-900" : "text-slate-600"}>
           works
         </Link>
-        <span className="cursor-default text-slate-soft">skill</span>
-        <span className="cursor-default text-slate-soft">about</span>
-        <span className="cursor-default text-slate-soft">contact</span>
+        <span className="cursor-default text-slate-500">skill</span>
+        <span className="cursor-default text-slate-500">about</span>
+        <span className="cursor-default text-slate-500">contact</span>
       </div>
     </nav>
   );

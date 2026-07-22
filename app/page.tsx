@@ -21,16 +21,16 @@ export default function Home() {
           要件のヒアリングから、
           <span className="relative">
             デザインと実装
-            <span className="absolute right-0 -top-5.5 whitespace-nowrap font-mono text-[10.5px] text-indigo">
+            <span className="absolute right-0 -top-5.5 whitespace-nowrap font-mono text-[10.5px] text-indigo-600">
               {"// design × code"}
             </span>
           </span>
           まで。
         </h1>
-        <p className="m-0 mb-4.5 font-mono text-[15px] text-slate-soft">
+        <p className="m-0 mb-4.5 font-mono text-[15px] text-slate-500">
           フロントエンドエンジニア／阿由葉 萌
         </p>
-        <p className="m-0 mb-10 max-w-155 text-[16.5px] leading-[1.8] text-slate">
+        <p className="m-0 mb-10 max-w-155 text-[16.5px] leading-[1.8] text-slate-600">
           React・Next.js・TypeScriptを中心に、受託開発でフロントエンド実装を担当。要件のヒアリングからUIデザイン、実装、テストまで一貫して対応できることが強みです。デザインカンプ作成やアイコン制作もAdobe
           XD・Figma・Illustratorで自ら手がけ、「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」の両方ができる立場で開発に関わっています。
         </p>
@@ -45,11 +45,11 @@ export default function Home() {
       <section className="grid grid-cols-6 gap-4 pb-22.5">
         <GlassCard span={4} padding="lg">
           <CardLabel>about</CardLabel>
-          <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-navy">
+          <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-slate-900">
             「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」、
-            <b className="font-semibold text-glow-c">その両方の立場で会話できる</b>のが強みです。
+            <b className="font-semibold text-sky-700">その両方の立場で会話できる</b>のが強みです。
           </p>
-          <p className="m-0 mt-5.5 text-[14.5px] leading-[1.7] text-slate">
+          <p className="m-0 mt-5.5 text-[14.5px] leading-[1.7] text-slate-600">
             受託開発で企画〜デザイン〜実装を一貫して担当。仕組み化と丁寧な言語化を大事にしながら、着実にプロダクトの質を積み上げます。
           </p>
         </GlassCard>
@@ -65,7 +65,7 @@ export default function Home() {
             <br />
             アプリ「BREW」
           </h3>
-          <p className="m-0 text-sm leading-[1.7] text-slate">
+          <p className="m-0 text-sm leading-[1.7] text-slate-600">
             企画・要件定義・UIデザイン・実装まで一人で担当。ケーススタディを見る ↗
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -78,7 +78,7 @@ export default function Home() {
         <GlassCard span={2}>
           <CardLabel>engineering</CardLabel>
           <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Engineering</h3>
-          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-soft">
+          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
             実務での使用経験ベースで記載
           </p>
           <div className="flex flex-col gap-2.5">
@@ -91,7 +91,7 @@ export default function Home() {
         <GlassCard span={2}>
           <CardLabel>design</CardLabel>
           <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Design</h3>
-          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-soft">
+          <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
             デザインカンプ・アイコン制作で実務使用
           </p>
           <div className="flex flex-col gap-2.5">
@@ -105,7 +105,9 @@ export default function Home() {
           <div>
             <CardLabel>contact</CardLabel>
             <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Let&apos;s talk</h3>
-            <p className="m-0 text-[14.5px] leading-[1.7] text-slate">お気軽にご連絡ください。</p>
+            <p className="m-0 text-[14.5px] leading-[1.7] text-slate-600">
+              お気軽にご連絡ください。
+            </p>
           </div>
           <div>
             <LinkRow first>Email</LinkRow>

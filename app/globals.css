@@ -5,41 +5,17 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Frost & Blueprint デザイントークンを Tailwind テーマに統合。
+   Frost & Blueprint の DS 固有トークンを Tailwind テーマに統合。
    ここで定義した変数はそのままユーティリティになる:
-   --color-navy       -> bg-navy / text-navy / border-navy
    --font-display     -> font-display
    --radius-card      -> rounded-card
    --shadow-card-hover-> shadow-card-hover
+
+   色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せたため、
+   custom な --color-* トークンは廃止。マークアップは組み込みユーティリティ
+   （text-slate-900 / text-sky-700 / border-indigo-600/15 等）を直接使う。
    ============================================================ */
 @theme {
-  /* base ice/frost surfaces */
-  --color-ice-0: #f6f9fc;
-  --color-ice-1: #edf3f9;
-  --color-ice-2: #e2ecf5;
-
-  /* ink */
-  --color-navy: #12213d;
-  --color-slate: #4c5c74;
-  --color-slate-soft: #7c8aa0;
-
-  /* glow / accent blues */
-  --color-glow-a: #6baedb;
-  --color-glow-b: #a8d8f0;
-  --color-glow-c: #3a7ca5;
-
-  /* blueprint indigo */
-  --color-indigo: #4a4fe0;
-
-  /* white overlays for glass cards */
-  --color-glass-55: rgba(255, 255, 255, 0.55);
-  --color-glass-60: rgba(255, 255, 255, 0.6);
-  --color-glass-85: rgba(255, 255, 255, 0.85);
-
-  /* indigo overlays */
-  --color-indigo-grid: rgba(74, 79, 224, 0.06);
-  --color-indigo-soft: rgba(74, 79, 224, 0.14);
-
   /* fonts */
   --font-display: 'Space Grotesk', 'IBM Plex Sans JP', sans-serif;
   --font-body: 'Inter', 'Noto Sans JP', sans-serif;
@@ -71,12 +47,19 @@
   }
 
   body {
-    background: var(--color-ice-0);
-    background-image: linear-gradient(var(--color-indigo-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-indigo-grid) 1px, transparent 1px);
+    background: var(--color-slate-50);
+    background-image: linear-gradient(
+        color-mix(in srgb, var(--color-indigo-600) 6%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-indigo-600) 6%, transparent) 1px,
+        transparent 1px
+      );
     background-size: var(--grid-cell) var(--grid-cell);
     background-attachment: fixed;
-    color: var(--color-navy);
+    color: var(--color-slate-900);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
   }

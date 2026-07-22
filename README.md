@@ -106,18 +106,20 @@ portfolio-site/
 
 ## デザイントークンの扱い
 
-CSS 変数を Tailwind テーマに統合しています（`app/globals.css` の `@theme`）。
-命名規則は Tailwind v4 の慣習どおり:
+DS 固有トークン（フォント・角丸・影）を CSS 変数として Tailwind テーマに統合しています
+（`app/globals.css` の `@theme`）。命名規則は Tailwind v4 の慣習どおり:
 
 | 変数 | 生成されるユーティリティ |
 | --- | --- |
-| `--color-navy` | `bg-navy` / `text-navy` / `border-navy` |
 | `--font-display` | `font-display` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
 
+色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せており、custom な `--color-*`
+トークンは持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。
 `tailwind.config.js` は存在しません（v4 の CSS ファースト設定）。
-背景のブループリント格子（`--grid-cell` / `--color-indigo-grid`）は `body` に直接適用しています。
+背景のブループリント格子は `--grid-cell` と `body` への直接適用で描画し、淡い indigo は
+`color-mix` で Tailwind パレット変数（`--color-indigo-600`）から生成しています。
 
 ## Client / Server の切り分け
 

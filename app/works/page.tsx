@@ -29,7 +29,7 @@ export default function Works() {
         <h1 className="m-0 mb-4.5 font-display text-[clamp(34px,4.5vw,52px)] font-semibold leading-[1.15] tracking-[-0.03em]">
           実績一覧
         </h1>
-        <p className="m-0 max-w-155 text-[15.5px] leading-[1.8] text-slate">
+        <p className="m-0 max-w-155 text-[15.5px] leading-[1.8] text-slate-600">
           受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。
         </p>
       </header>
@@ -44,15 +44,15 @@ export default function Works() {
         >
           <div className="flex items-start justify-between">
             <CardLabel>個人開発 — code / design 全プロセス公開</CardLabel>
-            <span className="font-mono text-[12px] text-slate-soft">01</span>
+            <span className="font-mono text-[12px] text-slate-500">01</span>
           </div>
           <h3 className="m-0 mb-2.5 mt-1.5 font-display text-[24px] font-semibold">
             BREW（仮） — 抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
           </h3>
-          <p className="m-0 max-w-190 text-[14.5px] leading-[1.75] text-slate">
+          <p className="m-0 max-w-190 text-[14.5px] leading-[1.75] text-slate-600">
             豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。
           </p>
-          <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-soft py-3.5">
+          <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-600/15 py-3.5">
             <StatBlock number="企画〜実装" label="担当範囲（全工程）" />
             <StatBlock number="4種" label="抽出メソッド対応" />
             <StatBlock number="実機検証済" label="Android / Expo Go" />
@@ -64,7 +64,7 @@ export default function Works() {
               <Tag>TypeScript</Tag>
               <Tag>React + Vite（Web版）</Tag>
             </div>
-            <span className="whitespace-nowrap font-mono text-[12.5px] text-indigo">
+            <span className="whitespace-nowrap font-mono text-[12.5px] text-indigo-600">
               ケーススタディを読む ↗
             </span>
           </div>
@@ -75,18 +75,18 @@ export default function Works() {
           <GlassCard key={c.no} span={3} className="flex flex-col">
             <div className="flex items-start justify-between">
               <CardLabel>case study — 業務内容は匿名化して掲載</CardLabel>
-              <span className="font-mono text-[12px] text-slate-soft">{c.no}</span>
+              <span className="font-mono text-[12px] text-slate-500">{c.no}</span>
             </div>
             <h3 className="m-0 mb-1 mt-1.5 font-display text-[19px] font-semibold">{c.title}</h3>
-            <p className="m-0 mb-3 font-mono text-[11.5px] text-slate-soft">{c.period}</p>
-            <p className="m-0 text-sm leading-[1.7] text-slate">{c.summary}</p>
-            <div className="mt-4 border-t border-dashed border-indigo-soft py-3">
-              <p className="m-0 mb-1 font-mono text-[11px] text-indigo">{"// role"}</p>
-              <p className="m-0 text-[13.5px] leading-[1.6] text-slate">{c.role}</p>
+            <p className="m-0 mb-3 font-mono text-[11.5px] text-slate-500">{c.period}</p>
+            <p className="m-0 text-sm leading-[1.7] text-slate-600">{c.summary}</p>
+            <div className="mt-4 border-t border-dashed border-indigo-600/15 py-3">
+              <p className="m-0 mb-1 font-mono text-[11px] text-indigo-600">{"// role"}</p>
+              <p className="m-0 text-[13.5px] leading-[1.6] text-slate-600">{c.role}</p>
             </div>
-            <div className="border-t border-dashed border-indigo-soft py-3">
-              <p className="m-0 mb-1 font-mono text-[11px] text-indigo">{"// point"}</p>
-              <p className="m-0 text-[13.5px] leading-[1.6] text-slate">{c.point}</p>
+            <div className="border-t border-dashed border-indigo-600/15 py-3">
+              <p className="m-0 mb-1 font-mono text-[11px] text-indigo-600">{"// point"}</p>
+              <p className="m-0 text-[13.5px] leading-[1.6] text-slate-600">{c.point}</p>
             </div>
             <div className="mt-auto flex flex-wrap gap-2 pt-3.5">
               {c.tags.map((t) => (
@@ -103,10 +103,10 @@ export default function Works() {
             {otherWorks.map((w) => (
               <div
                 key={w.name}
-                className="flex justify-between gap-4 border-t border-sky-700/15 py-3 text-[14px] text-slate"
+                className="flex justify-between gap-4 border-t border-sky-700/15 py-3 text-[14px] text-slate-600"
               >
                 <span>{w.name}</span>
-                <span className="font-mono text-[11.5px] text-slate-soft">{w.tech}</span>
+                <span className="font-mono text-[11.5px] text-slate-500">{w.tech}</span>
               </div>
             ))}
           </div>

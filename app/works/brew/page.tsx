@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 };
 
 function MonoHeading({ children }: { children: ReactNode }) {
-  return <p className="m-0 mb-3 font-mono text-[12px] text-indigo">{children}</p>;
+  return <p className="m-0 mb-3 font-mono text-[12px] text-indigo-600">{children}</p>;
 }
 
 function Body({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <p className="m-0 text-[15px] leading-[1.9] text-slate" style={style}>
+    <p className="m-0 text-[15px] leading-[1.9] text-slate-600" style={style}>
       {children}
     </p>
   );
@@ -23,8 +23,8 @@ function Body({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 function MediaPlaceholder({ label }: { label: string }) {
   return (
-    <div className="rounded-card border border-dashed border-indigo-soft bg-white/55 px-6 py-12 text-center">
-      <p className="m-0 font-mono text-[12px] text-indigo">[ GIF差し込み：{label} ]</p>
+    <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 px-6 py-12 text-center">
+      <p className="m-0 font-mono text-[12px] text-indigo-600">[ GIF差し込み：{label} ]</p>
     </div>
   );
 }
@@ -33,12 +33,12 @@ export default function BrewCaseStudy() {
   return (
     <div>
       <div className="pt-10">
-        <Link href="/works" className="font-mono text-[12.5px] text-indigo">
+        <Link href="/works" className="font-mono text-[12.5px] text-indigo-600">
           ← works に戻る
         </Link>
       </div>
 
-      <header className="border-b border-dashed border-indigo-soft py-10">
+      <header className="border-b border-dashed border-indigo-600/15 py-10">
         <div className="mb-[18px]">
           <EyebrowLabel>01 — 個人開発</EyebrowLabel>
         </div>
@@ -47,7 +47,7 @@ export default function BrewCaseStudy() {
           <br />
           湯を注ぐタイミングまで導くコーヒータイマー
         </h1>
-        <p className="m-0 mb-6 max-w-[680px] text-[15.5px] leading-[1.8] text-slate">
+        <p className="m-0 mb-6 max-w-[680px] text-[15.5px] leading-[1.8] text-slate-600">
           豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。
         </p>
         <div className="flex flex-wrap gap-2">
@@ -73,7 +73,7 @@ export default function BrewCaseStudy() {
 
         <section>
           <MonoHeading>{"// 要件定義"}</MonoHeading>
-          <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate">
+          <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate-600">
             <li>
               デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
             </li>
@@ -102,19 +102,19 @@ export default function BrewCaseStudy() {
         <section>
           <MonoHeading>{"// 技術選定"}</MonoHeading>
           <div className="flex flex-col">
-            <div className="border-t border-dashed border-indigo-soft py-3.5">
-              <p className="m-0 mb-1 text-[14px] font-semibold text-navy">
+            <div className="border-t border-dashed border-indigo-600/15 py-3.5">
+              <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
                 Web MVP — React + TypeScript + Vite
               </p>
-              <p className="m-0 text-sm leading-[1.7] text-slate">
+              <p className="m-0 text-sm leading-[1.7] text-slate-600">
                 型安全性を確保しつつ、開発中のビルド速度を優先。プロトタイプの検証速度を重視しVite採用。
               </p>
             </div>
-            <div className="border-y border-dashed border-indigo-soft py-3.5">
-              <p className="m-0 mb-1 text-[14px] font-semibold text-navy">
+            <div className="border-y border-dashed border-indigo-600/15 py-3.5">
+              <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
                 モバイル — React Native + Expo
               </p>
-              <p className="m-0 text-sm leading-[1.7] text-slate">
+              <p className="m-0 text-sm leading-[1.7] text-slate-600">
                 実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
               </p>
             </div>
@@ -137,7 +137,7 @@ export default function BrewCaseStudy() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="m-0 mb-2 text-[14px] font-semibold">実装済み</p>
-              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate">
+              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
                 <li>複数抽出メソッドのプリセット選択</li>
                 <li>人数・豆量に応じた湯量自動計算</li>
                 <li>ステップタイマーとアラーム通知</li>
@@ -146,7 +146,7 @@ export default function BrewCaseStudy() {
             </div>
             <div>
               <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
-              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate">
+              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
                 <li>ユーザーカスタムプリセット機能</li>
                 <li>Web版（React + Vite）のリリース</li>
                 <li>抽出ログの記録機能（次フェーズ候補）</li>

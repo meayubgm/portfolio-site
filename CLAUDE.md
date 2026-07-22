@@ -54,19 +54,19 @@ lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs
 
 ### デザイントークンは Tailwind テーマに統合されている
 
-`app/globals.css` の `@theme` ブロックに Frost & Blueprint のトークンを CSS 変数として定義し、
-Tailwind v4 が自動でユーティリティを生成する。**新しい色・フォント・角丸を足すときはここに追加する**。命名規則を守ればユーティリティ名が決まる:
+`app/globals.css` の `@theme` ブロックに Frost & Blueprint の **DS 固有トークン**（フォント・角丸・影）を
+CSS 変数として定義し、Tailwind v4 が自動でユーティリティを生成する。**新しいフォント・角丸・影を足すときはここに追加する**。命名規則を守ればユーティリティ名が決まる:
 
 | 変数 | 生成されるユーティリティ |
 | --- | --- |
-| `--color-navy` | `bg-navy` / `text-navy` / `border-navy` |
 | `--font-display` | `font-display` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
 
+- **色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せている**。custom な `--color-*` トークンは廃止し、マークアップは組み込みユーティリティを直接使う（`text-slate-900`＝旧 navy、`text-slate-600`＝旧 slate、`text-slate-500`＝旧 slate-soft、`text-sky-700`＝旧 glow-c、`text-indigo-600`＝旧 indigo、`border-indigo-600/15`＝旧 indigo-soft、`bg-slate-200`＝旧 ice-2）。**新しい色は原則パレットから選ぶ**。ピクセル完全一致より Tailwind パレット準拠を優先する方針（過去の色トークン群は近似シフトで移行済み）。
 - `tailwind.config.js` は存在しない（v4 の CSS ファースト設定）。設定はすべて `globals.css`。
 - 半端な実数値（`14.5px` 等）はプロトタイプ再現のため arbitrary value（`text-[14.5px]`）で表現している。既存の見た目を変えないこと。
-- 背景のブループリント格子（`--grid-cell` / `--color-indigo-grid`）はトークン化せず `body` に直接適用。
+- 背景のブループリント格子（`--grid-cell` + `body` 直接適用）と、格子・面の淡い indigo は `color-mix(in srgb, var(--color-indigo-600) 6%, transparent)` のように Tailwind パレット変数から生成する。
 
 ### Client / Server の切り分け
 

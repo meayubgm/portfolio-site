@@ -46,7 +46,7 @@ export function GlassCard({
         gridRow: `span ${rowSpan}`,
         ...style,
       }}
-      className={`group relative overflow-hidden bg-white/10 backdrop-blur-xs border border-sky-700/15 rounded-card transition-[border-color,transform,box-shadow] duration-350 ease-out hover:border-indigo hover:-translate-y-0.5 hover:shadow-card-hover ${
+      className={`group relative overflow-hidden bg-white/10 backdrop-blur-xs border border-sky-700/15 rounded-card transition-[border-color,transform,box-shadow] duration-350 ease-out hover:border-indigo-600 hover:-translate-y-0.5 hover:shadow-card-hover ${
         padding === "lg" ? "p-9" : "p-7"
       } ${href ? "cursor-pointer" : "cursor-default"} ${className}`}
     >
@@ -60,7 +60,7 @@ export function GlassCard({
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute top-3.5 right-4 text-indigo leading-none text-base font-display opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute top-3.5 right-4 text-indigo-600 leading-none text-base font-display opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       >
         +
       </span>
