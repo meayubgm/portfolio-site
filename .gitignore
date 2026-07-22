@@ -10,3 +10,13 @@ playwright-report
 blob-report
 playwright/.cache
 .playwright-mcp
+
+# design-sync（claude.ai/design 連携）
+# 生成物・ステージ済みスクリプト・キャッシュは追跡しない。
+# .design-sync/ 配下の入力（config.json / stubs / entry.ts / previews 等）は追跡する。
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/compiled-styles.css

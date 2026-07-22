@@ -1,0 +1,24 @@
+{
+  "projectId": "a3f0969e-d51c-40d2-8898-a174b9532461",
+  "shape": "package",
+  "pkg": "portfolio-site",
+  "globalName": "FrostBlueprint",
+  "entry": ".design-sync/entry.ts",
+  "tsconfig": ".design-sync/sync-tsconfig.json",
+  "cssEntry": ".design-sync/compiled-styles.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "Button": "components/Button.tsx",
+    "CardLabel": "components/CardLabel.tsx",
+    "EyebrowLabel": "components/EyebrowLabel.tsx",
+    "GlassCard": "components/GlassCard.tsx",
+    "LinkRow": "components/LinkRow.tsx",
+    "SiteNav": "components/SiteNav.tsx",
+    "SkillBar": "components/SkillBar.tsx",
+    "StatBlock": "components/StatBlock.tsx",
+    "Tag": "components/Tag.tsx"
+  },
+  "overrides": {
+    "SiteNav": { "cardMode": "single", "viewport": "1000x120" }
+  }
+}
