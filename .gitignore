@@ -20,3 +20,6 @@ ds-bundle/
 .design-sync/learnings/
 .design-sync/node_modules
 .design-sync/compiled-styles.css
+
+# ドキュメント（原稿など、ローカル検討用）
+docs/
