@@ -7,7 +7,7 @@ import { Tag } from "@/components/Tag";
 import { cases } from "@/lib/cases";
 
 export const metadata: Metadata = {
-  title: "実績一覧 — A.Y / frontend",
+  title: "実績一覧 — Megumi Ayuha",
 };
 
 const otherWorks = [

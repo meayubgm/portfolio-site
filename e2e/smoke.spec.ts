@@ -9,7 +9,7 @@ test("Home（/）が表示される", async ({ page }) => {
   const res = await page.goto("/");
   expect(res?.status()).toBe(200);
 
-  await expect(page).toHaveTitle("A.Y / frontend — ポートフォリオ");
+  await expect(page).toHaveTitle("Megumi Ayuha — ポートフォリオ");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("デザインと実装");
   // 主要 CTA
   await expect(page.getByRole("link", { name: "Work を見る" })).toBeVisible();

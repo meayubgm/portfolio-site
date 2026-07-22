@@ -6,7 +6,7 @@ import { LinkRow } from "@/components/LinkRow";
 import { Tag } from "@/components/Tag";
 
 export const metadata: Metadata = {
-  title: "BREW — コーヒー抽出タイマー | A.Y / frontend",
+  title: "BREW — コーヒー抽出タイマー | Megumi Ayuha",
 };
 
 function MonoHeading({ children }: { children: ReactNode }) {

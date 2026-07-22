@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "A.Y / frontend — ポートフォリオ",
+  title: "Megumi Ayuha — ポートフォリオ",
   description:
     "要件のヒアリングから、デザインと実装まで。フロントエンドエンジニア 阿由葉 萌のポートフォリオサイト。",
 };
@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* ambient glow */}
         <div
           aria-hidden
-          className="pointer-events-none fixed left-1/2 top-[-20%] z-0 h-175 w-275 -translate-x-1/2 blur-[10px]"
+          className="pointer-events-none fixed left-1/2 top-[-20%] z-0 h-175 w-275 -translate-x-1/2 blur-md"
           style={{
             background:
               "radial-gradient(ellipse at center, rgba(107,174,219,0.16) 0%, rgba(168,216,240,0.08) 35%, rgba(255,255,255,0) 70%)",

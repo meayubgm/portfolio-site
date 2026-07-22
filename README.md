@@ -1,6 +1,6 @@
 # portfolio-site
 
-**A.Y / frontend** のポートフォリオサイト。Claude Design で作成したプロトタイプ
+**Megumi Ayuha** のポートフォリオサイト。Claude Design で作成したプロトタイプ
 （Frost & Blueprint デザインシステム）を **Next.js (App Router) + Tailwind CSS v4** で実装したもの。全ページ静的生成（SSG）。
 
 ## 技術スタック

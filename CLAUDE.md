@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 概要
 
-フロントエンドエンジニア「A.Y / frontend（Ayuha Megumi）」の個人ポートフォリオサイト。
+フロントエンドエンジニア「Megumi Ayuha」の個人ポートフォリオサイト。
 Claude Design で作成したプロトタイプ（**Frost & Blueprint** デザインシステム）を、
 Next.js 16 (App Router) + Tailwind CSS v4 で実装したもの。全ページ静的生成（SSG）。
 
