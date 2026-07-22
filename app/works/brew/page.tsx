@@ -23,7 +23,7 @@ function Body({ children, style }: { children: ReactNode; style?: CSSProperties 
 
 function MediaPlaceholder({ label }: { label: string }) {
   return (
-    <div className="rounded-card border border-dashed border-indigo-soft bg-glass-55 px-6 py-12 text-center">
+    <div className="rounded-card border border-dashed border-indigo-soft bg-white/55 px-6 py-12 text-center">
       <p className="m-0 font-mono text-[12px] text-indigo">[ GIF差し込み：{label} ]</p>
     </div>
   );
@@ -102,19 +102,19 @@ export default function BrewCaseStudy() {
         <section>
           <MonoHeading>{"// 技術選定"}</MonoHeading>
           <div className="flex flex-col">
-            <div className="border-t border-dashed border-indigo-soft py-[14px]">
+            <div className="border-t border-dashed border-indigo-soft py-3.5">
               <p className="m-0 mb-1 text-[14px] font-semibold text-navy">
                 Web MVP — React + TypeScript + Vite
               </p>
-              <p className="m-0 text-[14px] leading-[1.7] text-slate">
+              <p className="m-0 text-sm leading-[1.7] text-slate">
                 型安全性を確保しつつ、開発中のビルド速度を優先。プロトタイプの検証速度を重視しVite採用。
               </p>
             </div>
-            <div className="border-y border-dashed border-indigo-soft py-[14px]">
+            <div className="border-y border-dashed border-indigo-soft py-3.5">
               <p className="m-0 mb-1 text-[14px] font-semibold text-navy">
                 モバイル — React Native + Expo
               </p>
-              <p className="m-0 text-[14px] leading-[1.7] text-slate">
+              <p className="m-0 text-sm leading-[1.7] text-slate">
                 実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
               </p>
             </div>
@@ -137,7 +137,7 @@ export default function BrewCaseStudy() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="m-0 mb-2 text-[14px] font-semibold">実装済み</p>
-              <ul className="m-0 list-disc pl-[1.3em] text-[14px] leading-[1.8] text-slate">
+              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate">
                 <li>複数抽出メソッドのプリセット選択</li>
                 <li>人数・豆量に応じた湯量自動計算</li>
                 <li>ステップタイマーとアラーム通知</li>
@@ -146,7 +146,7 @@ export default function BrewCaseStudy() {
             </div>
             <div>
               <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
-              <ul className="m-0 list-disc pl-[1.3em] text-[14px] leading-[1.8] text-slate">
+              <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate">
                 <li>ユーザーカスタムプリセット機能</li>
                 <li>Web版（React + Vite）のリリース</li>
                 <li>抽出ログの記録機能（次フェーズ候補）</li>

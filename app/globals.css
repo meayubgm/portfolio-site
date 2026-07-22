@@ -31,10 +31,6 @@
   /* blueprint indigo */
   --color-indigo: #4a4fe0;
 
-  /* frost glass borders */
-  --color-frost-border: rgba(58, 124, 165, 0.18);
-  --color-frost-border-strong: rgba(58, 124, 165, 0.32);
-
   /* white overlays for glass cards */
   --color-glass-55: rgba(255, 255, 255, 0.55);
   --color-glass-60: rgba(255, 255, 255, 0.6);

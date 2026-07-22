@@ -46,8 +46,8 @@ export function GlassCard({
         gridRow: `span ${rowSpan}`,
         ...style,
       }}
-      className={`group relative overflow-hidden bg-glass-55 border border-frost-border rounded-card backdrop-blur-[14px] transition-[border-color,transform,box-shadow] duration-[350ms] ease-out hover:border-indigo hover:-translate-y-0.5 hover:shadow-card-hover ${
-        padding === "lg" ? "p-[36px]" : "p-[28px]"
+      className={`group relative overflow-hidden bg-white/10 backdrop-blur-xs border border-sky-700/15 rounded-card transition-[border-color,transform,box-shadow] duration-350 ease-out hover:border-indigo hover:-translate-y-0.5 hover:shadow-card-hover ${
+        padding === "lg" ? "p-9" : "p-7"
       } ${href ? "cursor-pointer" : "cursor-default"} ${className}`}
     >
       <div

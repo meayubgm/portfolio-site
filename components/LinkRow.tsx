@@ -11,7 +11,7 @@ export function LinkRow({ children, href = "#", first = false }: LinkRowProps) {
     <a
       href={href}
       className={`flex items-center justify-between font-display text-[15px] text-navy transition-colors hover:text-glow-c ${
-        first ? "pt-0 mt-[18px] border-t-0" : "pt-[14px] mt-[14px] border-t border-frost-border"
+        first ? "pt-0 mt-4.5 border-t-0" : "pt-3.5 mt-3.5 border-t border-sky-700/15"
       }`}
     >
       {children} <span>↗</span>
