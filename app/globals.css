@@ -28,6 +28,17 @@
 
   /* shadows */
   --shadow-card-hover: 0 18px 40px -22px rgba(18, 33, 61, 0.25);
+
+  /* spacing: ページ下部セクション余白（旧 pb-22.5 = 90px 相当） */
+  --spacing-section: 5.625rem;
+
+  /* tracking: ページ見出し h1 共通の字間 */
+  --tracking-heading: -0.03em;
+}
+
+/* featured カード（BREW）のグラデーション面。Home / Works の2箇所で共用 */
+@utility bg-featured {
+  background-image: linear-gradient(160deg, rgba(107, 174, 219, 0.14), rgba(255, 255, 255, 0.55));
 }
 
 /* トークン化しない値（背景グリッド用） */

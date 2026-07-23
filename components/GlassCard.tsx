@@ -1,27 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 
 type GlassCardProps = {
     span?: number;
-    rowSpan?: number;
     padding?: "default" | "lg";
     children: ReactNode;
     className?: string;
-    style?: CSSProperties;
     /** 指定するとカード全体がこのパスへのリンクになる */
     href?: string;
 };
 
 export function GlassCard({
     span = 2,
-    rowSpan = 1,
     padding = "default",
     children,
     className = "",
-    style = {},
     href,
 }: GlassCardProps) {
     const router = useRouter();
@@ -41,11 +37,7 @@ export function GlassCard({
                 setMx(`${((e.clientX - r.left) / r.width) * 100}%`);
                 setMy(`${((e.clientY - r.top) / r.height) * 100}%`);
             }}
-            style={{
-                gridColumn: `span ${span}`,
-                gridRow: `span ${rowSpan}`,
-                ...style,
-            }}
+            style={{ gridColumn: `span ${span}` }}
             className={`group relative overflow-hidden bg-white/10 backdrop-blur-xs border border-sky-700/15 rounded-card transition-[border-color,transform,box-shadow] duration-350 ease-out hover:border-indigo-600 hover:-translate-y-0.5 hover:shadow-card-hover ${
                 padding === "lg" ? "p-9" : "p-7"
             } ${href ? "cursor-pointer" : "cursor-default"} ${className}`}

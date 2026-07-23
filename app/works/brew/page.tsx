@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
-import { EyebrowLabel } from "@/components/EyebrowLabel";
+import type { ReactNode } from "react";
 import { LinkRow } from "@/components/LinkRow";
+import { MonoHeading } from "@/components/MonoHeading";
+import { PageHeading } from "@/components/PageHeading";
 import { Tag } from "@/components/Tag";
+import { brewCase } from "@/lib/cases";
 
 export const metadata: Metadata = {
     title: "BREW — コーヒー抽出タイマー | Megumi Ayuha",
 };
 
-function MonoHeading({ children }: { children: ReactNode }) {
-    return <p className="m-0 mb-3 font-mono text-[12px] text-indigo-600">{children}</p>;
-}
-
-function Body({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
     return (
-        <p className="m-0 text-[15px] leading-[1.9] text-slate-600" style={style}>
-            {children}
-        </p>
+        <p className={`m-0 text-[15px] leading-[1.9] text-slate-600 ${className}`}>{children}</p>
     );
 }
 
@@ -39,31 +35,31 @@ export default function BrewCaseStudy() {
             </div>
 
             <header className="border-b border-dashed border-indigo-600/15 py-10">
-                <div className="mb-4.5">
-                    <EyebrowLabel>01 — 個人開発</EyebrowLabel>
-                </div>
-                <h1 className="m-0 mb-5 max-w-215 font-display text-[clamp(30px,4vw,44px)] font-medium leading-tight tracking-[-0.03em]">
-                    Coffee Brew Timer
-                    <br />
-                    抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
-                </h1>
-                <p className="m-0 mb-6 max-w-170 text-[15.5px] leading-[1.8] text-slate-600">
-                    豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。
-                </p>
+                <PageHeading
+                    size="detail"
+                    eyebrow={`${brewCase.no} — 個人開発`}
+                    title={
+                        <>
+                            {brewCase.titleEn}
+                            <br />
+                            {brewCase.titleJa}
+                        </>
+                    }
+                    lead={brewCase.summary}
+                />
                 <div className="flex flex-wrap gap-2">
-                    <Tag>React Native</Tag>
-                    <Tag>Expo</Tag>
-                    <Tag>TypeScript</Tag>
-                    <Tag>React + Vite（Web版）</Tag>
+                    {brewCase.tags.map((t) => (
+                        <Tag key={t}>{t}</Tag>
+                    ))}
                 </div>
             </header>
 
-            <div className="flex max-w-190 flex-col gap-12 pb-22.5 pt-12">
+            <div className="flex max-w-190 flex-col gap-12 pb-section pt-12">
                 <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
 
                 <section>
                     <MonoHeading>{"// 開発背景・課題設定"}</MonoHeading>
-                    <Body style={{ marginBottom: "16px" }}>
+                    <Body className="mb-4">
                         自分自身がスペシャルティコーヒーの抽出に関心があり、日常的に4:6メソッドや浸漬式ドリッパーなど複数の淹れ方を使い分けている中で、既存のコーヒータイマーアプリの多くが「単一の抽出法にしか対応していない」「湯量を自分で電卓を叩いて計算する必要がある」という不便さを感じたことが開発のきっかけです。
                     </Body>
                     <Body>
@@ -92,10 +88,10 @@ export default function BrewCaseStudy() {
 
                 <section>
                     <MonoHeading>{"// デザイン"}</MonoHeading>
-                    <Body style={{ marginBottom: "16px" }}>
+                    <Body className="mb-4">
                         ダークブラウン×アンバーを基調にした配色を設計しました。理由は2点：コーヒーの世界観との親和性（焙煎豆・ドリップの色味を想起させる配色）と、実利用シーンへの配慮です。抽出中は手が濡れている・キッチンが薄暗いことが多いため、暗い背景に高コントラストな数字表示で視認性を優先しました。
                     </Body>
-                    <Body style={{ marginBottom: "24px" }}>
+                    <Body className="mb-6">
                         HTML/CSSでインタラクティブなプロトタイプを先に作成し、タイマーの挙動・画面遷移をデザイン段階で検証してから実装に着手しました。
                     </Body>
                     <MediaPlaceholder label="ダークブラウン×アンバーのUI全体キャプチャ" />
@@ -121,14 +117,14 @@ export default function BrewCaseStudy() {
                             </p>
                         </div>
                     </div>
-                    <Body style={{ marginTop: "16px" }}>
+                    <Body className="mt-4">
                         Web版とモバイル版でロジック（湯量計算・タイマー制御）を共通化できる設計を意識し、UIレイヤーのみをプラットフォームごとに分離する構成にしています。
                     </Body>
                 </section>
 
                 <section>
                     <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
-                    <Body style={{ marginBottom: "24px" }}>
+                    <Body className="mb-6">
                         Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
                     </Body>
                     <MediaPlaceholder label="実機でタイマーが動作している様子" />
@@ -155,7 +151,7 @@ export default function BrewCaseStudy() {
                             </ul>
                         </div>
                     </div>
-                    <Body style={{ marginTop: "16px" }}>
+                    <Body className="mt-4">
                         コア体験である「抽出ガイド」機能の安定動作を優先し、カスタマイズ機能は意図的に後回しにしています。
                     </Body>
                 </section>

@@ -1,22 +1,24 @@
 import { Button } from "@/components/Button";
+import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
-import { EyebrowLabel } from "@/components/EyebrowLabel";
 import { GlassCard } from "@/components/GlassCard";
 import { LinkRow } from "@/components/LinkRow";
+import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
 import { Tag } from "@/components/Tag";
+import { brewCase } from "@/lib/cases";
+import { skillGroups } from "@/lib/skills";
 
 export default function Home() {
     return (
         <div>
             <header className="pt-35 pb-20 h-screen flex flex-col justify-between">
                 <div>
-                    <div className="pb-5.5">
-                        <EyebrowLabel>design × development</EyebrowLabel>
-                    </div>
-                    <h1 className="m-0 font-display text-[clamp(38px,5.4vw,60px)] font-medium leading-[1.14] tracking-[-0.03em]">
-                        意図を汲みとって、かたちにする
-                    </h1>
+                    <PageHeading
+                        size="hero"
+                        eyebrow="design × development"
+                        title="意図を汲みとって、かたちにする"
+                    />
                 </div>
                 <div>
                     <p className="m-0 pb-4.5 font-mono text-[15px] text-slate-500">
@@ -36,7 +38,7 @@ export default function Home() {
                 </div>
             </header>
 
-            <section className="grid grid-cols-6 gap-4 pb-22.5">
+            <CardGrid>
                 <GlassCard span={4} padding="lg">
                     <CardLabel>about</CardLabel>
                     <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-slate-900">
@@ -55,54 +57,38 @@ export default function Home() {
                     </p>
                 </GlassCard>
 
-                <GlassCard
-                    span={2}
-                    href="/works/brew"
-                    className="bg-[linear-gradient(160deg,rgba(107,174,219,0.14),rgba(255,255,255,0.55))]"
-                >
+                <GlassCard span={2} href="/works/brew" className="bg-featured">
                     <CardLabel>featured work — 個人開発</CardLabel>
                     <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
-                        コーヒー抽出タイマー
-                        <br />
-                        アプリ「BREW」
+                        コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
                     </h3>
                     <p className="m-0 text-sm leading-[1.7] text-slate-600">
                         企画・要件定義・UIデザイン・実装まで一人で担当。ケーススタディを見る ↗
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                        <Tag>React Native</Tag>
-                        <Tag>Expo</Tag>
-                        <Tag>TypeScript</Tag>
+                        {/* Home はモバイル版スタックのみ表示（Web 版タグは省略） */}
+                        {brewCase.tags.slice(0, 3).map((t) => (
+                            <Tag key={t}>{t}</Tag>
+                        ))}
                     </div>
                 </GlassCard>
 
-                <GlassCard span={2}>
-                    <CardLabel>development</CardLabel>
-                    <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
-                        Development
-                    </h3>
-                    <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
-                        実務での使用経験ベースで記載
-                    </p>
-                    <div className="flex flex-col gap-2.5">
-                        <SkillBar name="React / Next.js — 2023年〜" percent={88} />
-                        <SkillBar name="TypeScript" percent={82} />
-                        <SkillBar name="Laravel / PHP" percent={70} />
-                    </div>
-                </GlassCard>
-
-                <GlassCard span={2}>
-                    <CardLabel>design</CardLabel>
-                    <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Design</h3>
-                    <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
-                        デザインカンプ・アイコン制作で実務使用
-                    </p>
-                    <div className="flex flex-col gap-2.5">
-                        <SkillBar name="Figma" percent={85} />
-                        <SkillBar name="Adobe XD" percent={80} />
-                        <SkillBar name="Illustrator" percent={72} />
-                    </div>
-                </GlassCard>
+                {skillGroups.map((g) => (
+                    <GlassCard key={g.label} span={2}>
+                        <CardLabel>{g.label}</CardLabel>
+                        <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
+                            {g.heading}
+                        </h3>
+                        <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
+                            {g.note}
+                        </p>
+                        <div className="flex flex-col gap-2.5">
+                            {g.items.map((s) => (
+                                <SkillBar key={s.name} name={s.name} percent={s.percent} />
+                            ))}
+                        </div>
+                    </GlassCard>
+                ))}
 
                 <GlassCard span={2} className="flex flex-col justify-between">
                     <div>
@@ -119,7 +105,7 @@ export default function Home() {
                         <LinkRow>GitHub</LinkRow>
                     </div>
                 </GlassCard>
-            </section>
+            </CardGrid>
         </div>
     );
 }

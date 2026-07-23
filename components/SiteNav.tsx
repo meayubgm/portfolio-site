@@ -11,10 +11,7 @@ export function SiteNav() {
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 flex w-full items-center justify-between px-8 py-4 backdrop-blur-xs shadow-xs">
-            <Link
-                href="/"
-                className="font-display text-[18px] font-semibold tracking-[-0.02em] text-slate-900"
-            >
+            <Link href="/">
                 <Image src={icon} alt="icon" width="40" height="40" />
             </Link>
             <div className="flex gap-9 font-mono text-[14px]">

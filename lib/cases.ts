@@ -1,3 +1,28 @@
+/** featured（01）— BREW。Home / Works 一覧 / ケーススタディの3ページから参照する単一ソース */
+export const brewCase = {
+    no: "01",
+    titleEn: "Coffee Brew Timer",
+    titleJa: "抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー",
+    summary:
+        "豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。",
+    /** 先頭3つがモバイル版スタック。Home のカードでは Web 版タグを省略して表示する */
+    tags: ["React Native", "Expo", "TypeScript", "React + Vite（Web版）"],
+};
+
+export type OtherWork = {
+    name: string;
+    tech: string;
+};
+
+export const otherWorks: OtherWork[] = [
+    { name: "運送会社ホームページ制作（2ページ制作）", tech: "WordPress" },
+    { name: "社内向けワークフローシステム モック作成", tech: "HTML / CSS" },
+    {
+        name: "求職者支援訓練 Webデザイナー・ディレクター・マーケティング養成科（学習内容）",
+        tech: "training",
+    },
+];
+
 export type CaseStudy = {
     no: string;
     title: string;

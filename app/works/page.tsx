@@ -1,57 +1,41 @@
 import type { Metadata } from "next";
+import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
-import { EyebrowLabel } from "@/components/EyebrowLabel";
 import { GlassCard } from "@/components/GlassCard";
+import { LabeledField } from "@/components/LabeledField";
+import { PageHeading } from "@/components/PageHeading";
 import { StatBlock } from "@/components/StatBlock";
 import { Tag } from "@/components/Tag";
-import { cases } from "@/lib/cases";
+import { brewCase, cases, otherWorks } from "@/lib/cases";
 
 export const metadata: Metadata = {
     title: "実績一覧 — Megumi Ayuha",
 };
 
-const otherWorks = [
-    { name: "運送会社ホームページ制作（2ページ制作）", tech: "WordPress" },
-    { name: "社内向けワークフローシステム モック作成", tech: "HTML / CSS" },
-    {
-        name: "求職者支援訓練 Webデザイナー・ディレクター・マーケティング養成科（学習内容）",
-        tech: "training",
-    },
-];
-
 export default function Works() {
     return (
         <div>
             <header className="pt-24 pb-12">
-                <div className="mb-4.5">
-                    <EyebrowLabel>works — 見せられる情報の質が高い順</EyebrowLabel>
-                </div>
-                <h1 className="m-0 mb-4.5 font-display text-[clamp(34px,4.5vw,52px)] font-medium leading-[1.15] tracking-[-0.03em]">
-                    実績一覧
-                </h1>
-                <p className="m-0 max-w-155 text-[15.5px] leading-[1.8] text-slate-600">
-                    受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。
-                </p>
+                <PageHeading
+                    size="list"
+                    eyebrow="works — 見せられる情報の質が高い順"
+                    title="実績一覧"
+                    lead="受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。"
+                />
             </header>
 
-            <section className="grid grid-cols-6 gap-4 pb-22.5">
+            <CardGrid>
                 {/* 01 BREW — featured */}
-                <GlassCard
-                    span={6}
-                    padding="lg"
-                    href="/works/brew"
-                    className="bg-[linear-gradient(160deg,rgba(107,174,219,0.14),rgba(255,255,255,0.55))]"
-                >
+                <GlassCard span={6} padding="lg" href="/works/brew" className="bg-featured">
                     <div className="flex items-start justify-between">
                         <CardLabel>個人開発 — code / design 全プロセス公開</CardLabel>
-                        <span className="font-mono text-[12px] text-slate-500">01</span>
+                        <span className="font-mono text-[12px] text-slate-500">{brewCase.no}</span>
                     </div>
                     <h3 className="m-0 mb-2.5 mt-1.5 font-display text-[24px] font-semibold">
-                        Coffee Brew Timer —
-                        抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
+                        {`${brewCase.titleEn} — ${brewCase.titleJa}`}
                     </h3>
                     <p className="m-0 max-w-190 text-[14.5px] leading-[1.75] text-slate-600">
-                        豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。
+                        {brewCase.summary}
                     </p>
                     <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-600/15 py-3.5">
                         <StatBlock number="企画〜実装" label="担当範囲（全工程）" />
@@ -60,10 +44,9 @@ export default function Works() {
                     </div>
                     <div className="mt-3.5 flex items-center justify-between">
                         <div className="flex flex-wrap gap-2">
-                            <Tag>React Native</Tag>
-                            <Tag>Expo</Tag>
-                            <Tag>TypeScript</Tag>
-                            <Tag>React + Vite（Web版）</Tag>
+                            {brewCase.tags.map((t) => (
+                                <Tag key={t}>{t}</Tag>
+                            ))}
                         </div>
                         <span className="whitespace-nowrap font-mono text-[12.5px] text-indigo-600">
                             ケーススタディを読む ↗
@@ -85,22 +68,10 @@ export default function Works() {
                             {c.period}
                         </p>
                         <p className="m-0 text-sm leading-[1.7] text-slate-600">{c.summary}</p>
-                        <div className="mt-4 border-t border-dashed border-indigo-600/15 py-3">
-                            <p className="m-0 mb-1 font-mono text-[11px] text-indigo-600">
-                                {"// role"}
-                            </p>
-                            <p className="m-0 text-[13.5px] leading-[1.6] text-slate-600">
-                                {c.role}
-                            </p>
-                        </div>
-                        <div className="border-t border-dashed border-indigo-600/15 py-3">
-                            <p className="m-0 mb-1 font-mono text-[11px] text-indigo-600">
-                                {"// point"}
-                            </p>
-                            <p className="m-0 text-[13.5px] leading-[1.6] text-slate-600">
-                                {c.point}
-                            </p>
-                        </div>
+                        <LabeledField label="// role" className="mt-4">
+                            {c.role}
+                        </LabeledField>
+                        <LabeledField label="// point">{c.point}</LabeledField>
                         <div className="mt-auto flex flex-wrap gap-2 pt-3.5">
                             {c.tags.map((t) => (
                                 <Tag key={t}>{t}</Tag>
@@ -126,7 +97,7 @@ export default function Works() {
                         ))}
                     </div>
                 </GlassCard>
-            </section>
+            </CardGrid>
         </div>
     );
 }
