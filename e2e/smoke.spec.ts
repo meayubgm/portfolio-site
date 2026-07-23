@@ -10,16 +10,18 @@ test("Home（/）が表示される", async ({ page }) => {
   expect(res?.status()).toBe(200);
 
   await expect(page).toHaveTitle("Megumi Ayuha — ポートフォリオ");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("デザインと実装");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "意図を汲みとって、かたちにする",
+  );
   // 主要 CTA
-  await expect(page.getByRole("link", { name: "Work を見る" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Works を見る" })).toBeVisible();
 });
 
 test("Works 一覧（/works）が表示される", async ({ page }) => {
   const res = await page.goto("/works");
   expect(res?.status()).toBe(200);
 
-  await expect(page).toHaveTitle("実績一覧 — A.Y / frontend");
+  await expect(page).toHaveTitle("実績一覧 — Megumi Ayuha");
   await expect(page.getByRole("heading", { level: 1, name: "実績一覧" })).toBeVisible();
 });
 
@@ -27,6 +29,6 @@ test("BREW ケーススタディ（/works/brew）が表示される", async ({ p
   const res = await page.goto("/works/brew");
   expect(res?.status()).toBe(200);
 
-  await expect(page).toHaveTitle("BREW — コーヒー抽出タイマー | A.Y / frontend");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("BREW（仮）");
+  await expect(page).toHaveTitle("BREW — コーヒー抽出タイマー | Megumi Ayuha");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Coffee Brew Timer");
 });

@@ -6,39 +6,32 @@ import { LinkRow } from "@/components/LinkRow";
 import { SkillBar } from "@/components/SkillBar";
 import { Tag } from "@/components/Tag";
 
-const SHOW_AVAILABILITY = true;
-
 export default function Home() {
   return (
     <div>
-      <header className="pt-22 pb-16">
-        {SHOW_AVAILABILITY && (
-          <div className="mb-5.5">
-            <EyebrowLabel>available for new roles</EyebrowLabel>
+      <header className="pt-35 pb-20 h-screen flex flex-col justify-between">
+        <div>
+          <div className="pb-5.5">
+            <EyebrowLabel>design × development</EyebrowLabel>
           </div>
-        )}
-        <h1 className="m-0 mb-6 font-display text-[clamp(38px,5.4vw,60px)] font-semibold leading-[1.14] tracking-[-0.03em]">
-          要件のヒアリングから、
-          <span className="relative">
-            デザインと実装
-            <span className="absolute right-0 -top-5.5 whitespace-nowrap font-mono text-[10.5px] text-indigo-600">
-              {"// design × code"}
-            </span>
-          </span>
-          まで。
-        </h1>
-        <p className="m-0 mb-4.5 font-mono text-[15px] text-slate-500">
-          フロントエンドエンジニア／阿由葉 萌
-        </p>
-        <p className="m-0 mb-10 max-w-155 text-[16.5px] leading-[1.8] text-slate-600">
-          React・Next.js・TypeScriptを中心に、受託開発でフロントエンド実装を担当。要件のヒアリングからUIデザイン、実装、テストまで一貫して対応できることが強みです。デザインカンプ作成やアイコン制作もAdobe
-          XD・Figma・Illustratorで自ら手がけ、「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」の両方ができる立場で開発に関わっています。
-        </p>
-        <div className="flex gap-3.5">
-          <Button variant="primary" href="/works">
-            Work を見る
-          </Button>
-          <Button variant="ghost">連絡する</Button>
+          <h1 className="m-0 font-display text-[clamp(38px,5.4vw,60px)] font-medium leading-[1.14] tracking-[-0.03em]">
+            意図を汲みとって、かたちにする
+          </h1>
+        </div>
+        <div>
+          <p className="m-0 pb-4.5 font-mono text-[15px] text-slate-500">
+            Megumi Ayuha / Web Design × Frontend Development — Portfolio
+          </p>
+          <p className="m-0 pb-20 max-w-155 text-[16.5px] leading-[1.8] text-slate-600">
+            ご覧いただきありがとうございます。<br/>
+            デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。
+          </p>
+          <div className="flex gap-3.5">
+            <Button variant="primary" href="/works">
+              Works を見る
+            </Button>
+            <Button variant="ghost">連絡する</Button>
+          </div>
         </div>
       </header>
 
@@ -46,11 +39,12 @@ export default function Home() {
         <GlassCard span={4} padding="lg">
           <CardLabel>about</CardLabel>
           <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-slate-900">
-            「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」、
-            <b className="font-semibold text-sky-700">その両方の立場で会話できる</b>のが強みです。
+            「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」<br/>
+            <b className="font-semibold text-sky-700">その両方の立場で会話できる</b>のが強みです
           </p>
           <p className="m-0 mt-5.5 text-[14.5px] leading-[1.7] text-slate-600">
-            受託開発で企画〜デザイン〜実装を一貫して担当。仕組み化と丁寧な言語化を大事にしながら、着実にプロダクトの質を積み上げます。
+            Webアプリケーションの受託開発で React / Next.js / TypeScript を中心に、主にフロントエンド開発を3年以上担当してきました。追加機能の 要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた デザインカンプ / アイコン制作 も担当しています。<br/>
+            丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。
           </p>
         </GlassCard>
 
@@ -76,8 +70,8 @@ export default function Home() {
         </GlassCard>
 
         <GlassCard span={2}>
-          <CardLabel>engineering</CardLabel>
-          <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Engineering</h3>
+          <CardLabel>development</CardLabel>
+          <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">Development</h3>
           <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
             実務での使用経験ベースで記載
           </p>

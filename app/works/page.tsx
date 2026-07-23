@@ -22,11 +22,11 @@ const otherWorks = [
 export default function Works() {
   return (
     <div>
-      <header className="pt-18 pb-12">
+      <header className="pt-24 pb-12">
         <div className="mb-4.5">
           <EyebrowLabel>works — 見せられる情報の質が高い順</EyebrowLabel>
         </div>
-        <h1 className="m-0 mb-4.5 font-display text-[clamp(34px,4.5vw,52px)] font-semibold leading-[1.15] tracking-[-0.03em]">
+        <h1 className="m-0 mb-4.5 font-display text-[clamp(34px,4.5vw,52px)] font-medium leading-[1.15] tracking-[-0.03em]">
           実績一覧
         </h1>
         <p className="m-0 max-w-155 text-[15.5px] leading-[1.8] text-slate-600">
@@ -47,7 +47,7 @@ export default function Works() {
             <span className="font-mono text-[12px] text-slate-500">01</span>
           </div>
           <h3 className="m-0 mb-2.5 mt-1.5 font-display text-[24px] font-semibold">
-            BREW（仮） — 抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
+            Coffee Brew Timer — 抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
           </h3>
           <p className="m-0 max-w-190 text-[14.5px] leading-[1.75] text-slate-600">
             豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。

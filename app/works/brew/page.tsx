@@ -32,22 +32,21 @@ function MediaPlaceholder({ label }: { label: string }) {
 export default function BrewCaseStudy() {
   return (
     <div>
-      <div className="pt-10">
+      <div className="pt-24">
         <Link href="/works" className="font-mono text-[12.5px] text-indigo-600">
           ← works に戻る
         </Link>
       </div>
 
       <header className="border-b border-dashed border-indigo-600/15 py-10">
-        <div className="mb-[18px]">
+        <div className="mb-4.5">
           <EyebrowLabel>01 — 個人開発</EyebrowLabel>
         </div>
-        <h1 className="m-0 mb-5 max-w-[860px] font-display text-[clamp(30px,4vw,44px)] font-semibold leading-[1.25] tracking-[-0.03em]">
-          BREW（仮） — 抽出メソッドに合わせて
-          <br />
-          湯を注ぐタイミングまで導くコーヒータイマー
+        <h1 className="m-0 mb-5 max-w-215 font-display text-[clamp(30px,4vw,44px)] font-medium leading-tight tracking-[-0.03em]">
+          Coffee Brew Timer<br />
+          抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒータイマー
         </h1>
-        <p className="m-0 mb-6 max-w-[680px] text-[15.5px] leading-[1.8] text-slate-600">
+        <p className="m-0 mb-6 max-w-170 text-[15.5px] leading-[1.8] text-slate-600">
           豆の量や人数を入力するだけで最適な湯量を自動計算し、4:6メソッド・浸漬式ドリッパーなど複数の抽出法にステップごとのアラームで対応するモバイルアプリ。企画・要件定義・UIデザイン・実装まで一人で担当。
         </p>
         <div className="flex flex-wrap gap-2">
@@ -58,7 +57,7 @@ export default function BrewCaseStudy() {
         </div>
       </header>
 
-      <div className="flex max-w-[760px] flex-col gap-12 pb-[90px] pt-12">
+      <div className="flex max-w-190 flex-col gap-12 pb-22.5 pt-12">
         <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
 
         <section>

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
         <SiteNav />
-        <div className="relative z-2 mx-auto max-w-[1800px] px-8 pt-22.5 pb-15">{children}</div>
+        <div className="relative z-2 mx-auto max-w-[1800px] px-8 pb-15">{children}</div>
       </body>
     </html>
   );
