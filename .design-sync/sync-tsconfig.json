@@ -1,9 +1,9 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "next/link": ["stubs/next-link.ts"],
-      "next/navigation": ["stubs/next-navigation.ts"]
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "next/link": ["stubs/next-link.ts"],
+            "next/navigation": ["stubs/next-navigation.ts"]
+        }
     }
-  }
 }

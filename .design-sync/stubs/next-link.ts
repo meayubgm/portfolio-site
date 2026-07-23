@@ -4,11 +4,11 @@
 import * as React from "react";
 
 type LinkProps = {
-  href?: string;
-  children?: React.ReactNode;
-  [key: string]: unknown;
+    href?: string;
+    children?: React.ReactNode;
+    [key: string]: unknown;
 };
 
 export default function Link({ href, children, ...rest }: LinkProps) {
-  return React.createElement("a", { href, ...rest }, children as React.ReactNode);
+    return React.createElement("a", { href, ...rest }, children as React.ReactNode);
 }

@@ -5,15 +5,15 @@ import nextPlugin from "@next/eslint-plugin-next";
 import tsParser from "@typescript-eslint/parser";
 
 export default [
-  { ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"] },
-  {
-    // TSX/JSX をパースするための parser 設定（型情報は不要な軽量構成）。
-    files: ["**/*.{ts,tsx,js,jsx,mjs}"],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
+    { ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"] },
+    {
+        // TSX/JSX をパースするための parser 設定（型情報は不要な軽量構成）。
+        files: ["**/*.{ts,tsx,js,jsx,mjs}"],
+        languageOptions: {
+            parser: tsParser,
+            parserOptions: { ecmaFeatures: { jsx: true } },
+        },
     },
-  },
-  // @next/eslint-plugin-next の Flat Config（plugins + core-web-vitals ルール）。
-  nextPlugin.configs["core-web-vitals"],
+    // @next/eslint-plugin-next の Flat Config（plugins + core-web-vitals ルール）。
+    nextPlugin.configs["core-web-vitals"],
 ];
