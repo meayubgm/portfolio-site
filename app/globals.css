@@ -32,7 +32,7 @@
 
 /* トークン化しない値（背景グリッド用） */
 :root {
-  --grid-cell: 48px;
+  --grid-cell: 24px;
 }
 
 @layer base {
