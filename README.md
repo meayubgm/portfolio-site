@@ -81,16 +81,21 @@ portfolio-site/
 │       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
 ├── components/             # Frost & Blueprint の DS コンポーネント
 │   ├── Button.tsx
+│   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
 │   ├── CardLabel.tsx
 │   ├── EyebrowLabel.tsx
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
+│   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
 │   ├── LinkRow.tsx
+│   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
+│   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文
 │   ├── SiteNav.tsx         # "use client"（usePathname で active 判定）
 │   ├── SkillBar.tsx
 │   ├── StatBlock.tsx
 │   └── Tag.tsx
 ├── lib/
-│   └── cases.ts            # 匿名化ケーススタディのデータ
+│   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
+│   └── skills.ts           # Home のスキルカード（Development / Design）データ
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）
@@ -106,7 +111,7 @@ portfolio-site/
 
 ## デザイントークンの扱い
 
-DS 固有トークン（フォント・角丸・影）を CSS 変数として Tailwind テーマに統合しています
+DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 変数として Tailwind テーマに統合しています
 （`app/globals.css` の `@theme`）。命名規則は Tailwind v4 の慣習どおり:
 
 | 変数 | 生成されるユーティリティ |
@@ -114,6 +119,10 @@ DS 固有トークン（フォント・角丸・影）を CSS 変数として Ta
 | `--font-display` | `font-display` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
+| `--spacing-section` | `pb-section` 等（セクション下余白） |
+| `--tracking-heading` | `tracking-heading`（h1 共通字間） |
+
+featured カード（BREW）のグラデーション面は `@utility bg-featured` として定義しています。
 
 色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せており、custom な `--color-*`
 トークンは持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。

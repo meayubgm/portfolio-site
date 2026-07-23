@@ -2,6 +2,7 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
+            "next/image": ["stubs/next-image.ts"],
             "next/link": ["stubs/next-link.ts"],
             "next/navigation": ["stubs/next-navigation.ts"]
         }

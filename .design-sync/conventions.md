@@ -7,9 +7,10 @@
 ## セットアップ / ラッパー
 
 - **プロバイダは不要**。各コンポーネントは自己完結で、そのままレンダーできる。
-- 元は Next.js アプリだが、`next/link`・`next/navigation` はビルド時にスタブへ
-  差し替え済み。`GlassCard`（`href`）と `Button`（`href`）と `LinkRow` は
-  **素の `<a>` として描画**される。ルーティング前提のコードは書かなくてよい。
+- 元は Next.js アプリだが、`next/link`・`next/navigation`・`next/image` はビルド時に
+  スタブへ差し替え済み。`GlassCard`（`href`）と `Button`（`href`）と `LinkRow` は
+  **素の `<a>` として描画**され、`SiteNav` のロゴは**素の `<img>`** になる。
+  ルーティング前提のコードは書かなくてよい。
 - 見た目は `styles.css`（Tailwind をコンパイルした静的 CSS）が供給する。フォント
   （Space Grotesk / Inter / JetBrains Mono / IBM Plex Sans JP）は remote @import で
   ランタイム読込。追加設定は不要。
@@ -49,6 +50,12 @@
 `CardLabel`（indigo モノ大文字ラベル）, `EyebrowLabel`（ドット＋モノの見出し前ラベル）,
 `Tag`（sky のピル）, `SkillBar`（勾配プログレス）, `StatBlock`（数値＋ラベル）,
 `LinkRow`（↗ 付きリンク行）, `SiteNav`（全幅ナビ）。
+
+レイアウト系（ページ骨格を組むときはまずこれを使う）:
+`PageHeading`（eyebrow＋h1＋リード文。`size: "hero" | "list" | "detail"`）,
+`CardGrid`（`GlassCard` を並べる 6 カラムグリッド。`span` 合計 6 で 1 行）,
+`LabeledField`（破線区切り＋`// role` 型 mono ラベル＋本文）,
+`MonoHeading`（mono / indigo のセクション見出し。例: `{"// 技術選定"}`）。
 
 ## 代表的な組み立て例
 

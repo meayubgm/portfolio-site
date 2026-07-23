@@ -1,5 +1,9 @@
 # design-sync NOTES（portfolio-site → Frost & Blueprint Design System）
 
+> 2026-07-23 再同期: リファクタリングで追加された 4 コンポーネント
+> （PageHeading / CardGrid / LabeledField / MonoHeading）を追加し **13 コンポーネント構成**に。
+> 全 13 を再検証・再アップロード（styleSha 変更のため全件 changed 扱い）。削除 0。
+
 このリポジトリは**コンポーネントライブラリではなく Next.js アプリ**なので、変換器の
 happy path（dist + .d.ts）から外れる。以下の仕掛けで同期している。
 
@@ -8,10 +12,13 @@ happy path（dist + .d.ts）から外れる。以下の仕掛けで同期して�
 - **synth-entry**: dist が無いので `.design-sync/entry.ts` が 9 コンポーネントを再 export し、
   `--entry .design-sync/entry.ts` で渡す。これが PKG_DIR をリポジトリルートに解決させる
   役目も兼ねる（`package.json` の name を walk-up で発見）。
-- **Next 依存の stub**: `GlassCard`（useRouter）・`SiteNav`（usePathname + next/link）・
-  `Button`（href 時 next/link）はデザインペインで throw する。`.design-sync/sync-tsconfig.json`
-  の `paths` で `next/link`・`next/navigation` を `.design-sync/stubs/*` へ差し替え
+- **Next 依存の stub**: `GlassCard`（useRouter）・`SiteNav`（usePathname + next/link +
+  next/image）・`Button`（href 時 next/link）はデザインペインで throw する。
+  `.design-sync/sync-tsconfig.json` の `paths` で `next/link`・`next/navigation`・
+  `next/image` を `.design-sync/stubs/*` へ差し替え
   （esbuild は cfg.tsconfig の paths を専用プラグインで解決する）。
+  **next/image を stub しないとバンドル全体が `process is not defined` で全滅する**
+  （本物の next/image が process.env.NEXT_* を参照するため）。2026-07-23 に遭遇・解決。
 - **Tailwind の静的コンパイル**: デザインペインに Tailwind ランタイムは無いので、
   `.design-sync/compile-css.mjs` が `app/globals.css` を `@tailwindcss/postcss` で
   コンパイルし `.design-sync/compiled-styles.css` を生成、`cfg.cssEntry` に指定。

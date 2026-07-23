@@ -54,14 +54,18 @@ lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs
 
 ### デザイントークンは Tailwind テーマに統合されている
 
-`app/globals.css` の `@theme` ブロックに Frost & Blueprint の **DS 固有トークン**（フォント・角丸・影）を
-CSS 変数として定義し、Tailwind v4 が自動でユーティリティを生成する。**新しいフォント・角丸・影を足すときはここに追加する**。命名規則を守ればユーティリティ名が決まる:
+`app/globals.css` の `@theme` ブロックに Frost & Blueprint の **DS 固有トークン**（フォント・角丸・影・余白・字間）を
+CSS 変数として定義し、Tailwind v4 が自動でユーティリティを生成する。**新しいフォント・角丸・影・余白・字間を足すときはここに追加する**。命名規則を守ればユーティリティ名が決まる:
 
 | 変数 | 生成されるユーティリティ |
 | --- | --- |
 | `--font-display` | `font-display` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
+| `--spacing-section` | `pb-section` 等（セクション下余白） |
+| `--tracking-heading` | `tracking-heading`（h1 共通字間） |
+
+featured カード（BREW）のグラデーション面は `@theme` ではなく `@utility bg-featured` として定義している。
 
 - **色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せている**。custom な `--color-*` トークンは廃止し、マークアップは組み込みユーティリティを直接使う（`text-slate-900`＝旧 navy、`text-slate-600`＝旧 slate、`text-slate-500`＝旧 slate-soft、`text-sky-700`＝旧 glow-c、`text-indigo-600`＝旧 indigo、`border-indigo-600/15`＝旧 indigo-soft、`bg-slate-200`＝旧 ice-2）。**新しい色は原則パレットから選ぶ**。ピクセル完全一致より Tailwind パレット準拠を優先する方針（過去の色トークン群は近似シフトで移行済み）。
 - `tailwind.config.js` は存在しない（v4 の CSS ファースト設定）。設定はすべて `globals.css`。
@@ -77,8 +81,9 @@ CSS 変数として定義し、Tailwind v4 が自動でユーティリティを�
 ### ディレクトリ
 
 - `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`。
-- `components/` — Frost & Blueprint の DS コンポーネント8種 + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植したもので、見た目はプロトタイプに忠実。
-- `lib/cases.ts` — 実績（匿名化ケーススタディ）のデータ。Works ページはここを map して描画。
+- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系4種（PageHeading / CardGrid / LabeledField / MonoHeading）。
+- `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
+- `lib/skills.ts` — Home のスキルカード（Development / Design）のデータ。
 
 ## コンテンツ方針（デザインシステム由来）
 
