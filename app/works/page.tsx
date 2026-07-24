@@ -18,7 +18,7 @@ export default function Works() {
             <header className="pt-24 pb-12">
                 <PageHeading
                     size="list"
-                    eyebrow="works — 見せられる情報の質が高い順"
+                    eyebrow="works"
                     title="実績一覧"
                     lead="受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。"
                 />
@@ -34,7 +34,10 @@ export default function Works() {
                     <h3 className="m-0 mb-2.5 mt-1.5 font-display text-[24px] font-semibold">
                         {`${brewCase.titleEn} — ${brewCase.titleJa}`}
                     </h3>
-                    <p className="m-0 max-w-190 text-[14.5px] leading-[1.75] text-slate-600">
+                    <p className="m-0 mb-3 font-mono text-[11.5px] text-slate-500">
+                        {brewCase.period}
+                    </p>
+                    <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">
                         {brewCase.summary}
                     </p>
                     <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-600/15 py-3.5">
@@ -58,7 +61,7 @@ export default function Works() {
                 {cases.map((c) => (
                     <GlassCard key={c.no} span={3} className="flex flex-col">
                         <div className="flex items-start justify-between">
-                            <CardLabel>case study — 業務内容は匿名化して掲載</CardLabel>
+                            <CardLabel>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
                             <span className="font-mono text-[12px] text-slate-500">{c.no}</span>
                         </div>
                         <h3 className="m-0 mb-1 mt-1.5 font-display text-[19px] font-semibold">
@@ -82,7 +85,7 @@ export default function Works() {
 
                 {/* その他の案件 */}
                 <GlassCard span={6}>
-                    <CardLabel>その他の案件</CardLabel>
+                    <CardLabel>その他</CardLabel>
                     <div className="mt-2 flex flex-col">
                         {otherWorks.map((w) => (
                             <div

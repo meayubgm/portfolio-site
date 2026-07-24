@@ -66,8 +66,7 @@ export default function Home() {
                         企画・要件定義・UIデザイン・実装まで一人で担当。ケーススタディを見る ↗
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                        {/* Home はモバイル版スタックのみ表示（Web 版タグは省略） */}
-                        {brewCase.tags.slice(0, 3).map((t) => (
+                        {brewCase.tags.map((t) => (
                             <Tag key={t}>{t}</Tag>
                         ))}
                     </div>

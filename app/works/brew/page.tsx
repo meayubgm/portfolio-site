@@ -8,7 +8,7 @@ import { Tag } from "@/components/Tag";
 import { brewCase } from "@/lib/cases";
 
 export const metadata: Metadata = {
-    title: "BREW — コーヒー抽出タイマー | Megumi Ayuha",
+    title: "Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha",
 };
 
 function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -45,6 +45,7 @@ export default function BrewCaseStudy() {
                             {brewCase.titleJa}
                         </>
                     }
+                    period={brewCase.period}
                     lead={brewCase.summary}
                 />
                 <div className="flex flex-wrap gap-2">
@@ -54,7 +55,7 @@ export default function BrewCaseStudy() {
                 </div>
             </header>
 
-            <div className="flex max-w-190 flex-col gap-12 pb-section pt-12">
+            <div className="flex flex-col gap-12 pb-section pt-12">
                 <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
 
                 <section>

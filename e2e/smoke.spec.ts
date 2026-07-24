@@ -29,6 +29,6 @@ test("BREW ケーススタディ（/works/brew）が表示される", async ({ p
     const res = await page.goto("/works/brew");
     expect(res?.status()).toBe(200);
 
-    await expect(page).toHaveTitle("BREW — コーヒー抽出タイマー | Megumi Ayuha");
+    await expect(page).toHaveTitle("Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Coffee Brew Timer");
 });
