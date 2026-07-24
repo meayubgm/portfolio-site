@@ -34,136 +34,130 @@ export default function BrewCaseStudy() {
                 </Link>
             </div>
 
-            <header className="border-b border-dashed border-indigo-600/15 py-10">
-                <PageHeading
-                    size="detail"
-                    eyebrow={`${brewCase.no} — 個人開発`}
-                    title={
-                        <>
-                            {brewCase.titleEn}
-                            <br />
-                            {brewCase.titleJa}
-                        </>
-                    }
-                    period={brewCase.period}
-                    lead={brewCase.summary}
-                />
-                <div className="flex flex-wrap gap-2">
-                    {brewCase.tags.map((t) => (
-                        <Tag key={t}>{t}</Tag>
-                    ))}
+            <div className="px-9">
+                <header className="border-b border-dashed border-indigo-600/15 py-10">
+                    <PageHeading
+                        size="detail"
+                        eyebrow={`${brewCase.no} — 個人開発`}
+                        title={
+                            <>
+                                {brewCase.titleEn}
+                                <br />
+                                {brewCase.titleJa}
+                            </>
+                        }
+                        period={brewCase.period}
+                        lead={brewCase.summary}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                        {brewCase.tags.map((t) => (
+                            <Tag key={t}>{t}</Tag>
+                        ))}
+                    </div>
+                </header>
+                <div className="flex flex-col gap-12 pb-section pt-12">
+                    <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
+                    <section>
+                        <MonoHeading>{"// 開発背景・課題設定"}</MonoHeading>
+                        <Body className="mb-4">
+                            自分自身がスペシャルティコーヒーの抽出に関心があり、日常的に4:6メソッドや浸漬式ドリッパーなど複数の淹れ方を使い分けている中で、「湯量を自分で電卓を叩いて計算する必要がある」という不便さを感じたことが開発のきっかけです。
+                        </Body>
+                        <Body>
+                            「豆の量・人数を入力するだけで抽出方法に合わせた湯量が算出され、湯を注ぐタイミングを音で教えてくれる」体験を作ることを目標に、個人開発として企画から着手しました。
+                        </Body>
+                    </section>
+                    <section>
+                        <MonoHeading>{"// 要件定義"}</MonoHeading>
+                        <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate-600">
+                            <li>
+                                デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
+                            </li>
+                            <li>人数または豆量の入力から、メソッドごとの比率に応じて湯量を自動計算</li>
+                            <li>
+                                タイマーはカウントアップ式とし、各ステップの注湯タイミングでアラーム通知
+                            </li>
+                            <li>
+                                ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）
+                            </li>
+                        </ul>
+                        <Body>
+                            工程を通じて意識したのは、単なるタイマーではなく「抽出ガイド」として機能させること。アラーム時に「今回注ぐ量」「累計注湯量」「次のステップまでの待機時間」をまとめて提示する設計にしました。
+                        </Body>
+                    </section>
+                    <section>
+                        <MonoHeading>{"// デザイン"}</MonoHeading>
+                        <Body className="mb-4">
+                            テラコッタを基調にライト/ダークテーマの配色を設計しました。理由はコーヒーの世界観との親和性（ドリッパーの陶器やレンガを思わせる血色の良い暖色）です。
+                        </Body>
+                        <Body className="mb-6">
+                            HTML/CSSでインタラクティブなプロトタイプを先に作成し、タイマーの挙動・画面遷移をデザイン段階で検証してから実装に着手しました。
+                        </Body>
+                        <MediaPlaceholder label="テラコッタのUI全体キャプチャ" />
+                    </section>
+                    <section>
+                        <MonoHeading>{"// 技術選定"}</MonoHeading>
+                        <div className="flex flex-col">
+                            <div className="border-t border-dashed border-indigo-600/15 py-3.5">
+                                <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
+                                    Web MVP — React + TypeScript + Vite
+                                </p>
+                                <p className="m-0 text-sm leading-[1.7] text-slate-600">
+                                    型安全性を確保しつつ、開発中のビルド速度を優先。プロトタイプの検証速度を重視しVite採用。
+                                </p>
+                            </div>
+                            <div className="border-y border-dashed border-indigo-600/15 py-3.5">
+                                <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
+                                    モバイル — React Native + Expo
+                                </p>
+                                <p className="m-0 text-sm leading-[1.7] text-slate-600">
+                                    実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
+                                </p>
+                            </div>
+                        </div>
+                        <Body className="mt-4">
+                            Web版とモバイル版でロジック（湯量計算・タイマー制御）を共通化できる設計を意識し、UIレイヤーのみをプラットフォームごとに分離する構成にしています。
+                        </Body>
+                    </section>
+                    <section>
+                        <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
+                        <Body className="mb-6">
+                            Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
+                        </Body>
+                        <MediaPlaceholder label="実機でタイマーが動作している様子" />
+                    </section>
+                    <section>
+                        <MonoHeading>{"// 実装済み ／ 今後の実装予定"}</MonoHeading>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="m-0 mb-2 text-[14px] font-semibold">実装済み</p>
+                                <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
+                                    <li>複数抽出メソッドのプリセット選択</li>
+                                    <li>人数・豆量に応じた湯量自動計算</li>
+                                    <li>ステップタイマーとアラーム通知</li>
+                                    <li>ユーザーカスタムプリセット機能</li>
+                                    <li>Android実機での動作確認</li>
+                                    <li>Web版のリリース</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
+                                <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
+                                    <li>モバイル版のリリース</li>
+                                </ul>
+                            </div>
+                        </div>
+                        {/* <Body className="mt-4">
+                            コア体験である「抽出ガイド」機能の安定動作を優先し、カスタマイズ機能は意図的に後回しにしています。
+                        </Body> */}
+                    </section>
+                    <section>
+                        <MonoHeading>{"// コード・デモ"}</MonoHeading>
+                        <div>
+                            <LinkRow first external href="https://coffee-brew-timer-native.vercel.app/">デモ（Web） [リンク]</LinkRow>
+                            <LinkRow external href="https://github.com/meayubgm/coffee-brew-timer-native">リポジトリ [GitHubリンク]</LinkRow>
+                        </div>
+                    </section>
                 </div>
-            </header>
-
-            <div className="flex flex-col gap-12 pb-section pt-12">
-                <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
-
-                <section>
-                    <MonoHeading>{"// 開発背景・課題設定"}</MonoHeading>
-                    <Body className="mb-4">
-                        自分自身がスペシャルティコーヒーの抽出に関心があり、日常的に4:6メソッドや浸漬式ドリッパーなど複数の淹れ方を使い分けている中で、既存のコーヒータイマーアプリの多くが「単一の抽出法にしか対応していない」「湯量を自分で電卓を叩いて計算する必要がある」という不便さを感じたことが開発のきっかけです。
-                    </Body>
-                    <Body>
-                        「豆の量・人数を入力するだけで、注ぐタイミングと量を音で教えてくれる」体験を作ることを目標に、個人開発として企画から着手しました。
-                    </Body>
-                </section>
-
-                <section>
-                    <MonoHeading>{"// 要件定義"}</MonoHeading>
-                    <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate-600">
-                        <li>
-                            デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
-                        </li>
-                        <li>人数または豆量の入力から、メソッドごとの比率に応じて湯量を自動計算</li>
-                        <li>
-                            タイマーはカウントアップ式とし、各ステップの注湯タイミングでアラーム通知
-                        </li>
-                        <li>
-                            ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）
-                        </li>
-                    </ul>
-                    <Body>
-                        工程を通じて意識したのは、単なるタイマーではなく「抽出ガイド」として機能させること。アラーム時に「今回注ぐ量」「累計注湯量」「次のステップまでの待機時間」をまとめて提示する設計にしました。
-                    </Body>
-                </section>
-
-                <section>
-                    <MonoHeading>{"// デザイン"}</MonoHeading>
-                    <Body className="mb-4">
-                        ダークブラウン×アンバーを基調にした配色を設計しました。理由は2点：コーヒーの世界観との親和性（焙煎豆・ドリップの色味を想起させる配色）と、実利用シーンへの配慮です。抽出中は手が濡れている・キッチンが薄暗いことが多いため、暗い背景に高コントラストな数字表示で視認性を優先しました。
-                    </Body>
-                    <Body className="mb-6">
-                        HTML/CSSでインタラクティブなプロトタイプを先に作成し、タイマーの挙動・画面遷移をデザイン段階で検証してから実装に着手しました。
-                    </Body>
-                    <MediaPlaceholder label="ダークブラウン×アンバーのUI全体キャプチャ" />
-                </section>
-
-                <section>
-                    <MonoHeading>{"// 技術選定"}</MonoHeading>
-                    <div className="flex flex-col">
-                        <div className="border-t border-dashed border-indigo-600/15 py-3.5">
-                            <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
-                                Web MVP — React + TypeScript + Vite
-                            </p>
-                            <p className="m-0 text-sm leading-[1.7] text-slate-600">
-                                型安全性を確保しつつ、開発中のビルド速度を優先。プロトタイプの検証速度を重視しVite採用。
-                            </p>
-                        </div>
-                        <div className="border-y border-dashed border-indigo-600/15 py-3.5">
-                            <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
-                                モバイル — React Native + Expo
-                            </p>
-                            <p className="m-0 text-sm leading-[1.7] text-slate-600">
-                                実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
-                            </p>
-                        </div>
-                    </div>
-                    <Body className="mt-4">
-                        Web版とモバイル版でロジック（湯量計算・タイマー制御）を共通化できる設計を意識し、UIレイヤーのみをプラットフォームごとに分離する構成にしています。
-                    </Body>
-                </section>
-
-                <section>
-                    <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
-                    <Body className="mb-6">
-                        Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
-                    </Body>
-                    <MediaPlaceholder label="実機でタイマーが動作している様子" />
-                </section>
-
-                <section>
-                    <MonoHeading>{"// 実装済み ／ 今後の実装予定"}</MonoHeading>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <p className="m-0 mb-2 text-[14px] font-semibold">実装済み</p>
-                            <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
-                                <li>複数抽出メソッドのプリセット選択</li>
-                                <li>人数・豆量に応じた湯量自動計算</li>
-                                <li>ステップタイマーとアラーム通知</li>
-                                <li>Android実機での動作確認</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
-                            <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
-                                <li>ユーザーカスタムプリセット機能</li>
-                                <li>Web版（React + Vite）のリリース</li>
-                                <li>抽出ログの記録機能（次フェーズ候補）</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <Body className="mt-4">
-                        コア体験である「抽出ガイド」機能の安定動作を優先し、カスタマイズ機能は意図的に後回しにしています。
-                    </Body>
-                </section>
-
-                <section>
-                    <MonoHeading>{"// コード・デモ"}</MonoHeading>
-                    <div>
-                        <LinkRow first>デモ（Web / 実機） — [リンク]</LinkRow>
-                        <LinkRow>リポジトリ — [GitHubリンク]</LinkRow>
-                    </div>
-                </section>
             </div>
         </div>
     );
