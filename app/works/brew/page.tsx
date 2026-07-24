@@ -136,13 +136,14 @@ export default function BrewCaseStudy() {
                                     <li>ステップタイマーとアラーム通知</li>
                                     <li>ユーザーカスタムプリセット機能</li>
                                     <li>Android実機での動作確認</li>
-                                    <li>Web版のリリース</li>
+                                    <li>Web版のVercelデプロイ</li>
                                 </ul>
                             </div>
                             <div>
                                 <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
                                 <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
-                                    <li>モバイル版のリリース</li>
+                                    <li>iOS/Androidのストア配信</li>
+                                    <li>クラウド同期</li>
                                 </ul>
                             </div>
                         </div>
