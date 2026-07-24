@@ -73,7 +73,7 @@ export default function Home() {
                 </GlassCard>
 
                 {skillGroups.map((g) => (
-                    <GlassCard key={g.label} span={2}>
+                    <GlassCard key={g.heading} span={2}>
                         <CardLabel>{g.label}</CardLabel>
                         <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
                             {g.heading}

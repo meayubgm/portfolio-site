@@ -16,9 +16,7 @@ export function Stacked() {
             <LabeledField label="// role" className="mt-4">
                 モック作成、フロントエンド／バックエンド開発・修正
             </LabeledField>
-            <LabeledField label="// point">
-                モック作成から実装までを一貫して担当。
-            </LabeledField>
+            <LabeledField label="// point">モック作成から実装までを一貫して担当。</LabeledField>
         </div>
     );
 }
