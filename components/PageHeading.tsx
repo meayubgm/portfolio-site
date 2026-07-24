@@ -20,12 +20,12 @@ const styles = {
     list: {
         eyebrow: "mb-4.5",
         h1: "mb-4.5 text-[clamp(34px,4.5vw,52px)] leading-[1.15]",
-        lead: "text-[15.5px]",
+        lead: "text-base",
     },
     detail: {
         eyebrow: "mb-4.5",
         h1: "mb-5 text-[clamp(30px,4vw,44px)] leading-tight",
-        lead: "mb-6 text-[15.5px]",
+        lead: "mb-6 text-base",
     },
 } as const;
 
@@ -37,7 +37,9 @@ export function PageHeading({ size, eyebrow, title, period, lead }: PageHeadingP
                 <EyebrowLabel>{eyebrow}</EyebrowLabel>
             </div>
             <h1 className={`m-0 font-display font-medium tracking-heading ${s.h1}`}>{title}</h1>
-            {period ? <p className="m-0 mb-3 font-mono text-sm text-slate-500">{period}</p> : null}
+            {period ? (
+                <p className="m-0 mb-3 font-mono text-base text-slate-500">{period}</p>
+            ) : null}
             {lead ? <p className={`m-0 leading-[1.8] text-slate-600 ${s.lead}`}>{lead}</p> : null}
         </>
     );

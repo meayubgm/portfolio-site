@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LinkRow } from "@/components/LinkRow";
@@ -16,6 +17,12 @@ function Body({ children, className = "" }: { children: ReactNode; className?: s
         <p className={`m-0 text-[15px] leading-[1.9] text-slate-600 ${className}`}>{children}</p>
     );
 }
+
+const heroShots = [
+    { src: "/works/brew/iPhone_14ProMax_mock_light_top.png", caption: "ホーム画面" },
+    { src: "/works/brew/iPhone_14ProMax_mock_light_timer_1.png", caption: "タイマー画面1" },
+    { src: "/works/brew/iPhone_14ProMax_mock_light_timer_2.png", caption: "タイマー画面2" },
+];
 
 function MediaPlaceholder({ label }: { label: string }) {
     return (
@@ -56,7 +63,24 @@ export default function BrewCaseStudy() {
                     </div>
                 </header>
                 <div className="flex flex-col gap-12 pb-section pt-12">
-                    <MediaPlaceholder label="タイマーが進行し、注湯タイミングでアラームが鳴る様子" />
+                    <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 p-6">
+                        <div className="grid grid-cols-3 gap-4">
+                            {heroShots.map((shot) => (
+                                <figure key={shot.src} className="m-0">
+                                    <figcaption className="text-center font-mono text-[12px] text-indigo-600">
+                                        {shot.caption}
+                                    </figcaption>
+                                    <Image
+                                        src={shot.src}
+                                        alt={shot.caption}
+                                        width={1707}
+                                        height={2898}
+                                        className="h-auto w-full"
+                                    />
+                                </figure>
+                            ))}
+                        </div>
+                    </div>
                     <section>
                         <MonoHeading>{"// 開発背景・課題設定"}</MonoHeading>
                         <Body className="mb-4">
@@ -72,7 +96,9 @@ export default function BrewCaseStudy() {
                             <li>
                                 デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
                             </li>
-                            <li>人数または豆量の入力から、メソッドごとの比率に応じて湯量を自動計算</li>
+                            <li>
+                                人数または豆量の入力から、メソッドごとの比率に応じて湯量を自動計算
+                            </li>
                             <li>
                                 タイマーはカウントアップ式とし、各ステップの注湯タイミングでアラーム通知
                             </li>
@@ -92,7 +118,16 @@ export default function BrewCaseStudy() {
                         <Body className="mb-6">
                             HTML/CSSでインタラクティブなプロトタイプを先に作成し、タイマーの挙動・画面遷移をデザイン段階で検証してから実装に着手しました。
                         </Body>
-                        <MediaPlaceholder label="テラコッタのUI全体キャプチャ" />
+                        <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55">
+                            <Image
+                                src="/works/brew/coffee_showcase.png"
+                                alt="テラコッタUIのライト/ダークテーマ画面一覧"
+                                width={2560}
+                                height={2040}
+                                sizes="(max-width: 1800px) 90vw, 1616px"
+                                className="h-auto w-full rounded-card"
+                            />
+                        </div>
                     </section>
                     <section>
                         <MonoHeading>{"// 技術選定"}</MonoHeading>
@@ -154,8 +189,19 @@ export default function BrewCaseStudy() {
                     <section>
                         <MonoHeading>{"// コード・デモ"}</MonoHeading>
                         <div>
-                            <LinkRow first external href="https://coffee-brew-timer-native.vercel.app/">デモ（Web） [リンク]</LinkRow>
-                            <LinkRow external href="https://github.com/meayubgm/coffee-brew-timer-native">リポジトリ [GitHubリンク]</LinkRow>
+                            <LinkRow
+                                first
+                                external
+                                href="https://coffee-brew-timer-native.vercel.app/"
+                            >
+                                デモ（Web） [リンク]
+                            </LinkRow>
+                            <LinkRow
+                                external
+                                href="https://github.com/meayubgm/coffee-brew-timer-native"
+                            >
+                                リポジトリ [GitHubリンク]
+                            </LinkRow>
                         </div>
                     </section>
                 </div>

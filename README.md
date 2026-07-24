@@ -79,6 +79,8 @@ portfolio-site/
 │   └── works/
 │       ├── page.tsx        # 実績一覧（/works）
 │       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
+├── public/                 # 静的アセット
+│   └── works/brew/         # BREW ケーススタディの画像（iPhone モック・UI キャプチャ）
 ├── components/             # Frost & Blueprint の DS コンポーネント
 │   ├── Button.tsx
 │   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
@@ -139,4 +141,4 @@ featured カード（BREW）のグラデーション面は `@utility bg-featured
 
 - 日本語見出しフォントは LINE Seed JP の代替として IBM Plex Sans JP を使用（再配布不可のため）。
 - Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は未設定（`href="#"`）。公開前に差し替えること。
-- ケーススタディ内の GIF はプレースホルダーのまま。
+- BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像に差し替え済み（`public/works/brew/`）。「実装・実機検証」の実機タイマー GIF は未用意で `MediaPlaceholder` のまま。
