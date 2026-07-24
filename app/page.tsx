@@ -100,8 +100,13 @@ export default function Home() {
                         </p>
                     </div>
                     <div>
-                        <LinkRow first>Email</LinkRow>
-                        <LinkRow>GitHub</LinkRow>
+                        <LinkRow first external href="https://github.com/meayubgm">
+                            GitHub
+                        </LinkRow>
+                        <LinkRow external href="https://x.com/yu_ha_design">
+                            X
+                        </LinkRow>
+                        <LinkRow>Contact Form</LinkRow>
                     </div>
                 </GlassCard>
             </CardGrid>
