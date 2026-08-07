@@ -24,6 +24,16 @@ test.describe("SiteNav", () => {
         );
     });
 
+    test("skill リンクでスキルページへ遷移し active になる", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("link", { name: "skill", exact: true }).click();
+        await expect(page).toHaveURL("/skill");
+        await expect(page.getByRole("heading", { level: 1, name: "スキル" })).toBeVisible();
+        await expect(page.getByRole("link", { name: "skill", exact: true })).toHaveClass(
+            /text-slate-900/,
+        );
+    });
+
     test("Works では works が active（text-slate-900）", async ({ page }) => {
         await page.goto("/works");
         await expect(page.getByRole("link", { name: "works", exact: true })).toHaveClass(
@@ -46,6 +56,12 @@ test.describe("GlassCard カード全体クリック遷移", () => {
         await page.goto("/works");
         await page.getByText("ケーススタディを読む").click();
         await expect(page).toHaveURL("/works/brew");
+    });
+
+    test("Home のスキルカードから /skill へ遷移する", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("heading", { level: 3, name: "Development" }).click();
+        await expect(page).toHaveURL("/skill");
     });
 
     test("BREW から works に戻れる", async ({ page }) => {

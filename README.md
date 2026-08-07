@@ -76,6 +76,7 @@ portfolio-site/
 │   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ）
 │   ├── page.tsx            # Home（/）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
+│   ├── skill/page.tsx      # スキル一覧（/skill）
 │   └── works/
 │       ├── page.tsx        # 実績一覧（/works）
 │       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
@@ -97,7 +98,7 @@ portfolio-site/
 │   └── Tag.tsx
 ├── lib/
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
-│   └── skills.ts           # Home のスキルカード（Development / Design）データ
+│   └── skills.ts           # スキルデータ（Development / Design。Home のカードと /skill で共用）
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）

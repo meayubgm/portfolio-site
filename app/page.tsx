@@ -73,7 +73,7 @@ export default function Home() {
                 </GlassCard>
 
                 {skillGroups.map((g) => (
-                    <GlassCard key={g.heading} span={2}>
+                    <GlassCard key={g.heading} span={2} href="/skill">
                         <CardLabel>{g.label}</CardLabel>
                         <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
                             {g.heading}
@@ -86,6 +86,9 @@ export default function Home() {
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
                             ))}
                         </div>
+                        <span className="mt-4 block font-mono text-[12.5px] text-indigo-600">
+                            スキル詳細を見る ↗
+                        </span>
                     </GlassCard>
                 ))}
 

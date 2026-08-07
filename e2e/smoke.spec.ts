@@ -25,6 +25,17 @@ test("Works 一覧（/works）が表示される", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1, name: "実績一覧" })).toBeVisible();
 });
 
+test("スキル（/skill）が表示される", async ({ page }) => {
+    const res = await page.goto("/skill");
+    expect(res?.status()).toBe(200);
+
+    await expect(page).toHaveTitle("スキル — Megumi Ayuha");
+    await expect(page.getByRole("heading", { level: 1, name: "スキル" })).toBeVisible();
+    // Development / Design の2グループが並ぶ
+    await expect(page.getByRole("heading", { level: 2, name: "Development" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Design" })).toBeVisible();
+});
+
 test("BREW ケーススタディ（/works/brew）が表示される", async ({ page }) => {
     const res = await page.goto("/works/brew");
     expect(res?.status()).toBe(200);
