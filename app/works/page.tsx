@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
 import { GlassCard } from "@/components/GlassCard";
+import { HoverCue } from "@/components/HoverCue";
 import { LabeledField } from "@/components/LabeledField";
 import { PageHeading } from "@/components/PageHeading";
 import { StatBlock } from "@/components/StatBlock";
@@ -51,9 +52,7 @@ export default function Works() {
                                 <Tag key={t}>{t}</Tag>
                             ))}
                         </div>
-                        <span className="whitespace-nowrap font-mono text-[12.5px] text-indigo-600">
-                            ケーススタディを読む ↗
-                        </span>
+                        <HoverCue className="whitespace-nowrap">ケーススタディを読む ↗</HoverCue>
                     </div>
                 </GlassCard>
 

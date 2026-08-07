@@ -88,6 +88,7 @@ portfolio-site/
 │   ├── CardLabel.tsx
 │   ├── EyebrowLabel.tsx
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
+│   ├── HoverCue.tsx        # カード内の導線テキスト（親カードのホバー時のみ表示）
 │   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
 │   ├── LinkRow.tsx
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し

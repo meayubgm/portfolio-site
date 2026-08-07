@@ -2,6 +2,7 @@ import { Button } from "@/components/Button";
 import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
 import { GlassCard } from "@/components/GlassCard";
+import { HoverCue } from "@/components/HoverCue";
 import { LinkRow } from "@/components/LinkRow";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
@@ -63,7 +64,8 @@ export default function Home() {
                         コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
                     </h3>
                     <p className="m-0 text-sm leading-[1.7] text-slate-600">
-                        企画・要件定義・UIデザイン・実装まで一人で担当。ケーススタディを見る ↗
+                        企画・要件定義・UIデザイン・実装まで一人で担当。
+                        <HoverCue>ケーススタディを見る ↗</HoverCue>
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {brewCase.tags.map((t) => (
@@ -86,9 +88,7 @@ export default function Home() {
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
                             ))}
                         </div>
-                        <span className="mt-4 block font-mono text-[12.5px] text-indigo-600">
-                            スキル詳細を見る ↗
-                        </span>
+                        <HoverCue className="mt-4 block">スキル詳細を見る ↗</HoverCue>
                     </GlassCard>
                 ))}
 

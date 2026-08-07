@@ -58,6 +58,14 @@ test.describe("GlassCard カード全体クリック遷移", () => {
         await expect(page).toHaveURL("/works/brew");
     });
 
+    test("導線テキストはカードホバー時のみ表示される", async ({ page }) => {
+        await page.goto("/");
+        const cue = page.getByText("ケーススタディを見る ↗");
+        await expect(cue).toHaveCSS("opacity", "0");
+        await page.getByText("コーヒー抽出タイマー").hover();
+        await expect(cue).toHaveCSS("opacity", "1");
+    });
+
     test("Home のスキルカードから /skill へ遷移する", async ({ page }) => {
         await page.goto("/");
         await page.getByRole("heading", { level: 3, name: "Development" }).click();
