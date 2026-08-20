@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { type FormEvent, useCallback, useRef, useState } from "react";
+import { type SubmitEvent, useCallback, useRef, useState } from "react";
 import { Button } from "./Button";
 import { FormField, formControlClass } from "./FormField";
 
@@ -62,7 +62,7 @@ export function ContactForm() {
     const update = (key: keyof typeof initialValues) => (value: string) =>
         setValues((prev) => ({ ...prev, [key]: value }));
 
-    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
         if (status === "sending") {
             return;
@@ -103,8 +103,9 @@ export function ContactForm() {
                     送信しました
                 </h2>
                 <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">
-                    お問い合わせありがとうございます。内容を確認のうえ、3営業日以内にご記入いただいた
-                    メールアドレス宛にご返信します。
+                    お問い合わせありがとうございます。
+                    <br />
+                    内容を確認のうえ、ご記入いただいたメールアドレス宛にご返信します。
                 </p>
             </div>
         );

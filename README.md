@@ -59,12 +59,17 @@ cp .env.example .env.local
 | --- | --- |
 | `RESEND_API_KEY` | Resend の API キー |
 | `CONTACT_TO_EMAIL` | 送信先（受信したいアドレス） |
-| `CONTACT_FROM_EMAIL` | 送信元。ドメイン検証前は `onboarding@resend.dev` |
+| `CONTACT_FROM_EMAIL` | 送信元。ドメイン未検証のため `onboarding@resend.dev` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー |
 | `TURNSTILE_SECRET_KEY` | Turnstile のシークレット |
 
 `.env.example` の Turnstile はローカル確認用の公式テストキー（常に成功）です。
 サイトキーが未設定の場合、フォームはウィジェットの代わりに未設定の注記を表示します。
+
+> **注意**: 独自ドメインを Resend で検証していないため、送信元は共有ドメインの `onboarding@resend.dev` です。
+> この状態では Resend の sandbox 制限により、**宛先は Resend アカウントの登録メールアドレスにしか送れません**。
+> `CONTACT_TO_EMAIL` に別のアドレスを指定すると Resend が 403 を返し、`[contact] resend error:` がログに出て
+> 500 になります。別のアドレスで受け取りたい場合は独自ドメインの取得と検証が必要です。
 
 > **注意**: `NEXT_PUBLIC_TURNSTILE_SITE_KEY` は `NEXT_PUBLIC_` 接頭辞のとおり
 > **ビルド時にバンドルへ埋め込まれます**。実行時にだけ環境変数を渡す構成（Docker の `environment` など）では
@@ -180,5 +185,5 @@ featured カード（BREW）のグラデーション面は `@utility bg-featured
 
 - 日本語見出しフォントは LINE Seed JP の代替として IBM Plex Sans JP を使用（再配布不可のため）。
 - サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ。Home の GitHub / X、BREW ケーススタディのデモ / リポジトリは実 URL）。
-- Resend / Turnstile の実キーは未取得。`.env.example` の雛形のみ用意してあり、実際のメール送信は実キーを `.env.local`（およびデプロイ先の環境変数）に入れるまで動きません。
+- Resend / Turnstile とも実キーを取得済みで、フォームからの送信・受信を確認済み（ローカル）。送信元は `onboarding@resend.dev` のままで、宛先は Resend アカウントの登録アドレスに限られます（上記の注意を参照）。デプロイ先では環境変数を設定したうえで再ビルドが必要です。
 - BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像に差し替え済み（`public/works/brew/`）。「実装・実機検証」の実機タイマー GIF は未用意で `MediaPlaceholder` のまま。

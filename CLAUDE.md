@@ -100,13 +100,20 @@ Route Handler が **Honeypot → Turnstile 検証 → Resend でメール送信*
 | --- | --- |
 | `RESEND_API_KEY` | Resend の API キー |
 | `CONTACT_TO_EMAIL` | 送信先（自分の受信アドレス） |
-| `CONTACT_FROM_EMAIL` | 送信元。ドメイン検証前は `onboarding@resend.dev` |
+| `CONTACT_FROM_EMAIL` | 送信元。ドメイン未検証のため `onboarding@resend.dev` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー（クライアント側） |
 | `TURNSTILE_SECRET_KEY` | Turnstile のシークレット（サーバー側） |
 
 - 環境変数が未設定でも **モジュールトップで throw しない**（`next build` を壊さないため）。ハンドラ内で検出して 500 を返す。
   サイトキー未設定時は、フォームが Turnstile ウィジェットの代わりに未設定の注記を表示する。
 - ローカル確認には Turnstile の公式テストキー（`1x0000...`）を使う。常に検証が成功する。
+- **独自ドメインは取得しない方針**のため、送信元は Resend の共有ドメイン `onboarding@resend.dev` のまま。
+  この状態では Resend の sandbox 制限により、**宛先は Resend アカウントの登録メールアドレスにしか送れない**。
+  `CONTACT_TO_EMAIL` に別のアドレスを入れると Resend が 403 を返し、`[contact] resend error:` がログに出て
+  500 になる。別アドレスで受け取るには独自ドメインの取得と Resend でのドメイン検証（MX / SPF / DKIM）が必要。
+- Turnstile のホスト名は **FQDN のみ・ワイルドカード不可**で、登録したホスト名の配下のサブドメインだけが
+  自動許可される。Vercel のプレビューデプロイは `<project>-<hash>-<team>.vercel.app` という**兄弟サブドメイン**に
+  なるため、本番ホスト名を登録してもプレビューでは Turnstile が通らない。
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` は**ビルド時にバンドルへ埋め込まれる**。実行時にだけ渡す構成では空文字になり、ウィジェットが出ず送信が必ず 400 になるため、`next build` を実行する環境にも設定すること。
 - **ボット対策は Honeypot + Turnstile の2段**。`ContactForm` の `#contact-website` は
   人間には見えない Honeypot 欄で、`display:none` を検出するボットを避けるため画面外に置いている
@@ -126,7 +133,7 @@ Route Handler が **Honeypot → Turnstile 検証 → Resend でメール送信*
 ## 未設定・注意点
 
 - サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ、GitHub / X と BREW のデモ / リポジトリは実 URL）。
-- Resend / Turnstile の実キーは未取得。`.env.example` の雛形のみ用意してある（Turnstile はテストキー、`RESEND_API_KEY` は空）。実際のメール送信は実キーを入れるまで動かない。
+- Resend / Turnstile とも実キーを取得済みで、ローカルからの送信・受信を確認済み。未着手なのはデプロイ先（Vercel）の環境変数設定で、`NEXT_PUBLIC_TURNSTILE_SITE_KEY` はビルド時に埋め込まれるため設定後に再デプロイが要る。
 - `/api/contact` にレート制限は入れていない（永続ストアが必要なため）。Honeypot + Turnstile の2段で防いでいる。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - コミット author はこのリポジトリのローカル設定で `user.email = meayubgm@gmail.com`（`user.name` はグローバルの `ayuha` を継承）。リモートは `git@github.com:meayubgm/portfolio-site.git`。
