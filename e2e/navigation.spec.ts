@@ -1,4 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+/** BREW（featured）の GlassCard。`div.group` は GlassCard のルートにのみ付く */
+const featuredCard = (page: Page) =>
+    page.locator("div.group").filter({ hasText: "Coffee Brew Timer" });
 
 /**
  * ナビゲーション挙動:
@@ -54,15 +58,18 @@ test.describe("GlassCard カード全体クリック遷移", () => {
 
     test("Works の featured カードから BREW へ遷移する", async ({ page }) => {
         await page.goto("/works");
-        await page.getByText("ケーススタディを読む").click();
+        // 「詳細を見る ↗」は複数カードに載りうるため featured カードにスコープする
+        // （div.group = GlassCard のルート。他のマークアップには付かない）
+        await featuredCard(page).getByText("詳細を見る ↗").click();
         await expect(page).toHaveURL("/works/brew");
     });
 
     test("導線テキストはカードホバー時のみ表示される", async ({ page }) => {
         await page.goto("/");
-        const cue = page.getByText("ケーススタディを見る ↗");
+        const card = featuredCard(page);
+        const cue = card.getByText("詳細を見る ↗");
         await expect(cue).toHaveCSS("opacity", "0");
-        await page.getByText("コーヒー抽出タイマー").hover();
+        await card.hover();
         await expect(cue).toHaveCSS("opacity", "1");
     });
 

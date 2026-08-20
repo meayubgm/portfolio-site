@@ -58,24 +58,24 @@ export default function Home() {
                     </p>
                 </GlassCard>
 
-                <GlassCard span={2} href="/works/brew" className="bg-featured">
+                <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured">
                     <CardLabel>featured work — 個人開発</CardLabel>
                     <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
                         コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
                     </h3>
                     <p className="m-0 text-sm leading-[1.7] text-slate-600">
                         企画・要件定義・UIデザイン・実装まで一人で担当。
-                        <HoverCue>ケーススタディを見る ↗</HoverCue>
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {brewCase.tags.map((t) => (
                             <Tag key={t}>{t}</Tag>
                         ))}
                     </div>
+                    <HoverCue className="mt-auto block pt-4 text-right">詳細を見る ↗</HoverCue>
                 </GlassCard>
 
                 {skillGroups.map((g) => (
-                    <GlassCard key={g.heading} span={2} href="/skill">
+                    <GlassCard key={g.heading} span={2} href="/skill" className="flex flex-col">
                         <CardLabel>{g.label}</CardLabel>
                         <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
                             {g.heading}
@@ -88,7 +88,7 @@ export default function Home() {
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
                             ))}
                         </div>
-                        <HoverCue className="mt-4 block">スキル詳細を見る ↗</HoverCue>
+                        <HoverCue className="mt-auto block pt-4 text-right">詳細を見る ↗</HoverCue>
                     </GlassCard>
                 ))}
 
