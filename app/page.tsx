@@ -25,10 +25,12 @@ export default function Home() {
                     <p className="m-0 pb-4.5 font-mono text-[15px] text-slate-500">
                         Megumi Ayuha / Web Design × Frontend Development — Portfolio
                     </p>
-                    <p className="m-0 pb-20 max-w-155 text-[16.5px] leading-[1.8] text-slate-600">
+                    <p className="m-0 pb-12 text-[16.5px] leading-[1.8] text-slate-600">
                         ご覧いただきありがとうございます。
                         <br />
-                        デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。
+                        デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。
+                        <br />
+                        指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。
                     </p>
                     <div className="flex gap-3.5">
                         <Button variant="primary" href="/works">
@@ -40,7 +42,7 @@ export default function Home() {
             </header>
 
             <CardGrid>
-                <GlassCard span={4} padding="lg">
+                <GlassCard span={4} padding="lg" href="/about" className="flex flex-col">
                     <CardLabel>about</CardLabel>
                     <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-slate-900">
                         「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」
@@ -50,12 +52,13 @@ export default function Home() {
                     </p>
                     <p className="m-0 mt-5.5 text-[14.5px] leading-[1.7] text-slate-600">
                         Webアプリケーションの受託開発で React / Next.js / TypeScript
-                        を中心に、主にフロントエンド開発を3年以上担当してきました。追加機能の
+                        を中心に、主にフロントエンド開発を3年以上担当してきました。一部機能の
                         要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた
                         デザインカンプ / アイコン制作 も担当しています。
                         <br />
                         丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。
                     </p>
+                    <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                 </GlassCard>
 
                 <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured">
@@ -71,7 +74,7 @@ export default function Home() {
                             <Tag key={t}>{t}</Tag>
                         ))}
                     </div>
-                    <HoverCue className="mt-auto block pt-4 text-right">詳細を見る ↗</HoverCue>
+                    <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                 </GlassCard>
 
                 {skillGroups.map((g) => (
@@ -88,7 +91,7 @@ export default function Home() {
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
                             ))}
                         </div>
-                        <HoverCue className="mt-auto block pt-4 text-right">詳細を見る ↗</HoverCue>
+                        <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                     </GlassCard>
                 ))}
 

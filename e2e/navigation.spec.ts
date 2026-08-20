@@ -38,6 +38,16 @@ test.describe("SiteNav", () => {
         );
     });
 
+    test("about リンクで About ページへ遷移し active になる", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("link", { name: "about", exact: true }).click();
+        await expect(page).toHaveURL("/about");
+        await expect(page.getByRole("heading", { level: 1, name: "私自身について" })).toBeVisible();
+        await expect(page.getByRole("link", { name: "about", exact: true })).toHaveClass(
+            /text-indigo-600/,
+        );
+    });
+
     test("Works では works が active（text-indigo-600）", async ({ page }) => {
         await page.goto("/works");
         await expect(page.getByRole("link", { name: "works", exact: true })).toHaveClass(
@@ -58,16 +68,16 @@ test.describe("GlassCard カード全体クリック遷移", () => {
 
     test("Works の featured カードから BREW へ遷移する", async ({ page }) => {
         await page.goto("/works");
-        // 「詳細を見る ↗」は複数カードに載りうるため featured カードにスコープする
+        // 「learn more ↗」は複数カードに載りうるため featured カードにスコープする
         // （div.group = GlassCard のルート。他のマークアップには付かない）
-        await featuredCard(page).getByText("詳細を見る ↗").click();
+        await featuredCard(page).getByText("learn more ↗").click();
         await expect(page).toHaveURL("/works/brew");
     });
 
     test("導線テキストはカードホバー時のみ表示される", async ({ page }) => {
         await page.goto("/");
         const card = featuredCard(page);
-        const cue = card.getByText("詳細を見る ↗");
+        const cue = card.getByText("learn more ↗");
         await expect(cue).toHaveCSS("opacity", "0");
         await card.hover();
         await expect(cue).toHaveCSS("opacity", "1");
@@ -87,6 +97,18 @@ test.describe("GlassCard カード全体クリック遷移", () => {
 
     test("Skills から home に戻れる", async ({ page }) => {
         await page.goto("/skills");
+        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await expect(page).toHaveURL("/");
+    });
+
+    test("Home の about カードから /about へ遷移する", async ({ page }) => {
+        await page.goto("/");
+        await page.getByText("その両方の立場で会話できる").click();
+        await expect(page).toHaveURL("/about");
+    });
+
+    test("About から home に戻れる", async ({ page }) => {
+        await page.goto("/about");
         await page.getByRole("link", { name: "← home に戻る" }).click();
         await expect(page).toHaveURL("/");
     });

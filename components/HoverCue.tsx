@@ -6,7 +6,7 @@ type HoverCueProps = {
 };
 
 /**
- * GlassCard 内の導線テキスト（「詳細を見る ↗」）。
+ * GlassCard 内の導線テキスト（「learn more ↗」）。
  * カードホバー時のみフェードインする（GlassCard 右上の "+" バッジと同じ挙動）。
  * ホバー非対応環境（タッチデバイス）では常時表示。
  */

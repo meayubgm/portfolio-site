@@ -77,6 +77,7 @@ portfolio-site/
 │   ├── page.tsx            # Home（/）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
 │   ├── skills/page.tsx     # スキル一覧（/skills）
+│   ├── about/page.tsx      # 自己紹介（/about）
 │   └── works/
 │       ├── page.tsx        # 実績一覧（/works）
 │       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
@@ -99,6 +100,7 @@ portfolio-site/
 │   ├── StatBlock.tsx
 │   └── Tag.tsx
 ├── lib/
+│   ├── about.ts            # About ページのテキストデータ（強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
 │   └── skills.ts           # スキルデータ（Development / Design。Home のカードと /skills で共用）
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
@@ -143,5 +145,5 @@ featured カード（BREW）のグラデーション面は `@utility bg-featured
 ## メモ
 
 - 日本語見出しフォントは LINE Seed JP の代替として IBM Plex Sans JP を使用（再配布不可のため）。
-- Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は未設定（`href="#"`）。公開前に差し替えること。
+- Home の「連絡する」ボタンは `href` 未指定のため `<button>` のまま（遷移しない）。Home の Contact Form も `LinkRow` の既定値 `href="#"` のまま。いずれも公開前に差し替えること。Home の GitHub / X、BREW ケーススタディのデモ / リポジトリは実 URL を設定済み。
 - BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像に差し替え済み（`public/works/brew/`）。「実装・実機検証」の実機タイマー GIF は未用意で `MediaPlaceholder` のまま。

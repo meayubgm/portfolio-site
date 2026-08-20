@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * スモークテスト: 3ルートが正常に表示され、想定の主要見出し / <title> を持つこと。
+ * スモークテスト: 5ルートが正常に表示され、想定の主要見出し / <title> を持つこと。
  * SSG のため、レスポンス 200 と主要コンテンツの存在を最小限で確認する。
  */
 
@@ -42,4 +42,17 @@ test("BREW ケーススタディ（/works/brew）が表示される", async ({ p
 
     await expect(page).toHaveTitle("Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Coffee Brew Timer");
+});
+
+test("About（/about）が表示される", async ({ page }) => {
+    const res = await page.goto("/about");
+    expect(res?.status()).toBe(200);
+
+    await expect(page).toHaveTitle("私自身について — Megumi Ayuha");
+    await expect(page.getByRole("heading", { level: 1, name: "私自身について" })).toBeVisible();
+    // 強み4項目と来歴の年表が並ぶ
+    await expect(
+        page.getByRole("heading", { level: 2, name: "デザインと実装をつなぐ" }),
+    ).toBeVisible();
+    await expect(page.getByText("1990.12")).toBeVisible();
 });

@@ -80,9 +80,10 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 
 ### ディレクトリ
 
-- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`。
-- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills` は Home へ、`/works/brew` は `/works` へ戻る。
+- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`。
+- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about` は Home へ、`/works/brew` は `/works` へ戻る。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
+- `lib/about.ts` — About ページのテキストデータ（挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴）。
 - `lib/skills.ts` — スキルデータ（Development / Design）。Home のスキルカードと `/skills` ページの単一ソース。`description` は `/skills` でのみ表示する。
 
 ## コンテンツ方針（デザインシステム由来）
@@ -94,6 +95,6 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 
 ## 未設定・注意点
 
-- Home の「連絡する」ボタン、Email / GitHub / デモ / リポジトリのリンク先は `href="#"` のまま。
+- Home の「連絡する」ボタンは `href` 未指定で `<button>` のまま。Home の Contact Form は `LinkRow` の既定値 `href="#"` のまま。GitHub / X と BREW のデモ / リポジトリは実 URL を設定済み。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - コミット author はこのリポジトリのローカル設定で `user.email = meayubgm@gmail.com`（`user.name` はグローバルの `ayuha` を継承）。リモートは `git@github.com:meayubgm/portfolio-site.git`。

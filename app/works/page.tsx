@@ -55,7 +55,7 @@ export default function Works() {
                                 <Tag key={t}>{t}</Tag>
                             ))}
                         </div>
-                        <HoverCue className="whitespace-nowrap">詳細を見る ↗</HoverCue>
+                        <HoverCue className="whitespace-nowrap">learn more ↗</HoverCue>
                     </div>
                 </GlassCard>
 
