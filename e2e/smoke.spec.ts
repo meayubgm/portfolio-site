@@ -25,8 +25,8 @@ test("Works 一覧（/works）が表示される", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1, name: "実績一覧" })).toBeVisible();
 });
 
-test("スキル（/skill）が表示される", async ({ page }) => {
-    const res = await page.goto("/skill");
+test("スキル（/skills）が表示される", async ({ page }) => {
+    const res = await page.goto("/skills");
     expect(res?.status()).toBe(200);
 
     await expect(page).toHaveTitle("スキル — Megumi Ayuha");

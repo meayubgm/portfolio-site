@@ -5,7 +5,7 @@ export type SkillGroup = {
     heading: string;
     /** 見出し下の補足文 */
     note: string;
-    /** description は /skill ページでのみ表示（Home の SkillBar は name / percent のみ使用） */
+    /** description は /skills ページでのみ表示（Home の SkillBar は name / percent のみ使用） */
     items: { name: string; percent: number; description: string }[];
 };
 

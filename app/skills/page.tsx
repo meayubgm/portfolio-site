@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BackLink } from "@/components/BackLink";
 import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
 import { GlassCard } from "@/components/GlassCard";
@@ -13,10 +14,12 @@ export const metadata: Metadata = {
 export default function Skill() {
     return (
         <div>
-            <header className="pt-24 pb-12">
+            <BackLink href="/">home に戻る</BackLink>
+
+            <header className="pt-10 pb-12">
                 <PageHeading
                     size="list"
-                    eyebrow="skill"
+                    eyebrow="skills"
                     title="スキル"
                     lead="バーの長さは実務での使用経験月数を基準にした相対値です。習熟度そのものではなく、どれだけの期間その技術に向き合ってきたかの目安として掲載しています。"
                 />

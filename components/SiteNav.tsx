@@ -8,7 +8,7 @@ import icon from "../app/icon.svg";
 const links = [
     { href: "/", label: "home" },
     { href: "/works", label: "works" },
-    { href: "/skill", label: "skill" },
+    { href: "/skills", label: "skills" },
 ];
 
 export function SiteNav() {
@@ -27,7 +27,9 @@ export function SiteNav() {
                     <Link
                         key={l.href}
                         href={l.href}
-                        className={isActive(l.href) ? "text-slate-900" : "text-slate-600"}
+                        className={`transition-colors hover:text-sky-700 ${
+                            isActive(l.href) ? "text-indigo-600" : "text-slate-600"
+                        }`}
                     >
                         {l.label}
                     </Link>

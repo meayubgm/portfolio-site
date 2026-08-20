@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BackLink } from "@/components/BackLink";
 import { CardGrid } from "@/components/CardGrid";
 import { CardLabel } from "@/components/CardLabel";
 import { GlassCard } from "@/components/GlassCard";
@@ -16,7 +17,9 @@ export const metadata: Metadata = {
 export default function Works() {
     return (
         <div>
-            <header className="pt-24 pb-12">
+            <BackLink href="/">home に戻る</BackLink>
+
+            <header className="pt-10 pb-12">
                 <PageHeading
                     size="list"
                     eyebrow="works"

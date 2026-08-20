@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { BackLink } from "@/components/BackLink";
 import { LinkRow } from "@/components/LinkRow";
 import { MonoHeading } from "@/components/MonoHeading";
 import { PageHeading } from "@/components/PageHeading";
@@ -35,11 +35,7 @@ function MediaPlaceholder({ label }: { label: string }) {
 export default function BrewCaseStudy() {
     return (
         <div>
-            <div className="pt-24">
-                <Link href="/works" className="font-mono text-[12.5px] text-indigo-600">
-                    ← works に戻る
-                </Link>
-            </div>
+            <BackLink href="/works">works に戻る</BackLink>
 
             <div className="px-9">
                 <header className="border-b border-dashed border-indigo-600/15 py-10">

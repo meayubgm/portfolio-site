@@ -80,10 +80,10 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 
 ### ディレクトリ
 
-- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skill`。
-- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系5種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。
+- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`。
+- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills` は Home へ、`/works/brew` は `/works` へ戻る。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
-- `lib/skills.ts` — スキルデータ（Development / Design）。Home のスキルカードと `/skill` ページの単一ソース。`description` は `/skill` でのみ表示する。
+- `lib/skills.ts` — スキルデータ（Development / Design）。Home のスキルカードと `/skills` ページの単一ソース。`description` は `/skills` でのみ表示する。
 
 ## コンテンツ方針（デザインシステム由来）
 
