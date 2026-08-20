@@ -36,7 +36,9 @@ export default function Home() {
                         <Button variant="primary" href="/works">
                             Works を見る
                         </Button>
-                        <Button variant="ghost">連絡する</Button>
+                        <Button variant="ghost" href="/contact">
+                            連絡する
+                        </Button>
                     </div>
                 </div>
             </header>
@@ -112,7 +114,7 @@ export default function Home() {
                         <LinkRow external href="https://x.com/yu_ha_design">
                             X
                         </LinkRow>
-                        <LinkRow>Contact Form</LinkRow>
+                        <LinkRow href="/contact">Contact Form</LinkRow>
                     </div>
                 </GlassCard>
             </CardGrid>

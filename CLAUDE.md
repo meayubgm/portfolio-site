@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 フロントエンドエンジニア「Megumi Ayuha」の個人ポートフォリオサイト。
 Claude Design で作成したプロトタイプ（**Frost & Blueprint** デザインシステム）を、
 Next.js 16 (App Router) + Tailwind CSS v4 で実装したもの。全ページ静的生成（SSG）。
+唯一の例外がお問い合わせフォームの送信先 `app/api/contact/route.ts`（Route Handler = 動的）。
 
 ## 開発コマンド
 
@@ -75,16 +76,45 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 ### Client / Server の切り分け
 
 - ページ本体（`app/**/page.tsx`）とほとんどのコンポーネントは Server Component。
-- `"use client"` は **`components/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）と **`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）の2つだけ。
+- `"use client"` は **`components/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の3つだけ。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` ネストは不可、という制約からこの設計になっている。
+- `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため、`col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
 ### ディレクトリ
 
-- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`。
-- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about` は Home へ、`/works/brew` は `/works` へ戻る。
+- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）。
+- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、`/contact` 専用の2種（ContactForm / FormField）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロールの行で、`input` / `textarea` に当てる共通クラスを `formControlClass` として export する。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
 - `lib/about.ts` — About ページのテキストデータ（挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴）。
 - `lib/skills.ts` — スキルデータ（Development / Design）。Home のスキルカードと `/skills` ページの単一ソース。`description` は `/skills` でのみ表示する。
+
+### お問い合わせフォーム（/contact）
+
+`/contact` ページ自体は SSG。送信だけが `POST /api/contact`（Route Handler）で処理される。
+`components/ContactForm.tsx` が入力（氏名 / 会社名（任意） / メール / 本文）を JSON で POST し、
+Route Handler が **Honeypot → Turnstile 検証 → Resend でメール送信** の順に処理する。
+
+必要な環境変数は `.env.example` を `.env.local` にコピーして設定する（`.env` 系は git 管理外）。
+
+| 変数 | 用途 |
+| --- | --- |
+| `RESEND_API_KEY` | Resend の API キー |
+| `CONTACT_TO_EMAIL` | 送信先（自分の受信アドレス） |
+| `CONTACT_FROM_EMAIL` | 送信元。ドメイン検証前は `onboarding@resend.dev` |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー（クライアント側） |
+| `TURNSTILE_SECRET_KEY` | Turnstile のシークレット（サーバー側） |
+
+- 環境変数が未設定でも **モジュールトップで throw しない**（`next build` を壊さないため）。ハンドラ内で検出して 500 を返す。
+  サイトキー未設定時は、フォームが Turnstile ウィジェットの代わりに未設定の注記を表示する。
+- ローカル確認には Turnstile の公式テストキー（`1x0000...`）を使う。常に検証が成功する。
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` は**ビルド時にバンドルへ埋め込まれる**。実行時にだけ渡す構成では空文字になり、ウィジェットが出ず送信が必ず 400 になるため、`next build` を実行する環境にも設定すること。
+- **ボット対策は Honeypot + Turnstile の2段**。`ContactForm` の `#contact-website` は
+  人間には見えない Honeypot 欄で、`display:none` を検出するボットを避けるため画面外に置いている
+  （`aria-hidden` + `tabIndex={-1}`）。**この欄は削除も改名もしないこと**。
+  Honeypot に該当した送信は、検知を悟らせないため `200 { ok: true }` を返してメール送信のみスキップする。
+- 「送信までの経過時間が短すぎたら弾く」判定は**入れない**（一度実装して削除した）。経過時間はクライアントが
+  自由に値を作れるためフォームを介さない POST には無力な一方、オートフィル + 貼り付けで素早く送信した
+  実在の訪問者のメールを、成功表示のまま黙って捨ててしまう副作用があるため。
 
 ## コンテンツ方針（デザインシステム由来）
 
@@ -95,6 +125,8 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 
 ## 未設定・注意点
 
-- Home の「連絡する」ボタンは `href` 未指定で `<button>` のまま。Home の Contact Form は `LinkRow` の既定値 `href="#"` のまま。GitHub / X と BREW のデモ / リポジトリは実 URL を設定済み。
+- サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ、GitHub / X と BREW のデモ / リポジトリは実 URL）。
+- Resend / Turnstile の実キーは未取得。`.env.example` の雛形のみ用意してある（Turnstile はテストキー、`RESEND_API_KEY` は空）。実際のメール送信は実キーを入れるまで動かない。
+- `/api/contact` にレート制限は入れていない（永続ストアが必要なため）。Honeypot + Turnstile の2段で防いでいる。
 - ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - コミット author はこのリポジトリのローカル設定で `user.email = meayubgm@gmail.com`（`user.name` はグローバルの `ayuha` を継承）。リモートは `git@github.com:meayubgm/portfolio-site.git`。

@@ -5,6 +5,9 @@ type ButtonProps = {
     variant?: "primary" | "ghost";
     children: ReactNode;
     href?: string;
+    /** href 未指定時の <button> の type。フォーム送信ボタンでは "submit" を渡す */
+    type?: "button" | "submit";
+    disabled?: boolean;
 };
 
 const base =
@@ -15,7 +18,13 @@ const styles = {
     ghost: "bg-white/60 text-slate-900 border border-sky-700/15 backdrop-blur-[6px] hover:bg-white/85 hover:border-sky-700/30",
 };
 
-export function Button({ variant = "primary", children, href }: ButtonProps) {
+export function Button({
+    variant = "primary",
+    children,
+    href,
+    type = "button",
+    disabled = false,
+}: ButtonProps) {
     const className = `${base} ${styles[variant]}`;
     if (href) {
         return (
@@ -25,7 +34,11 @@ export function Button({ variant = "primary", children, href }: ButtonProps) {
         );
     }
     return (
-        <button type="button" className={className}>
+        <button
+            type={type}
+            disabled={disabled}
+            className={`${className} disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0`}
+        >
             {children}
         </button>
     );

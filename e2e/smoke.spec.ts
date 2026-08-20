@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * スモークテスト: 5ルートが正常に表示され、想定の主要見出し / <title> を持つこと。
+ * スモークテスト: 6ルートが正常に表示され、想定の主要見出し / <title> を持つこと。
  * SSG のため、レスポンス 200 と主要コンテンツの存在を最小限で確認する。
  */
 
@@ -55,4 +55,26 @@ test("About（/about）が表示される", async ({ page }) => {
         page.getByRole("heading", { level: 2, name: "デザインと実装をつなぐ" }),
     ).toBeVisible();
     await expect(page.getByText("1990.12")).toBeVisible();
+});
+
+test("お問い合わせ（/contact）が表示される", async ({ page }) => {
+    const res = await page.goto("/contact");
+    expect(res?.status()).toBe(200);
+
+    await expect(page).toHaveTitle("お問い合わせ — Megumi Ayuha");
+    await expect(page.getByRole("heading", { level: 1, name: "お問い合わせ" })).toBeVisible();
+    // 入力4項目が label と紐づいている
+    await expect(page.getByLabel("お名前")).toBeVisible();
+    await expect(page.getByLabel("会社名")).toBeVisible();
+    await expect(page.getByLabel("メールアドレス")).toBeVisible();
+    await expect(page.getByLabel("お問い合わせ内容")).toBeVisible();
+
+    // Honeypot は画面外に置かれ、キーボード / スクリーンリーダーからも到達できない。
+    // display:none を検出するボットがあるため意図的に「表示はされている」実装になっており、
+    // toBeHidden ではなく位置と属性で確認する。
+    const honeypot = page.locator("#contact-website");
+    await expect(honeypot).toHaveAttribute("tabindex", "-1");
+    await expect(honeypot.locator("xpath=ancestor::div[@aria-hidden='true']")).toHaveCount(1);
+    const box = await honeypot.boundingBox();
+    expect(box?.x ?? 0).toBeLessThan(0);
 });

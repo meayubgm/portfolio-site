@@ -119,3 +119,62 @@ test.describe("GlassCard カード全体クリック遷移", () => {
         await expect(page).toHaveURL("/works");
     });
 });
+
+test.describe("Contact 導線", () => {
+    test("contact リンクでお問い合わせページへ遷移し active になる", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("link", { name: "contact", exact: true }).click();
+        await expect(page).toHaveURL("/contact");
+        await expect(page.getByRole("heading", { level: 1, name: "お問い合わせ" })).toBeVisible();
+        await expect(page.getByRole("link", { name: "contact", exact: true })).toHaveClass(
+            /text-indigo-600/,
+        );
+    });
+
+    test("Home の「連絡する」ボタンから /contact へ遷移する", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("link", { name: "連絡する" }).click();
+        await expect(page).toHaveURL("/contact");
+    });
+
+    test("Home の Contact Form リンクから /contact へ遷移する", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("link", { name: "Contact Form" }).click();
+        await expect(page).toHaveURL("/contact");
+    });
+
+    test("Contact から home に戻れる", async ({ page }) => {
+        await page.goto("/contact");
+        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await expect(page).toHaveURL("/");
+    });
+});
+
+/**
+ * /api/contact の入口の挙動のみ検証する。
+ * 実送信（Turnstile 検証 / Resend）は外部 API 依存のため E2E の対象外で、
+ * ここでの2ケースはいずれも Turnstile 検証より手前で返るため外部通信は発生しない。
+ */
+test.describe("/api/contact", () => {
+    test("必須項目が欠けていれば 400 を返す", async ({ request }) => {
+        const res = await request.post("/api/contact", {
+            data: { name: "", email: "not-an-email", message: "" },
+        });
+        expect(res.status()).toBe(400);
+    });
+
+    test("Honeypot が埋まっていれば 200 を返しつつ送信しない", async ({ request }) => {
+        const res = await request.post("/api/contact", {
+            data: {
+                name: "テスト太郎",
+                company: "",
+                email: "test@example.com",
+                message: "テスト送信です。",
+                website: "https://spam.example.com",
+                token: "dummy",
+            },
+        });
+        expect(res.status()).toBe(200);
+        expect(await res.json()).toEqual({ ok: true });
+    });
+});

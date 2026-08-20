@@ -10,6 +10,7 @@ const links = [
     { href: "/works", label: "works" },
     { href: "/skills", label: "skills" },
     { href: "/about", label: "about" },
+    { href: "/contact", label: "contact" },
 ];
 
 export function SiteNav() {
@@ -35,7 +36,6 @@ export function SiteNav() {
                         {l.label}
                     </Link>
                 ))}
-                <span className="cursor-default text-slate-500">contact</span>
             </div>
         </nav>
     );
