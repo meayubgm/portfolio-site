@@ -6,22 +6,101 @@ import { GlassCard } from "@/commons/GlassCard";
 import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillName } from "@/components/SkillName";
-import type { SkillGroup, SkillSection } from "@/lib/skills";
+import type { SkillGroup, SkillItem, SkillSection } from "@/lib/skills";
 import { skillGroups } from "@/lib/skills";
 
 export const metadata: Metadata = {
     title: "スキル — Megumi Ayuha",
 };
 
+type SkillColumnData = { key: string; sections: SkillSection[] };
+
 /** layout.columns が 2 のときは section.column（既定 1）で列に振り分ける */
-function toColumns(g: SkillGroup): SkillSection[][] {
-    if (g.layout.columns === 1) {
-        return [g.sections];
+function toColumns(group: SkillGroup): SkillColumnData[] {
+    if (group.layout.columns === 1) {
+        return [{ key: "column-1", sections: group.sections }];
     }
     return [
-        g.sections.filter((s) => (s.column ?? 1) === 1),
-        g.sections.filter((s) => s.column === 2),
+        {
+            key: "column-1",
+            sections: group.sections.filter((s) => (s.column ?? 1) === 1),
+        },
+        {
+            key: "column-2",
+            sections: group.sections.filter((s) => s.column === 2),
+        },
     ];
+}
+
+/** スキル項目1件（名前 + 説明） */
+function SkillItemRow({ item }: { item: SkillItem }) {
+    return (
+        <div className="border-t border-dashed border-indigo-600/15 py-4">
+            <SkillName name={item.name} />
+            <Text variant="body" className="mt-2.5">
+                {item.description}
+            </Text>
+        </div>
+    );
+}
+
+/** heading があるときだけ mono の小見出しを出す */
+function SectionHeading({ heading }: { heading?: string }) {
+    if (!heading) {
+        return null;
+    }
+    return (
+        <Text as="h3" variant="monoSm" tone="strong" className="mt-4 mb-1 uppercase tracking-label">
+            {heading}
+        </Text>
+    );
+}
+
+/** セクション見出し（あれば）と、その配下のスキル項目 */
+function SkillSectionBlock({ section }: { section: SkillSection }) {
+    return (
+        <div className="flex flex-col">
+            <SectionHeading heading={section.heading} />
+            {section.items.map((item) => (
+                <SkillItemRow key={item.name} item={item} />
+            ))}
+        </div>
+    );
+}
+
+/** カード内の1列（セクションを縦に積む） */
+function SkillColumn({ sections }: { sections: SkillSection[] }) {
+    return (
+        <div className="flex flex-col">
+            {sections.map((section, index) => (
+                <SkillSectionBlock key={section.heading ?? `section-${index}`} section={section} />
+            ))}
+        </div>
+    );
+}
+
+/** スキルグループ1つ分のカード。列コンテナまでを組み立てる */
+function SkillGroupCard({ group }: { group: SkillGroup }) {
+    return (
+        <GlassCard span={group.layout.span} padding="lg">
+            <CardLabel>{`${group.label} — ${group.heading}`}</CardLabel>
+            <Text as="h2" variant="cardTitle" tone="strong" className="mb-2">
+                {group.heading}
+            </Text>
+            <Text variant="note" tone="muted" className="mb-2">
+                {group.skillsNote ?? group.note}
+            </Text>
+            <div
+                className={
+                    group.layout.columns === 2 ? "grid grid-cols-2 gap-x-8" : "flex flex-col"
+                }
+            >
+                {toColumns(group).map((column) => (
+                    <SkillColumn key={column.key} sections={column.sections} />
+                ))}
+            </div>
+        </GlassCard>
+    );
 }
 
 export default function Skill() {
@@ -39,60 +118,8 @@ export default function Skill() {
             </header>
 
             <CardGrid>
-                {skillGroups.map((g) => (
-                    <GlassCard key={g.heading} span={g.layout.span} padding="lg">
-                        <CardLabel>{`${g.label} — ${g.heading}`}</CardLabel>
-                        <Text as="h2" variant="cardTitle" tone="strong" className="mb-2">
-                            {g.heading}
-                        </Text>
-                        <Text variant="note" tone="muted" className="mb-2">
-                            {g.skillsNote ?? g.note}
-                        </Text>
-                        <div
-                            className={
-                                g.layout.columns === 2
-                                    ? "grid grid-cols-2 gap-x-8"
-                                    : "flex flex-col"
-                            }
-                        >
-                            {toColumns(g).map((sections, i) => (
-                                <div
-                                    // biome-ignore lint/suspicious/noArrayIndexKey: 列は固定数で並び替えが起きない
-                                    key={i}
-                                    className="flex flex-col"
-                                >
-                                    {sections.map((section, j) => (
-                                        <div
-                                            key={section.heading ?? `section-${j}`}
-                                            className="flex flex-col"
-                                        >
-                                            {section.heading ? (
-                                                <Text
-                                                    as="h3"
-                                                    variant="monoSm"
-                                                    tone="strong"
-                                                    className="mt-4 mb-1 uppercase tracking-label"
-                                                >
-                                                    {section.heading}
-                                                </Text>
-                                            ) : null}
-                                            {section.items.map((s) => (
-                                                <div
-                                                    key={s.name}
-                                                    className="border-t border-dashed border-indigo-600/15 py-4"
-                                                >
-                                                    <SkillName name={s.name} />
-                                                    <Text variant="body" className="mt-2.5">
-                                                        {s.description}
-                                                    </Text>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    </GlassCard>
+                {skillGroups.map((group) => (
+                    <SkillGroupCard key={group.heading} group={group} />
                 ))}
             </CardGrid>
         </div>
