@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Text } from "./Text";
 
 type BackLinkProps = {
     /** 戻り先のパス */
@@ -12,12 +13,15 @@ type BackLinkProps = {
 export function BackLink({ href, children }: BackLinkProps) {
     return (
         <div className="pt-24">
-            <Link
+            <Text
+                as={Link}
                 href={href}
-                className="font-mono text-[12.5px] text-indigo-600 transition-colors hover:text-sky-700"
+                variant="monoSm"
+                tone="accent"
+                className="transition-colors hover:text-sky-700"
             >
                 ← {children}
-            </Link>
+            </Text>
         </div>
     );
 }

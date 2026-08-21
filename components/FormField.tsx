@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Text } from "@/commons/Text";
 
 type FormFieldProps = {
     /** input / textarea の id。label と紐づける */
@@ -14,7 +15,7 @@ type FormFieldProps = {
 
 /** フォーム入力コントロールに共通で当てるクラス（input / textarea 双方で使う） */
 export const formControlClass =
-    "w-full rounded-btn border border-sky-700/15 bg-white/60 px-3.5 py-2.5 font-body text-[14.5px] text-slate-900 backdrop-blur-[6px] outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-600 disabled:cursor-not-allowed disabled:opacity-60";
+    "w-full rounded-btn border border-sky-700/15 bg-white/60 px-3.5 py-2.5 font-body text-sm text-slate-900 backdrop-blur-[6px] outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-600 disabled:cursor-not-allowed disabled:opacity-60";
 
 /** エラーメッセージの要素 id。input 側の aria-describedby と揃える */
 export function errorId(id: string) {
@@ -26,22 +27,24 @@ export function FormField({ id, label, optional = false, error, children }: Form
     return (
         <div className="mb-4">
             <label htmlFor={id} className="mb-1.5 flex items-baseline gap-2">
-                <span className="font-display text-[13.5px] text-slate-900">{label}</span>
+                <Text as="span" variant="formLabel" tone="strong">
+                    {label}
+                </Text>
                 {optional ? (
-                    <span className="font-mono text-[10.5px] text-slate-500">{"// 任意"}</span>
+                    <Text as="span" variant="monoSm" tone="muted">
+                        {"// 任意"}
+                    </Text>
                 ) : (
-                    <span className="font-mono text-[10.5px] text-indigo-600">{"// 必須"}</span>
+                    <Text as="span" variant="monoSm" tone="accent">
+                        {"// 必須"}
+                    </Text>
                 )}
             </label>
             {children}
             {error ? (
-                <p
-                    id={errorId(id)}
-                    role="alert"
-                    className="mt-1.5 mb-0 font-body text-[12.5px] leading-[1.6] text-red-500"
-                >
+                <Text id={errorId(id)} role="alert" variant="note" tone="danger" className="mt-1.5">
                     {error}
-                </p>
+                </Text>
             ) : null}
         </div>
     );

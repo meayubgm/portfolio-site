@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { BackLink } from "@/components/BackLink";
-import { CardGrid } from "@/components/CardGrid";
+import { BackLink } from "@/commons/BackLink";
+import { CardGrid } from "@/commons/CardGrid";
+import { GlassCard } from "@/commons/GlassCard";
 import { ContactForm } from "@/components/ContactForm";
-import { GlassCard } from "@/components/GlassCard";
 import { PageHeading } from "@/components/PageHeading";
 
 export const metadata: Metadata = {

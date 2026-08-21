@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { BackLink } from "@/components/BackLink";
-import { CardGrid } from "@/components/CardGrid";
-import { CardLabel } from "@/components/CardLabel";
-import { GlassCard } from "@/components/GlassCard";
+import { BackLink } from "@/commons/BackLink";
+import { CardGrid } from "@/commons/CardGrid";
+import { CardLabel } from "@/commons/CardLabel";
+import { GlassCard } from "@/commons/GlassCard";
+import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillName } from "@/components/SkillName";
 import type { SkillGroup, SkillSection } from "@/lib/skills";
@@ -41,12 +42,12 @@ export default function Skill() {
                 {skillGroups.map((g) => (
                     <GlassCard key={g.heading} span={g.layout.span} padding="lg">
                         <CardLabel>{`${g.label} — ${g.heading}`}</CardLabel>
-                        <h2 className="m-0 mb-2 font-display text-[20px] font-semibold">
+                        <Text as="h2" variant="cardTitle" tone="strong" className="mb-2">
                             {g.heading}
-                        </h2>
-                        <p className="m-0 mb-2 text-[13px] leading-[1.6] text-slate-500">
+                        </Text>
+                        <Text variant="note" tone="muted" className="mb-2">
                             {g.skillsNote ?? g.note}
-                        </p>
+                        </Text>
                         <div
                             className={
                                 g.layout.columns === 2
@@ -66,9 +67,14 @@ export default function Skill() {
                                             className="flex flex-col"
                                         >
                                             {section.heading ? (
-                                                <h3 className="m-0 mt-4 mb-1 font-mono text-[12.5px] uppercase tracking-[0.06em] text-slate-900">
+                                                <Text
+                                                    as="h3"
+                                                    variant="monoSm"
+                                                    tone="strong"
+                                                    className="mt-4 mb-1 uppercase tracking-label"
+                                                >
                                                     {section.heading}
-                                                </h3>
+                                                </Text>
                                             ) : null}
                                             {section.items.map((s) => (
                                                 <div
@@ -76,9 +82,9 @@ export default function Skill() {
                                                     className="border-t border-dashed border-indigo-600/15 py-4"
                                                 >
                                                     <SkillName name={s.name} />
-                                                    <p className="m-0 mt-2.5 text-[13.5px] leading-[1.7] text-slate-600">
+                                                    <Text variant="body" className="mt-2.5">
                                                         {s.description}
-                                                    </p>
+                                                    </Text>
                                                 </div>
                                             ))}
                                         </div>

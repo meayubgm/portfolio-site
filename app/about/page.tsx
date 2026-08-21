@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { BackLink } from "@/components/BackLink";
-import { CardGrid } from "@/components/CardGrid";
-import { CardLabel } from "@/components/CardLabel";
-import { GlassCard } from "@/components/GlassCard";
-import { MonoHeading } from "@/components/MonoHeading";
+import { BackLink } from "@/commons/BackLink";
+import { CardGrid } from "@/commons/CardGrid";
+import { CardLabel } from "@/commons/CardLabel";
+import { GlassCard } from "@/commons/GlassCard";
+import { MonoHeading } from "@/commons/MonoHeading";
+import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { favorites, intro, nextSteps, person, story, strengths } from "@/lib/about";
 
@@ -18,7 +19,9 @@ export default function About() {
 
             <header className="pt-10 pb-12">
                 <PageHeading size="list" eyebrow="about" title="私自身について" lead={intro[0]} />
-                <p className="m-0 mt-4 text-base leading-[1.8] text-slate-600">{intro[1]}</p>
+                <Text variant="lead" className="mt-4">
+                    {intro[1]}
+                </Text>
             </header>
 
             <MonoHeading>{"// strength — エンジニアとしての強み"}</MonoHeading>
@@ -26,10 +29,10 @@ export default function About() {
                 {strengths.map((s) => (
                     <GlassCard key={s.no} span={3}>
                         <CardLabel>{`strength ${s.no}`}</CardLabel>
-                        <h2 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
+                        <Text as="h2" variant="cardTitle" tone="strong" className="mb-2.5">
                             {s.title}
-                        </h2>
-                        <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">{s.body}</p>
+                        </Text>
+                        <Text variant="body">{s.body}</Text>
                     </GlassCard>
                 ))}
             </CardGrid>
@@ -37,10 +40,10 @@ export default function About() {
             <MonoHeading>{"// person — 人となり"}</MonoHeading>
             <CardGrid>
                 <GlassCard span={6} padding="lg">
-                    <p className="m-0 mb-4 text-[14.5px] leading-[1.75] text-slate-600">
+                    <Text variant="body" className="mb-4">
                         {person[0]}
-                    </p>
-                    <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">{person[1]}</p>
+                    </Text>
+                    <Text variant="body">{person[1]}</Text>
                 </GlassCard>
             </CardGrid>
 
@@ -48,10 +51,12 @@ export default function About() {
             <CardGrid>
                 {favorites.map((f) => (
                     <GlassCard key={f.name} span={3}>
-                        <h3 className="m-0 mb-1.5 font-display text-[17px] font-semibold">
+                        <Text as="h3" variant="subTitle" tone="strong" className="mb-1.5">
                             {f.name}
-                        </h3>
-                        <p className="m-0 text-[13.5px] leading-[1.7] text-slate-500">{f.note}</p>
+                        </Text>
+                        <Text variant="body" tone="muted">
+                            {f.note}
+                        </Text>
                     </GlassCard>
                 ))}
             </CardGrid>
@@ -59,12 +64,10 @@ export default function About() {
             <MonoHeading>{"// next — これからやってみたいこと"}</MonoHeading>
             <CardGrid>
                 <GlassCard span={6} padding="lg">
-                    <p className="m-0 mb-4 text-[14.5px] leading-[1.75] text-slate-600">
+                    <Text variant="body" className="mb-4">
                         {nextSteps[0]}
-                    </p>
-                    <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">
-                        {nextSteps[1]}
-                    </p>
+                    </Text>
+                    <Text variant="body">{nextSteps[1]}</Text>
                 </GlassCard>
             </CardGrid>
 
@@ -79,10 +82,14 @@ export default function About() {
                                     i === 0 ? "" : "border-t border-dashed border-indigo-600/15"
                                 }`}
                             >
-                                <p className="m-0 w-20 shrink-0 font-mono text-[12.5px] leading-[1.7] text-indigo-600">
+                                <Text
+                                    variant="monoSm"
+                                    tone="accent"
+                                    className="w-20 shrink-0 leading-6"
+                                >
                                     {e.period}
-                                </p>
-                                <p className="m-0 text-sm leading-[1.7] text-slate-600">{e.body}</p>
+                                </Text>
+                                <Text variant="body">{e.body}</Text>
                             </div>
                         ))}
                     </div>

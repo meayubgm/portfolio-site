@@ -1,12 +1,13 @@
-import { Button } from "@/components/Button";
-import { CardGrid } from "@/components/CardGrid";
-import { CardLabel } from "@/components/CardLabel";
-import { GlassCard } from "@/components/GlassCard";
-import { HoverCue } from "@/components/HoverCue";
-import { LinkRow } from "@/components/LinkRow";
+import { Button } from "@/commons/Button";
+import { CardGrid } from "@/commons/CardGrid";
+import { CardLabel } from "@/commons/CardLabel";
+import { GlassCard } from "@/commons/GlassCard";
+import { HoverCue } from "@/commons/HoverCue";
+import { LinkRow } from "@/commons/LinkRow";
+import { Tag } from "@/commons/Tag";
+import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
-import { Tag } from "@/components/Tag";
 import { brewCase } from "@/lib/cases";
 import { homeSkillGroups } from "@/lib/skills";
 
@@ -22,16 +23,16 @@ export default function Home() {
                     />
                 </div>
                 <div>
-                    <p className="m-0 pb-4.5 font-mono text-[15px] text-slate-500">
+                    <Text variant="monoLg" tone="muted" className="pb-4.5">
                         Megumi Ayuha / Web Design × Frontend Development — Portfolio
-                    </p>
-                    <p className="m-0 pb-12 text-[16.5px] leading-[1.8] text-slate-600">
+                    </Text>
+                    <Text variant="lead" className="pb-12">
                         ご覧いただきありがとうございます。
                         <br />
                         デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。
                         <br />
                         指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。
-                    </p>
+                    </Text>
                     <div className="flex gap-3.5">
                         <Button variant="primary" href="/works">
                             Works を見る
@@ -46,31 +47,29 @@ export default function Home() {
             <CardGrid>
                 <GlassCard span={4} padding="lg" href="/about" className="flex flex-col">
                     <CardLabel>about</CardLabel>
-                    <p className="m-0 mt-1.5 font-display text-[21px] font-medium leading-[1.55] text-slate-900">
+                    <Text variant="cardLead" tone="strong" className="mt-1.5">
                         「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」
                         <br />
                         <b className="font-semibold text-sky-700">その両方の立場で会話できる</b>
                         のが強みです
-                    </p>
-                    <p className="m-0 mt-5.5 text-[14.5px] leading-[1.7] text-slate-600">
+                    </Text>
+                    <Text variant="body" className="mt-5.5">
                         Webアプリケーションの受託開発で React / Next.js / TypeScript
                         を中心に、主にフロントエンド開発を3年以上担当してきました。一部機能の
                         要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた
                         デザインカンプ / アイコン制作 も担当しています。
                         <br />
                         丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。
-                    </p>
+                    </Text>
                     <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                 </GlassCard>
 
                 <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured">
                     <CardLabel>featured work — 個人開発</CardLabel>
-                    <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
+                    <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
                         コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
-                    </h3>
-                    <p className="m-0 text-sm leading-[1.7] text-slate-600">
-                        企画・要件定義・UIデザイン・実装まで一人で担当。
-                    </p>
+                    </Text>
+                    <Text variant="body">企画・要件定義・UIデザイン・実装まで一人で担当。</Text>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {brewCase.tags.map((t) => (
                             <Tag key={t}>{t}</Tag>
@@ -82,12 +81,12 @@ export default function Home() {
                 {homeSkillGroups.map((g) => (
                     <GlassCard key={g.heading} span={2} href="/skills" className="flex flex-col">
                         <CardLabel>{g.label}</CardLabel>
-                        <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
+                        <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
                             {g.heading}
-                        </h3>
-                        <p className="m-0 mb-3 text-[13px] leading-[1.6] text-slate-500">
+                        </Text>
+                        <Text variant="note" tone="muted" className="mb-3">
                             {g.note}
-                        </p>
+                        </Text>
                         <div className="flex flex-col gap-2.5">
                             {g.items.map((s) => (
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
@@ -100,12 +99,10 @@ export default function Home() {
                 <GlassCard span={2} className="flex flex-col justify-between">
                     <div>
                         <CardLabel>contact</CardLabel>
-                        <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">
+                        <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
                             Let&apos;s talk
-                        </h3>
-                        <p className="m-0 text-[14.5px] leading-[1.7] text-slate-600">
-                            お気軽にご連絡ください。
-                        </p>
+                        </Text>
+                        <Text variant="body">お気軽にご連絡ください。</Text>
                     </div>
                     <div>
                         <LinkRow first external href="https://github.com/meayubgm">

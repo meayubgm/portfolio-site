@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { textStyles } from "@/commons/Text";
 import icon from "../app/icon.svg";
 
 const links = [
@@ -24,7 +25,7 @@ export function SiteNav() {
             <Link href="/">
                 <Image src={icon} alt="icon" width="40" height="40" />
             </Link>
-            <div className="flex gap-9 font-mono text-[14px]">
+            <div className={`flex gap-9 ${textStyles.monoMd}`}>
                 {links.map((l) => (
                     <Link
                         key={l.href}

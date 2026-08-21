@@ -65,25 +65,34 @@ CSS 変数として定義し、Tailwind v4 が自動でユーティリティを�
 | `--shadow-card-hover` | `shadow-card-hover` |
 | `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
+| `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
 
 featured カード（BREW）のグラデーション面は `@theme` ではなく `@utility bg-featured` として定義している。
 
 - **色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せている**。custom な `--color-*` トークンは廃止し、マークアップは組み込みユーティリティを直接使う（`text-slate-900`＝旧 navy、`text-slate-600`＝旧 slate、`text-slate-500`＝旧 slate-soft、`text-sky-700`＝旧 glow-c、`text-indigo-600`＝旧 indigo、`border-indigo-600/15`＝旧 indigo-soft、`bg-slate-200`＝旧 ice-2）。**新しい色は原則パレットから選ぶ**。ピクセル完全一致より Tailwind パレット準拠を優先する方針（過去の色トークン群は近似シフトで移行済み）。
 - `tailwind.config.js` は存在しない（v4 の CSS ファースト設定）。設定はすべて `globals.css`。
-- 半端な実数値（`14.5px` 等）はプロトタイプ再現のため arbitrary value（`text-[14.5px]`）で表現している。既存の見た目を変えないこと。
+- **文字サイズ・行間は Tailwind 標準スケールに揃えている**。かつてはプロトタイプ再現のため `text-[14.5px]` のような
+  arbitrary value を使っていたが、サイズ16段階・行間8段階まで乱立したため `xs / sm / base / lg / xl / 2xl` と
+  `leading-5 / 6 / 7 / 8`（`text-sm/6` 記法）へ丸めた。**カスタムのサイズ段は持たない**（`xs` = 12px が最小）。
+  **本文・見出し・ラベルは直接クラスを書かず `commons/Text.tsx` の `Text` を使う**（後述）。
+  h1 だけは `clamp()` によるレスポンシブ指定のため `PageHeading` 内に arbitrary value で残している。
+- Tailwind の preflight が `*` に `margin: 0; padding: 0` を当てるため、**`p` / `h1`-`h6` / `ul` に `m-0` を書く必要はない**（かつて全要素に付いていた `m-0` は冗長だったので一括削除した）。リスト記号とインデントも preflight で消えるので、必要な箇所だけ `list-disc pl-[1.3em]` を明示する。
 - 背景のブループリント格子（`--grid-cell` + `body` 直接適用）と、格子・面の淡い indigo は `color-mix(in srgb, var(--color-indigo-600) 6%, transparent)` のように Tailwind パレット変数から生成する。
 
 ### Client / Server の切り分け
 
 - ページ本体（`app/**/page.tsx`）とほとんどのコンポーネントは Server Component。
-- `"use client"` は **`components/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の3つだけ。
+- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の3つだけ。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` ネストは不可、という制約からこの設計になっている。
 - `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため、`col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
 ### ディレクトリ
 
 - `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）。
-- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系7種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink / SkillName）、`/contact` 専用の2種（ContactForm / FormField）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。`SkillBar` は **Home 専用**でバー表示（`percent` 必須）、`SkillName` は **`/skills` 専用**でバーを出さず mono / indigo の名前だけを描く。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`text-red-500`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
+- `commons/` — **ドメイン非依存の DS プリミティブ**（13種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、テキストの共通入口 `Text`。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
+  **`commons/Text.tsx` の `Text` がサイト内テキストの唯一の入口**で、`variant`（サイズ・行間・ウェイト・font-family の組み合わせ）と `tone`（`strong` / `default` / `muted` / `accent` / `danger` の文字色）を選ぶ。`as` で要素を差し替えられ（既定 `p`。`h2` / `span` / `ul` / `figcaption` / `Link` など）、残余 props は要素へ透過する。クラス文字列が必要な箇所（`SiteNav` のリンク列など）向けに `textStyles` / `toneStyles` も export している。**新しいテキストを足すときは、まず既存の variant で足りるか確認する**。足りなければ `textStyles` に1段追加し、ページ側に arbitrary value を書かない。
+- `components/` — **このサイト固有のコンポーネント**（6種）。特定のデータ・特定のページに結びつくため再利用しない。`SiteNav`（ナビのリンク定義を内包）/ `PageHeading`（hero / list / detail の3サイズはこのサイトのページ構成そのもの）/ `ContactForm` + `FormField`（`/contact` 専用）/ `SkillBar`（**Home 専用**。バー表示で `percent` 必須）/ `SkillName`（**`/skills` 専用**。バーを出さず mono / indigo の名前だけ）。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`tone="danger"`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
+- `lib/cn.ts` — `clsx` + `tailwind-merge` の `cn()`。Tailwind の衝突を後勝ちで解決するため、`Text` の `className` から variant / tone のクラスを安全に上書きできる。`@theme` のカスタム字間（`tracking-heading` / `tracking-label`）は `extendTailwindMerge` で classGroup に登録済み。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
 - `lib/contactSchema.ts` — お問い合わせフォームの検証ルール（Zod）。`contactSchema` を `ContactForm` が、Honeypot と Turnstile トークンを足した `contactPayloadSchema` を Route Handler が使う（**検証ルールの単一ソース**）。
 - `lib/about.ts` — About ページのテキストデータ（挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴）。

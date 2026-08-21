@@ -9,7 +9,7 @@
 | --- | --- |
 | フレームワーク | Next.js 16 LTS（App Router / SSG・Turbopack） |
 | 言語 | TypeScript 6 / React 19 |
-| スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`） |
+| スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`）+ clsx / tailwind-merge |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
 | Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals） |
 | テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
@@ -123,28 +123,31 @@ portfolio-site/
 │       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
 ├── public/                 # 静的アセット
 │   └── works/brew/         # BREW ケーススタディの画像（iPhone モック・UI キャプチャ）
-├── components/             # Frost & Blueprint の DS コンポーネント
+├── commons/                # ドメイン非依存の DS プリミティブ（どこからでも使える）
 │   ├── BackLink.tsx        # ページ左上の戻りリンク（← home に戻る 等）
 │   ├── Button.tsx
 │   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
 │   ├── CardLabel.tsx
-│   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
 │   ├── EyebrowLabel.tsx
-│   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
 │   ├── HoverCue.tsx        # カード内の導線テキスト（親カードのホバー時のみ表示）
 │   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
 │   ├── LinkRow.tsx
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
-│   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文
+│   ├── StatBlock.tsx
+│   ├── Tag.tsx
+│   └── Text.tsx            # Text（variant / tone）。サイト内テキストの共通入口
+├── components/             # このサイト固有のコンポーネント（再利用しない）
+│   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
+│   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
+│   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文（hero / list / detail）
 │   ├── SiteNav.tsx         # "use client"（usePathname で active 判定）
 │   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
-│   ├── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
-│   ├── StatBlock.tsx
-│   └── Tag.tsx
+│   └── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
 ├── lib/
 │   ├── about.ts            # About ページのテキストデータ（強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
+│   ├── cn.ts               # clsx + tailwind-merge のクラス結合（衝突は後勝ち）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
@@ -173,8 +176,14 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
 | `--shadow-card-hover` | `shadow-card-hover` |
 | `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
+| `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
 
 featured カード（BREW）のグラデーション面は `@utility bg-featured` として定義しています。
+
+文字サイズ・行間はカスタムトークンを持たず、Tailwind 標準スケール（`xs` / `sm` / `base` / `lg` /
+`xl` / `2xl` と `leading-5` 〜 `leading-8`）だけを使います。サイト内のテキストは
+`commons/Text.tsx` の `Text` を経由して描き、`variant`（サイズ・行間・ウェイト・font-family）と
+`tone`（文字色）から選びます。h1 のみレスポンシブな `clamp()` のため `PageHeading` 内に直接指定しています。
 
 色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せており、custom な `--color-*`
 トークンは持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。

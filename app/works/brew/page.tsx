@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import type { ReactNode } from "react";
-import { BackLink } from "@/components/BackLink";
-import { LinkRow } from "@/components/LinkRow";
-import { MonoHeading } from "@/components/MonoHeading";
+import { BackLink } from "@/commons/BackLink";
+import { LinkRow } from "@/commons/LinkRow";
+import { MonoHeading } from "@/commons/MonoHeading";
+import { Tag } from "@/commons/Tag";
+import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
-import { Tag } from "@/components/Tag";
 import { brewCase } from "@/lib/cases";
 
 export const metadata: Metadata = {
     title: "Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha",
 };
-
-function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
-    return (
-        <p className={`m-0 text-[15px] leading-[1.9] text-slate-600 ${className}`}>{children}</p>
-    );
-}
 
 const heroShots = [
     { src: "/works/brew/iPhone_14ProMax_mock_light_top.png", caption: "ホーム画面" },
@@ -54,10 +48,15 @@ export default function BrewCaseStudy() {
                     <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 p-6">
                         <div className="grid grid-cols-3 gap-4">
                             {heroShots.map((shot) => (
-                                <figure key={shot.src} className="m-0">
-                                    <figcaption className="text-center font-mono text-[12px] text-indigo-600">
+                                <figure key={shot.src}>
+                                    <Text
+                                        as="figcaption"
+                                        variant="monoSm"
+                                        tone="accent"
+                                        className="text-center"
+                                    >
                                         {shot.caption}
-                                    </figcaption>
+                                    </Text>
                                     <Image
                                         src={shot.src}
                                         alt={shot.caption}
@@ -71,16 +70,16 @@ export default function BrewCaseStudy() {
                     </div>
                     <section>
                         <MonoHeading>{"// 開発背景・課題設定"}</MonoHeading>
-                        <Body className="mb-4">
+                        <Text variant="lead" className="mb-4">
                             自分自身がスペシャルティコーヒーの抽出に関心があり、日常的に4:6メソッドや浸漬式ドリッパーなど複数の淹れ方を使い分けている中で、「湯量を自分で電卓を叩いて計算する必要がある」という不便さを感じたことが開発のきっかけです。
-                        </Body>
-                        <Body>
+                        </Text>
+                        <Text variant="lead">
                             「豆の量・人数を入力するだけで抽出方法に合わせた湯量が算出され、湯を注ぐタイミングを音で教えてくれる」体験を作ることを目標に、個人開発として企画から着手しました。
-                        </Body>
+                        </Text>
                     </section>
                     <section>
                         <MonoHeading>{"// 要件定義"}</MonoHeading>
-                        <ul className="m-0 mb-4 list-disc pl-[1.3em] text-[15px] leading-[1.9] text-slate-600">
+                        <Text as="ul" variant="lead" className="mb-4 list-disc pl-[1.3em]">
                             <li>
                                 デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
                             </li>
@@ -93,19 +92,19 @@ export default function BrewCaseStudy() {
                             <li>
                                 ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）
                             </li>
-                        </ul>
-                        <Body>
+                        </Text>
+                        <Text variant="lead">
                             工程を通じて意識したのは、単なるタイマーではなく「抽出ガイド」として機能させること。アラーム時に「今回注ぐ量」「累計注湯量」「次のステップまでの待機時間」をまとめて提示する設計にしました。
-                        </Body>
+                        </Text>
                     </section>
                     <section>
                         <MonoHeading>{"// デザイン"}</MonoHeading>
-                        <Body className="mb-4">
+                        <Text variant="lead" className="mb-4">
                             テラコッタを基調にライト/ダークテーマの配色を設計しました。理由はコーヒーの世界観との親和性（ドリッパーの陶器やレンガを思わせる血色の良い暖色）です。
-                        </Body>
-                        <Body className="mb-6">
+                        </Text>
+                        <Text variant="lead" className="mb-6">
                             HTML/CSSでインタラクティブなプロトタイプを先に作成し、タイマーの挙動・画面遷移をデザイン段階で検証してから実装に着手しました。
-                        </Body>
+                        </Text>
                         <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55">
                             <Image
                                 src="/works/brew/coffee_showcase.png"
@@ -121,57 +120,61 @@ export default function BrewCaseStudy() {
                         <MonoHeading>{"// 技術選定"}</MonoHeading>
                         <div className="flex flex-col">
                             <div className="border-t border-dashed border-indigo-600/15 py-3.5">
-                                <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
+                                <Text variant="labelStrong" tone="strong" className="mb-1">
                                     Web MVP — React + TypeScript + Vite
-                                </p>
-                                <p className="m-0 text-sm leading-[1.7] text-slate-600">
+                                </Text>
+                                <Text variant="body">
                                     型安全性を確保しつつ、開発中のビルド速度を優先。プロトタイプの検証速度を重視しVite採用。
-                                </p>
+                                </Text>
                             </div>
                             <div className="border-y border-dashed border-indigo-600/15 py-3.5">
-                                <p className="m-0 mb-1 text-[14px] font-semibold text-slate-900">
+                                <Text variant="labelStrong" tone="strong" className="mb-1">
                                     モバイル — React Native + Expo
-                                </p>
-                                <p className="m-0 text-sm leading-[1.7] text-slate-600">
+                                </Text>
+                                <Text variant="body">
                                     実機での動作確認・配布のしやすさを優先。Expo&nbsp;Goで実機検証しながら開発を進める前提で採用。
-                                </p>
+                                </Text>
                             </div>
                         </div>
-                        <Body className="mt-4">
+                        <Text variant="lead" className="mt-4">
                             Web版とモバイル版でロジック（湯量計算・タイマー制御）を共通化できる設計を意識し、UIレイヤーのみをプラットフォームごとに分離する構成にしています。
-                        </Body>
+                        </Text>
                     </section>
                     <section>
                         <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
-                        <Body>
+                        <Text variant="lead">
                             Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
-                        </Body>
+                        </Text>
                     </section>
                     <section>
                         <MonoHeading>{"// 実装済み ／ 今後の実装予定"}</MonoHeading>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="m-0 mb-2 text-[14px] font-semibold">実装済み</p>
-                                <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
+                                <Text variant="labelStrong" tone="strong" className="mb-2">
+                                    実装済み
+                                </Text>
+                                <Text as="ul" variant="body" className="list-disc pl-[1.3em]">
                                     <li>複数抽出メソッドのプリセット選択</li>
                                     <li>人数・豆量に応じた湯量自動計算</li>
                                     <li>ステップタイマーとアラーム通知</li>
                                     <li>ユーザーカスタムプリセット機能</li>
                                     <li>Android実機での動作確認</li>
                                     <li>Web版のVercelデプロイ</li>
-                                </ul>
+                                </Text>
                             </div>
                             <div>
-                                <p className="m-0 mb-2 text-[14px] font-semibold">今後の実装予定</p>
-                                <ul className="m-0 list-disc pl-[1.3em] text-sm leading-[1.8] text-slate-600">
+                                <Text variant="labelStrong" tone="strong" className="mb-2">
+                                    今後の実装予定
+                                </Text>
+                                <Text as="ul" variant="body" className="list-disc pl-[1.3em]">
                                     <li>iOS/Androidのストア配信</li>
                                     <li>クラウド同期</li>
-                                </ul>
+                                </Text>
                             </div>
                         </div>
-                        {/* <Body className="mt-4">
+                        {/* <Text variant="lead" className="mt-4">
                             コア体験である「抽出ガイド」機能の安定動作を優先し、カスタマイズ機能は意図的に後回しにしています。
-                        </Body> */}
+                        </Text> */}
                     </section>
                     <section>
                         <MonoHeading>{"// コード・デモ"}</MonoHeading>

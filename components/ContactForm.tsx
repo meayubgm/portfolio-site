@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Script from "next/script";
 import { useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Button } from "@/commons/Button";
+import { Text } from "@/commons/Text";
 import { CONTACT_LIMITS, type ContactInput, contactSchema } from "@/lib/contactSchema";
-import { Button } from "./Button";
 import { errorId, FormField, formControlClass } from "./FormField";
 
 declare global {
@@ -105,15 +106,17 @@ export function ContactForm() {
     if (status === "success") {
         return (
             <div data-testid="contact-success">
-                <p className="m-0 mb-3 font-mono text-[12px] text-indigo-600">{"// sent"}</p>
-                <h2 className="m-0 mb-3 font-display text-[20px] font-semibold text-slate-900">
+                <Text variant="monoSm" tone="accent" className="mb-3">
+                    {"// sent"}
+                </Text>
+                <Text as="h2" variant="cardTitle" tone="strong" className="mb-3">
                     送信しました
-                </h2>
-                <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">
+                </Text>
+                <Text variant="body">
                     お問い合わせありがとうございます。
                     <br />
                     内容を確認のうえ、ご記入いただいたメールアドレス宛にご返信します。
-                </p>
+                </Text>
             </div>
         );
     }
@@ -222,20 +225,20 @@ export function ContactForm() {
                 {siteKey ? (
                     <div ref={widgetRef} className="mt-5" />
                 ) : (
-                    <p className="mt-5 mb-0 font-mono text-[12px] text-slate-500">
+                    <Text variant="monoSm" tone="muted" className="mt-5">
                         {"// NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です"}
-                    </p>
+                    </Text>
                 )}
 
                 <div className="mt-6 flex items-center gap-4">
                     <Button type="submit" disabled={sending}>
                         {sending ? "送信中..." : "送信する"}
                     </Button>
-                    <p aria-live="polite" className="m-0 text-[13px] leading-[1.6] text-slate-600">
+                    <Text aria-live="polite" variant="note">
                         {status === "error" ? (
                             <span className="text-red-500">{errorMessage}</span>
                         ) : null}
-                    </p>
+                    </Text>
                 </div>
             </form>
         </>

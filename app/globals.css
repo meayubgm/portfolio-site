@@ -34,6 +34,8 @@
 
   /* tracking: ページ見出し h1 共通の字間 */
   --tracking-heading: -0.03em;
+  /* tracking: mono ラベル（CardLabel / EyebrowLabel / skills のセクション見出し）共通の字間 */
+  --tracking-label: 0.06em;
 }
 
 /* featured カード（BREW）のグラデーション面。Home / Works の2箇所で共用 */

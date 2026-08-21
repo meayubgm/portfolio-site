@@ -1,4 +1,10 @@
-/** /skills のスキル名（バー無し・mono / indigo） */
+import { Text } from "@/commons/Text";
+
+/** `/skills` のスキル名（バー無し・mono / indigo）。Home はバー付きの `SkillBar` を使う */
 export function SkillName({ name }: { name: string }) {
-    return <span className="font-mono text-[12.5px] text-indigo-600">{name}</span>;
+    return (
+        <Text as="span" variant="monoSm" tone="accent">
+            {name}
+        </Text>
+    );
 }

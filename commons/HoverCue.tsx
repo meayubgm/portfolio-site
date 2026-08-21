@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Text } from "./Text";
 
 type HoverCueProps = {
     children: ReactNode;
@@ -12,10 +13,13 @@ type HoverCueProps = {
  */
 export function HoverCue({ children, className = "" }: HoverCueProps) {
     return (
-        <span
-            className={`font-mono text-[12.5px] text-indigo-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 [@media(hover:none)]:opacity-100 ${className}`}
+        <Text
+            as="span"
+            variant="monoSm"
+            tone="accent"
+            className={`opacity-0 transition-opacity duration-300 group-hover:opacity-100 [@media(hover:none)]:opacity-100 ${className}`}
         >
             {children}
-        </span>
+        </Text>
     );
 }

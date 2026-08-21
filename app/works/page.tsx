@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { BackLink } from "@/components/BackLink";
-import { CardGrid } from "@/components/CardGrid";
-import { CardLabel } from "@/components/CardLabel";
-import { GlassCard } from "@/components/GlassCard";
-import { HoverCue } from "@/components/HoverCue";
-import { LabeledField } from "@/components/LabeledField";
+import { BackLink } from "@/commons/BackLink";
+import { CardGrid } from "@/commons/CardGrid";
+import { CardLabel } from "@/commons/CardLabel";
+import { GlassCard } from "@/commons/GlassCard";
+import { HoverCue } from "@/commons/HoverCue";
+import { LabeledField } from "@/commons/LabeledField";
+import { StatBlock } from "@/commons/StatBlock";
+import { Tag } from "@/commons/Tag";
+import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
-import { StatBlock } from "@/components/StatBlock";
-import { Tag } from "@/components/Tag";
 import { brewCase, cases, otherWorks } from "@/lib/cases";
 
 export const metadata: Metadata = {
@@ -33,17 +34,17 @@ export default function Works() {
                 <GlassCard span={6} padding="lg" href="/works/brew" className="bg-featured">
                     <div className="flex items-start justify-between">
                         <CardLabel>個人開発 — code / design 全プロセス公開</CardLabel>
-                        <span className="font-mono text-[12px] text-slate-500">{brewCase.no}</span>
+                        <Text as="span" variant="monoSm" tone="muted">
+                            {brewCase.no}
+                        </Text>
                     </div>
-                    <h3 className="m-0 mb-2.5 mt-1.5 font-display text-[24px] font-semibold">
+                    <Text as="h3" variant="featureTitle" tone="strong" className="mb-2.5 mt-1.5">
                         {`${brewCase.titleEn} — ${brewCase.titleJa}`}
-                    </h3>
-                    <p className="m-0 mb-3 font-mono text-[11.5px] text-slate-500">
+                    </Text>
+                    <Text variant="monoSm" tone="muted" className="mb-3">
                         {brewCase.period}
-                    </p>
-                    <p className="m-0 text-[14.5px] leading-[1.75] text-slate-600">
-                        {brewCase.summary}
-                    </p>
+                    </Text>
+                    <Text variant="body">{brewCase.summary}</Text>
                     <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-600/15 py-3.5">
                         <StatBlock number="企画〜実装" label="担当範囲（全工程）" />
                         <StatBlock number="4種" label="抽出メソッド対応" />
@@ -64,15 +65,17 @@ export default function Works() {
                     <GlassCard key={c.no} span={3} className="flex flex-col">
                         <div className="flex items-start justify-between">
                             <CardLabel>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
-                            <span className="font-mono text-[12px] text-slate-500">{c.no}</span>
+                            <Text as="span" variant="monoSm" tone="muted">
+                                {c.no}
+                            </Text>
                         </div>
-                        <h3 className="m-0 mb-1 mt-1.5 font-display text-[19px] font-semibold">
+                        <Text as="h3" variant="cardTitle" tone="strong" className="mb-1 mt-1.5">
                             {c.title}
-                        </h3>
-                        <p className="m-0 mb-3 font-mono text-[11.5px] text-slate-500">
+                        </Text>
+                        <Text variant="monoSm" tone="muted" className="mb-3">
                             {c.period}
-                        </p>
-                        <p className="m-0 text-sm leading-[1.7] text-slate-600">{c.summary}</p>
+                        </Text>
+                        <Text variant="body">{c.summary}</Text>
                         <LabeledField label="// role" className="mt-4">
                             {c.role}
                         </LabeledField>
@@ -90,15 +93,17 @@ export default function Works() {
                     <CardLabel>その他</CardLabel>
                     <div className="mt-2 flex flex-col">
                         {otherWorks.map((w) => (
-                            <div
+                            <Text
                                 key={w.name}
-                                className="flex justify-between gap-4 border-t border-sky-700/15 py-3 text-[14px] text-slate-600"
+                                as="div"
+                                variant="body"
+                                className="flex justify-between gap-4 border-t border-sky-700/15 py-3"
                             >
                                 <span>{w.name}</span>
-                                <span className="font-mono text-[11.5px] text-slate-500">
+                                <Text as="span" variant="monoSm" tone="muted">
                                     {w.tech}
-                                </span>
-                            </div>
+                                </Text>
+                            </Text>
                         ))}
                     </div>
                 </GlassCard>
