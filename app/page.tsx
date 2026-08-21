@@ -8,7 +8,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
 import { Tag } from "@/components/Tag";
 import { brewCase } from "@/lib/cases";
-import { skillGroups } from "@/lib/skills";
+import { homeSkillGroups } from "@/lib/skills";
 
 export default function Home() {
     return (
@@ -79,7 +79,7 @@ export default function Home() {
                     <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                 </GlassCard>
 
-                {skillGroups.map((g) => (
+                {homeSkillGroups.map((g) => (
                     <GlassCard key={g.heading} span={2} href="/skills" className="flex flex-col">
                         <CardLabel>{g.label}</CardLabel>
                         <h3 className="m-0 mb-2.5 font-display text-[20px] font-semibold">

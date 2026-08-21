@@ -138,14 +138,15 @@ portfolio-site/
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
 │   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文
 │   ├── SiteNav.tsx         # "use client"（usePathname で active 判定）
-│   ├── SkillBar.tsx
+│   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
+│   ├── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
 │   ├── StatBlock.tsx
 │   └── Tag.tsx
 ├── lib/
 │   ├── about.ts            # About ページのテキストデータ（強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
-│   └── skills.ts           # スキルデータ（Development / Design。Home のカードと /skills で共用）
+│   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）
