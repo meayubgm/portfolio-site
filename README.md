@@ -192,4 +192,4 @@ featured カード（BREW）のグラデーション面は `@utility bg-featured
 - 日本語見出しフォントは LINE Seed JP の代替として IBM Plex Sans JP を使用（再配布不可のため）。
 - サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ。Home の GitHub / X、BREW ケーススタディのデモ / リポジトリは実 URL）。
 - Resend / Turnstile とも実キーを取得済みで、フォームからの送信・受信を確認済み（ローカル）。送信元は `onboarding@resend.dev` のままで、宛先は Resend アカウントの登録アドレスに限られます（上記の注意を参照）。デプロイ先では環境変数を設定したうえで再ビルドが必要です。
-- BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像に差し替え済み（`public/works/brew/`）。「実装・実機検証」の実機タイマー GIF は未用意で `MediaPlaceholder` のまま。
+- BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像（`public/works/brew/`）。

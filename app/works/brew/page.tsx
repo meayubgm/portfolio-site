@@ -24,14 +24,6 @@ const heroShots = [
     { src: "/works/brew/iPhone_14ProMax_mock_light_timer_2.png", caption: "タイマー画面2" },
 ];
 
-function MediaPlaceholder({ label }: { label: string }) {
-    return (
-        <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 px-6 py-12 text-center">
-            <p className="m-0 font-mono text-[12px] text-indigo-600">[ GIF差し込み：{label} ]</p>
-        </div>
-    );
-}
-
 export default function BrewCaseStudy() {
     return (
         <div>
@@ -151,10 +143,9 @@ export default function BrewCaseStudy() {
                     </section>
                     <section>
                         <MonoHeading>{"// 実装・実機検証"}</MonoHeading>
-                        <Body className="mb-6">
+                        <Body>
                             Expo&nbsp;Goを使ってAndroid実機上で動作確認を実施。画面遷移・湯量自動計算・タイマー進行を実機で検証し、抽出ステップに合わせたアラーム通知が正しいタイミングで発火することを確認しました。
                         </Body>
-                        <MediaPlaceholder label="実機でタイマーが動作している様子" />
                     </section>
                     <section>
                         <MonoHeading>{"// 実装済み ／ 今後の実装予定"}</MonoHeading>

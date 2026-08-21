@@ -143,5 +143,4 @@ RHF の管理外で、従来どおり `useState` で保持して送信時に足�
 - サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ、GitHub / X と BREW のデモ / リポジトリは実 URL）。
 - Resend / Turnstile とも実キーを取得済みで、ローカルからの送信・受信を確認済み。未着手なのはデプロイ先（Vercel）の環境変数設定で、`NEXT_PUBLIC_TURNSTILE_SITE_KEY` はビルド時に埋め込まれるため設定後に再デプロイが要る。
 - `/api/contact` にレート制限は入れていない（永続ストアが必要なため）。Honeypot + Turnstile の2段で防いでいる。
-- ケーススタディ内の GIF はプレースホルダー（`MediaPlaceholder`）。
 - コミット author はこのリポジトリのローカル設定で `user.email = meayubgm@gmail.com`（`user.name` はグローバルの `ayuha` を継承）。リモートは `git@github.com:meayubgm/portfolio-site.git`。
