@@ -206,7 +206,7 @@ export function ContactForm() {
                   Honeypot: 人間には見えず、キーボード・スクリーンリーダーからも到達できない欄。
                   display:none を検出するボットがあるため画面外に送る方式にしている。触らないこと。
                 */}
-                <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
                     <label htmlFor="contact-website">Website</label>
                     <input
                         id="contact-website"
