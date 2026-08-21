@@ -83,8 +83,9 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 ### ディレクトリ
 
 - `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）。
-- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、`/contact` 専用の2種（ContactForm / FormField）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロールの行で、`input` / `textarea` に当てる共通クラスを `formControlClass` として export する。
+- `components/` — Frost & Blueprint の DS コンポーネント + `SiteNav`。プロトタイプの `_ds_bundle.js` から移植した8種（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / SkillBar / StatBlock / Tag。見た目はプロトタイプに忠実）に加え、ページ間の同型マークアップを集約したレイアウト系6種（PageHeading / CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、`/contact` 専用の2種（ContactForm / FormField）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`text-red-500`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
+- `lib/contactSchema.ts` — お問い合わせフォームの検証ルール（Zod）。`contactSchema` を `ContactForm` が、Honeypot と Turnstile トークンを足した `contactPayloadSchema` を Route Handler が使う（**検証ルールの単一ソース**）。
 - `lib/about.ts` — About ページのテキストデータ（挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴）。
 - `lib/skills.ts` — スキルデータ（Development / Design）。Home のスキルカードと `/skills` ページの単一ソース。`description` は `/skills` でのみ表示する。
 
@@ -93,6 +94,13 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 `/contact` ページ自体は SSG。送信だけが `POST /api/contact`（Route Handler）で処理される。
 `components/ContactForm.tsx` が入力（氏名 / 会社名（任意） / メール / 本文）を JSON で POST し、
 Route Handler が **Honeypot → Turnstile 検証 → Resend でメール送信** の順に処理する。
+
+クライアント側の検証は **React Hook Form + Zod**（`zodResolver`）で、スキーマは `lib/contactSchema.ts`。
+検証は送信ボタン押下時（RHF 既定の `mode: "onSubmit"`）に走り、エラーは各項目の直下に `text-red-500` で出る。
+一度エラーが出た項目は以降の入力で再検証される（`reValidateMode: "onChange"`）。
+`<form>` には **`noValidate` が必須**（付けないとブラウザ標準の検証 UI が先に出て Zod のメッセージまで到達しない）。
+`required` / `type="email"` 属性は支援技術向けに残してある。Honeypot と Turnstile のトークンは
+RHF の管理外で、従来どおり `useState` で保持して送信時に足す。
 
 必要な環境変数は `.env.example` を `.env.local` にコピーして設定する（`.env` 系は git 管理外）。
 

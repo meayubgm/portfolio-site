@@ -13,6 +13,7 @@
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
 | Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals） |
 | テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
+| フォーム | React Hook Form + Zod（お問い合わせフォームの入力検証） |
 | メール送信 | Resend + Cloudflare Turnstile（お問い合わせフォーム） |
 | 開発環境 | Docker（Node 24 Alpine）+ Make |
 | デプロイ形態 | 静的生成（SSG）+ Route Handler 1本（`/api/contact`） |
@@ -48,6 +49,10 @@ npm run start    # 本番サーバー
 
 `/contact` の送信は `POST /api/contact` で処理され、**Honeypot →（Cloudflare Turnstile）→ Resend でメール送信**
 の順に進みます。ページ自体は SSG のままで、動的なのはこの Route Handler だけです。
+
+入力検証は **React Hook Form + Zod** で行います。スキーマは `lib/contactSchema.ts` に置き、
+クライアント（`ContactForm`）と Route Handler の双方が同じルールを参照します。
+「送信する」を押した時点で必須項目とメールアドレスの形式を検証し、エラーは各項目の直下に赤字で表示されます。
 
 初回のみ `.env.example` を `.env.local` にコピーして値を入れてください（`.env` 系は git 管理外）。
 
@@ -125,7 +130,7 @@ portfolio-site/
 │   ├── CardLabel.tsx
 │   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
 │   ├── EyebrowLabel.tsx
-│   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロールの行
+│   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
 │   ├── HoverCue.tsx        # カード内の導線テキスト（親カードのホバー時のみ表示）
 │   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
@@ -139,6 +144,7 @@ portfolio-site/
 ├── lib/
 │   ├── about.ts            # About ページのテキストデータ（強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
+│   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design。Home のカードと /skills で共用）
 ├── e2e/                    # Playwright E2E テスト（smoke / navigation）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）

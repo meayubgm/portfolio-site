@@ -1,9 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Script from "next/script";
-import { type SubmitEvent, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { CONTACT_LIMITS, type ContactInput, contactSchema } from "@/lib/contactSchema";
 import { Button } from "./Button";
-import { FormField, formControlClass } from "./FormField";
+import { errorId, FormField, formControlClass } from "./FormField";
 
 declare global {
     interface Window {
@@ -26,15 +29,25 @@ const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 type Status = "idle" | "sending" | "success" | "error";
 
-const initialValues = { name: "", company: "", email: "", message: "" };
+const initialValues: ContactInput = { name: "", company: "", email: "", message: "" };
 
 export function ContactForm() {
-    const [values, setValues] = useState(initialValues);
     // Honeypot。人間には見えない欄なので、値が入っていればボットとみなす
     const [website, setWebsite] = useState("");
     const [token, setToken] = useState("");
     const [status, setStatus] = useState<Status>("idle");
     const [errorMessage, setErrorMessage] = useState("");
+
+    // 検証は送信ボタン押下時（RHF の既定の mode: onSubmit）。
+    // 一度エラーが出た項目は、以降の入力に応じて再検証される（reValidateMode: onChange）。
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<ContactInput>({
+        resolver: zodResolver(contactSchema),
+        defaultValues: initialValues,
+    });
 
     const widgetRef = useRef<HTMLDivElement | null>(null);
     const widgetId = useRef<string | null>(null);
@@ -59,14 +72,8 @@ export function ContactForm() {
         }
     }, []);
 
-    const update = (key: keyof typeof initialValues) => (value: string) =>
-        setValues((prev) => ({ ...prev, [key]: value }));
-
-    async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
-        e.preventDefault();
-        if (status === "sending") {
-            return;
-        }
+    // 検証を通過した値だけがここに来る。値は Zod が trim 済み
+    async function onSubmit(values: ContactInput) {
         setStatus("sending");
         setErrorMessage("");
 
@@ -111,7 +118,10 @@ export function ContactForm() {
         );
     }
 
-    const sending = status === "sending";
+    const sending = isSubmitting || status === "sending";
+
+    /** エラー時に aria-describedby でメッセージを読み上げに紐づける */
+    const describedBy = (id: string, hasError: boolean) => (hasError ? errorId(id) : undefined);
 
     return (
         <>
@@ -123,62 +133,72 @@ export function ContactForm() {
                 />
             ) : null}
 
-            <form onSubmit={handleSubmit} noValidate={false}>
-                <FormField id="contact-name" label="お名前">
+            {/* noValidate: ブラウザ標準の検証 UI を止め、Zod のメッセージだけを出す */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <FormField id="contact-name" label="お名前" error={errors.name?.message}>
                     <input
                         id="contact-name"
-                        name="name"
                         type="text"
                         required
-                        maxLength={100}
+                        maxLength={CONTACT_LIMITS.name}
                         autoComplete="name"
                         disabled={sending}
-                        value={values.name}
-                        onChange={(e) => update("name")(e.target.value)}
+                        aria-invalid={errors.name ? "true" : undefined}
+                        aria-describedby={describedBy("contact-name", !!errors.name)}
                         className={formControlClass}
+                        {...register("name")}
                     />
                 </FormField>
 
-                <FormField id="contact-company" label="会社名" optional>
+                <FormField
+                    id="contact-company"
+                    label="会社名"
+                    optional
+                    error={errors.company?.message}
+                >
                     <input
                         id="contact-company"
-                        name="company"
                         type="text"
-                        maxLength={100}
+                        maxLength={CONTACT_LIMITS.company}
                         autoComplete="organization"
                         disabled={sending}
-                        value={values.company}
-                        onChange={(e) => update("company")(e.target.value)}
+                        aria-invalid={errors.company ? "true" : undefined}
+                        aria-describedby={describedBy("contact-company", !!errors.company)}
                         className={formControlClass}
+                        {...register("company")}
                     />
                 </FormField>
 
-                <FormField id="contact-email" label="メールアドレス">
+                <FormField id="contact-email" label="メールアドレス" error={errors.email?.message}>
                     <input
                         id="contact-email"
-                        name="email"
                         type="email"
                         required
-                        maxLength={254}
+                        maxLength={CONTACT_LIMITS.email}
                         autoComplete="email"
                         disabled={sending}
-                        value={values.email}
-                        onChange={(e) => update("email")(e.target.value)}
+                        aria-invalid={errors.email ? "true" : undefined}
+                        aria-describedby={describedBy("contact-email", !!errors.email)}
                         className={formControlClass}
+                        {...register("email")}
                     />
                 </FormField>
 
-                <FormField id="contact-message" label="お問い合わせ内容">
+                <FormField
+                    id="contact-message"
+                    label="お問い合わせ内容"
+                    error={errors.message?.message}
+                >
                     <textarea
                         id="contact-message"
-                        name="message"
                         required
                         rows={7}
-                        maxLength={2000}
+                        maxLength={CONTACT_LIMITS.message}
                         disabled={sending}
-                        value={values.message}
-                        onChange={(e) => update("message")(e.target.value)}
+                        aria-invalid={errors.message ? "true" : undefined}
+                        aria-describedby={describedBy("contact-message", !!errors.message)}
                         className={`${formControlClass} resize-y`}
+                        {...register("message")}
                     />
                 </FormField>
 
@@ -213,7 +233,7 @@ export function ContactForm() {
                     </Button>
                     <p aria-live="polite" className="m-0 text-[13px] leading-[1.6] text-slate-600">
                         {status === "error" ? (
-                            <span className="text-indigo-600">{errorMessage}</span>
+                            <span className="text-red-500">{errorMessage}</span>
                         ) : null}
                     </p>
                 </div>

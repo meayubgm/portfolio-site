@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { type ContactPayload, contactPayloadSchema } from "@/lib/contactSchema";
 
 // Resend SDK / Turnstile 検証のため Node.js ランタイムで動かす。
 // このサイトで唯一の動的ルート（他ページはすべて SSG）。
@@ -10,31 +11,6 @@ const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/sit
 /** Turnstile 検証 API のタイムアウト（ミリ秒）。応答が返らないまま待ち続けないための上限 */
 const TURNSTILE_TIMEOUT_MS = 5000;
 
-const LIMITS = {
-    name: 100,
-    company: 100,
-    email: 254,
-    message: 2000,
-} as const;
-
-// ローカルパート@ドメイン の最低限の形式チェック（厳密な RFC 準拠は狙わない）
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type ContactPayload = {
-    name: string;
-    company: string;
-    email: string;
-    message: string;
-    /** Honeypot。人間が触れない欄なので空であるはず */
-    website: string;
-    /** Turnstile のトークン */
-    token: string;
-};
-
-function asString(value: unknown): string {
-    return typeof value === "string" ? value.trim() : "";
-}
-
 /**
  * メールヘッダ（Subject）へ埋め込む文字列から改行・制御文字を除去する。
  * trim() は文字列内部の改行を落とさないため、ヘッダインジェクション対策としてここで潰す。
@@ -42,36 +18,6 @@ function asString(value: unknown): string {
 function toHeaderSafe(value: string): string {
     // biome-ignore lint/suspicious/noControlCharactersInRegex: ヘッダに混入させない目的で制御文字を明示的に除去する
     return value.replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
-}
-
-/** 受け取った JSON を検証して正規化する。問題があればエラーメッセージを返す */
-function parsePayload(body: unknown): { data: ContactPayload } | { error: string } {
-    if (typeof body !== "object" || body === null) {
-        return { error: "リクエストの形式が正しくありません。" };
-    }
-    const raw = body as Record<string, unknown>;
-    const data: ContactPayload = {
-        name: asString(raw.name),
-        company: asString(raw.company),
-        email: asString(raw.email),
-        message: asString(raw.message),
-        website: asString(raw.website),
-        token: asString(raw.token),
-    };
-
-    if (!data.name || data.name.length > LIMITS.name) {
-        return { error: "お名前を確認してください。" };
-    }
-    if (data.company.length > LIMITS.company) {
-        return { error: "会社名を確認してください。" };
-    }
-    if (!data.email || data.email.length > LIMITS.email || !EMAIL_PATTERN.test(data.email)) {
-        return { error: "メールアドレスを確認してください。" };
-    }
-    if (!data.message || data.message.length > LIMITS.message) {
-        return { error: "お問い合わせ内容を確認してください。" };
-    }
-    return { data };
 }
 
 /** Honeypot からボット送信を判定する */
@@ -121,9 +67,11 @@ export async function POST(request: Request) {
         );
     }
 
-    const parsed = parsePayload(body);
-    if ("error" in parsed) {
-        return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const parsed = contactPayloadSchema.safeParse(body);
+    if (!parsed.success) {
+        // 最初の指摘だけを返す。項目ごとの表示はクライアント側の検証が担う
+        const message = parsed.error.issues[0]?.message ?? "リクエストの形式が正しくありません。";
+        return NextResponse.json({ error: message }, { status: 400 });
     }
     const data = parsed.data;
 
