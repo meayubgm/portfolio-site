@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Text } from "@/commons/Text";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
@@ -26,6 +27,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 />
                 <SiteNav />
                 <div className="relative z-2 mx-auto max-w-[1800px] px-8 pb-15">{children}</div>
+                <footer className="relative z-2 py-8 text-center">
+                    <Text as="small" variant="monoSm" tone="muted">
+                        &copy; 2026 Megumi Ayuha
+                    </Text>
+                </footer>
             </body>
         </html>
     );

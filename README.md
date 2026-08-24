@@ -111,7 +111,7 @@ npm run test:e2e:report    # 直近の HTML レポートを表示
 ```
 portfolio-site/
 ├── app/                    # App Router
-│   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ）
+│   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ＋フッター）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
 │   ├── api/contact/route.ts # お問い合わせ送信（POST。Honeypot → Turnstile → Resend）
 │   └── (pages)/            # Route Group。括弧付きなので URL には現れない
