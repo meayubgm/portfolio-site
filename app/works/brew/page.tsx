@@ -60,8 +60,9 @@ export default function BrewCaseStudy() {
                                     <Image
                                         src={shot.src}
                                         alt={shot.caption}
-                                        width={1707}
-                                        height={2898}
+                                        width={1200}
+                                        height={2037}
+                                        sizes="(max-width: 1800px) 30vw, 528px"
                                         className="h-auto w-full"
                                     />
                                 </figure>
@@ -111,7 +112,7 @@ export default function BrewCaseStudy() {
                                 alt="テラコッタUIのライト/ダークテーマ画面一覧"
                                 width={2560}
                                 height={2040}
-                                sizes="(max-width: 1800px) 90vw, 1616px"
+                                sizes="(max-width: 1800px) calc(100vw - 136px), 1664px"
                                 className="h-auto w-full rounded-card"
                             />
                         </div>

@@ -114,7 +114,8 @@ test.describe("GlassCard カード全体クリック遷移", () => {
     });
 
     test("BREW から works に戻れる", async ({ page }) => {
-        await page.goto("/works/brew");
+        // 画像点数が多く load（全画像の読み込み完了）待ちは不安定なため、DOM の構築完了で先へ進める
+        await page.goto("/works/brew", { waitUntil: "domcontentloaded" });
         await page.getByRole("link", { name: "← works に戻る" }).click();
         await expect(page).toHaveURL("/works");
     });

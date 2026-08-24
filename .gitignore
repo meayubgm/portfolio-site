@@ -3,6 +3,7 @@ node_modules
 out
 next-env.d.ts
 *.tsbuildinfo
+.DS_Store
 
 # 環境変数（実キーを含むためコミットしない。雛形は .env.example）
 .env

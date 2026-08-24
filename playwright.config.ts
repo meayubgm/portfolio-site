@@ -22,6 +22,8 @@ export default defineConfig({
     use: {
         baseURL,
         trace: "on-first-retry",
+        // 遷移が詰まったときにテスト全体のタイムアウトではなく goto で失敗させ、原因を切り分けやすくする
+        navigationTimeout: 15_000,
     },
     projects: [
         { name: "chromium", use: { ...devices["Desktop Chrome"] } },

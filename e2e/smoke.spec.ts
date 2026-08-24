@@ -37,7 +37,8 @@ test("スキル（/skills）が表示される", async ({ page }) => {
 });
 
 test("BREW ケーススタディ（/works/brew）が表示される", async ({ page }) => {
-    const res = await page.goto("/works/brew");
+    // 画像点数が多く load（全画像の読み込み完了）待ちは不安定なため、DOM の構築完了で先へ進める
+    const res = await page.goto("/works/brew", { waitUntil: "domcontentloaded" });
     expect(res?.status()).toBe(200);
 
     await expect(page).toHaveTitle("Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha");
