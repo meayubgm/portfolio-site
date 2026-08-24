@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementType } from "react";
+import { type ComponentPropsWithoutRef, type ElementType, Fragment } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -72,4 +72,21 @@ export function Text<T extends ElementType = "p">({
 }: TextProps<T>) {
     const Component = (as ?? "p") as ElementType;
     return <Component className={cn(textStyles[variant], toneStyles[tone], className)} {...rest} />;
+}
+
+/** 行配列を <br /> 区切りの ReactNode にする（Text の children に渡して使う） */
+export function withLineBreaks(lines: string[]) {
+    const [firstLine, ...restLines] = lines;
+    return (
+        <>
+            {firstLine}
+            {restLines.map((line, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: 行の並びは固定で並べ替えない
+                <Fragment key={index}>
+                    <br />
+                    {line}
+                </Fragment>
+            ))}
+        </>
+    );
 }

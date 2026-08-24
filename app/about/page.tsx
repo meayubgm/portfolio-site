@@ -4,9 +4,17 @@ import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { MonoHeading } from "@/commons/MonoHeading";
-import { Text } from "@/commons/Text";
+import { Text, withLineBreaks } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
-import { favorites, intro, nextSteps, person, story, strengths } from "@/lib/about";
+import {
+    favorites,
+    introBody,
+    introGreeting,
+    nextSteps,
+    person,
+    story,
+    strengths,
+} from "@/lib/about";
 
 export const metadata: Metadata = {
     title: "私自身について — Megumi Ayuha",
@@ -18,9 +26,14 @@ export default function About() {
             <BackLink href="/">home に戻る</BackLink>
 
             <header className="pt-10 pb-12">
-                <PageHeading size="list" eyebrow="about" title="私自身について" lead={intro[0]} />
+                <PageHeading
+                    size="list"
+                    eyebrow="about"
+                    title="私自身について"
+                    lead={introGreeting}
+                />
                 <Text variant="lead" className="mt-4">
-                    {intro[1]}
+                    {withLineBreaks(introBody)}
                 </Text>
             </header>
 

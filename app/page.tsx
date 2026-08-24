@@ -5,9 +5,10 @@ import { GlassCard } from "@/commons/GlassCard";
 import { HoverCue } from "@/commons/HoverCue";
 import { LinkRow } from "@/commons/LinkRow";
 import { Tag } from "@/commons/Tag";
-import { Text } from "@/commons/Text";
+import { Text, withLineBreaks } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
+import { introBody } from "@/lib/about";
 import { brewCase } from "@/lib/cases";
 import { homeSkillGroups } from "@/lib/skills";
 
@@ -54,12 +55,7 @@ export default function Home() {
                         のが強みです
                     </Text>
                     <Text variant="body" className="mt-5.5">
-                        Webアプリケーションの受託開発で React / Next.js / TypeScript
-                        を中心に、主にフロントエンド開発を3年以上担当してきました。一部機能の
-                        要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた
-                        デザインカンプ / アイコン制作 も担当しています。
-                        <br />
-                        丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。
+                        {withLineBreaks(introBody)}
                     </Text>
                     <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
                 </GlassCard>

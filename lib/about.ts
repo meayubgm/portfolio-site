@@ -19,10 +19,13 @@ export type StoryEntry = {
     body: string;
 };
 
-/** 冒頭の挨拶文。1段落目は PageHeading の lead、2段落目はその直下に表示する */
-export const intro: string[] = [
-    "ご覧いただきありがとうございます。アユハ メグミと申します。",
-    "Webアプリケーションの受託開発で React / Next.js / TypeScript を中心に、主にフロントエンド開発を3年以上担当してきました。一部機能の 要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた デザインカンプ / アイコン制作 も担当しています。丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。",
+/** 冒頭の挨拶。PageHeading の lead に表示する */
+export const introGreeting = "ご覧いただきありがとうございます。アユハ メグミと申します。";
+
+/** 自己紹介本文。Home の about カードと /about で共通。配列の各要素が <br /> 区切りの1行 */
+export const introBody: string[] = [
+    "Webアプリケーションの受託開発で React / Next.js / TypeScript を中心に、主にフロントエンド開発を3年以上担当してきました。一部機能の 要件定義 / 基本設計 / 詳細設計 と、AdobeXD / Figma / Illustrator を用いた デザインカンプ / アイコン制作 も担当しています。",
+    "丁寧な言語化とAIを活用した仕組み化を大切にしながら、着実にプロダクトの質を積み上げます。",
 ];
 
 /** 1. エンジニアとしての強み — Strength */

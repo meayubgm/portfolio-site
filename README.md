@@ -145,7 +145,7 @@ portfolio-site/
 │   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
 │   └── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
 ├── lib/
-│   ├── about.ts            # About ページのテキストデータ（強み・人となり・来歴 ほか）
+│   ├── about.ts            # About のテキストデータ（挨拶文は Home と共用。強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
 │   ├── cn.ts               # clsx + tailwind-merge のクラス結合（衝突は後勝ち）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
