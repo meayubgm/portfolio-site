@@ -30,22 +30,16 @@ export function FormField({ id, label, optional = false, error, children }: Form
                 <Text as="span" variant="formLabel" tone="strong">
                     {label}
                 </Text>
-                {optional ? (
-                    <Text as="span" variant="monoSm" tone="muted">
-                        {"// 任意"}
-                    </Text>
-                ) : (
-                    <Text as="span" variant="monoSm" tone="accent">
-                        {"// 必須"}
-                    </Text>
-                )}
+                <Text as="span" variant="monoSm" tone={optional ? "muted" : "accent"}>
+                    {optional ? "// 任意" : "// 必須"}
+                </Text>
             </label>
             {children}
-            {error ? (
+            {error && (
                 <Text id={errorId(id)} role="alert" variant="note" tone="danger" className="mt-1.5">
                     {error}
                 </Text>
-            ) : null}
+            )}
         </div>
     );
 }

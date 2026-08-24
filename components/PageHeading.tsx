@@ -39,16 +39,16 @@ export function PageHeading({ size, eyebrow, title, period, lead }: PageHeadingP
                 <EyebrowLabel>{eyebrow}</EyebrowLabel>
             </div>
             <h1 className={`font-display font-medium tracking-heading ${s.h1}`}>{title}</h1>
-            {period ? (
+            {period && (
                 <Text variant="monoLg" tone="muted" className="mb-3">
                     {period}
                 </Text>
-            ) : null}
-            {lead ? (
+            )}
+            {lead && (
                 <Text variant="lead" className={leadSpacing[size]}>
                     {lead}
                 </Text>
-            ) : null}
+            )}
         </>
     );
 }

@@ -126,15 +126,25 @@ export function ContactForm() {
     /** エラー時に aria-describedby でメッセージを読み上げに紐づける */
     const describedBy = (id: string, hasError: boolean) => (hasError ? errorId(id) : undefined);
 
+    // サイトキー未設定時はウィジェットの代わりに注記を出す（要素の出しわけは変数へ切り出す）
+    let turnstileArea = (
+        <Text variant="monoSm" tone="muted" className="mt-5">
+            {"// NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です"}
+        </Text>
+    );
+    if (siteKey) {
+        turnstileArea = <div ref={widgetRef} className="mt-5" />;
+    }
+
     return (
         <>
-            {siteKey ? (
+            {siteKey && (
                 <Script
                     src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
                     strategy="afterInteractive"
                     onReady={renderWidget}
                 />
-            ) : null}
+            )}
 
             {/* noValidate: ブラウザ標準の検証 UI を止め、Zod のメッセージだけを出す */}
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -222,22 +232,14 @@ export function ContactForm() {
                     />
                 </div>
 
-                {siteKey ? (
-                    <div ref={widgetRef} className="mt-5" />
-                ) : (
-                    <Text variant="monoSm" tone="muted" className="mt-5">
-                        {"// NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です"}
-                    </Text>
-                )}
+                {turnstileArea}
 
                 <div className="mt-6 flex items-center gap-4">
                     <Button type="submit" disabled={sending}>
                         {sending ? "送信中..." : "送信する"}
                     </Button>
                     <Text aria-live="polite" variant="note">
-                        {status === "error" ? (
-                            <span className="text-red-500">{errorMessage}</span>
-                        ) : null}
+                        {status === "error" && <span className="text-red-500">{errorMessage}</span>}
                     </Text>
                 </div>
             </form>

@@ -49,7 +49,15 @@ spec は `e2e/`（Chromium / WebKit の2プロジェクト）。`e2e` と `playw
 Playwright MCP（`.mcp.json`）は探索的なブラウザ確認の補助であり、リグレッション検知は
 `@playwright/test` に一任する。
 
-lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）の併用。役割分担は明確で、**Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルールのみ**（`no-img-element` 等 Next 固有チェック。react/a11y は Biome に一任し重複を避ける）。`npm run lint`（= `biome check && eslint . --max-warnings 0`）でチェック、`npm run lint:fix`（= `biome check --write && eslint . --fix`）で自動修正。Prettier は使わない（整形は Biome 一択）。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。ESLint は TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。
+lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）の併用。役割分担は明確で、**Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルール + プロジェクト独自ルール**（`no-img-element` 等 Next 固有チェック。react/a11y は Biome に一任し重複を避ける）。`npm run lint`（= `biome check && eslint . --max-warnings 0`）でチェック、`npm run lint:fix`（= `biome check --write && eslint . --fix`）で自動修正。Prettier は使わない（整形は Biome 一択）。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。ESLint は TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。
+
+プロジェクト独自ルールは `eslint-rules/` に置き、`eslint.config.mjs` でインラインの `local` プラグインとして
+`**/*.{jsx,tsx}` に適用する。現在は **`local/no-conditional-jsx`**（error）の1本で、
+**三項演算子の consequent / alternate のどちらかが JSX 要素・フラグメントなら違反**とする
+（`cond ? <A/> : <B/>` も `cond ? <A/> : null` も、属性値の中の JSX も対象）。
+要素の出しわけは**早期 return・変数への切り出し・論理積 `&&`** で書く。
+文字列やクラス名・関数など**短い値の三項は対象外**（`sending ? "送信中..." : "送信する"`、
+`tone={optional ? "muted" : "accent"}` などはそのまま使ってよい）。自動修正は付けていない（`--fix` では直らない）。
 
 ## アーキテクチャ
 

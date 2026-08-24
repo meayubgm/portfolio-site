@@ -11,7 +11,7 @@
 | 言語 | TypeScript 6 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`）+ clsx / tailwind-merge |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
-| Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals） |
+| Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals + 独自ルール） |
 | テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
 | フォーム | React Hook Form + Zod（お問い合わせフォームの入力検証） |
 | メール送信 | Resend + Cloudflare Turnstile（お問い合わせフォーム） |
@@ -30,7 +30,7 @@ make down     # 停止・削除
 make logs     # ログ追跡
 make sh       # app コンテナのシェルに入る
 make rebuild  # キャッシュ無しで再ビルドして起動
-make lint     # Biome + ESLint(Next) で lint/format をチェック（make lint-fix で自動修正）
+make lint     # Biome + ESLint(Next / 独自ルール) で lint/format をチェック（make lint-fix で自動修正）
 make help     # 全ターゲット一覧
 ```
 
@@ -158,7 +158,8 @@ portfolio-site/
 ├── compose.yaml            # サービス app / ポート3000 / ホットリロード
 ├── Makefile                # make up / down / logs / sh などのラッパー
 ├── biome.json              # Biome（汎用 lint / format）設定
-├── eslint.config.mjs       # ESLint（Next core-web-vitals ルール）設定
+├── eslint.config.mjs       # ESLint（Next core-web-vitals + eslint-rules/）設定
+├── eslint-rules/           # プロジェクト独自の ESLint ルール（no-conditional-jsx）
 ├── next.config.mjs
 ├── postcss.config.mjs
 └── tsconfig.json

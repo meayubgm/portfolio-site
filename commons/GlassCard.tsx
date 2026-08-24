@@ -59,7 +59,7 @@ export function GlassCard({
                 href ? "cursor-pointer" : "cursor-default"
             } ${className}`}
         >
-            {hoverEffects ? (
+            {hoverEffects && (
                 <>
                     <div
                         aria-hidden
@@ -76,7 +76,7 @@ export function GlassCard({
                         +
                     </span>
                 </>
-            ) : null}
+            )}
             {children}
         </div>
     );
