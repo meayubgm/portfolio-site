@@ -51,6 +51,8 @@ Playwright MCP（`.mcp.json`）は探索的なブラウザ確認の補助であ�
 
 lint/format は **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）の併用。役割分担は明確で、**Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルール + プロジェクト独自ルール**（`no-img-element` 等 Next 固有チェック。react/a11y は Biome に一任し重複を避ける）。`npm run lint`（= `biome check && eslint . --max-warnings 0`）でチェック、`npm run lint:fix`（= `biome check --write && eslint . --fix`）で自動修正。Prettier は使わない（整形は Biome 一択）。`app/globals.css`（Tailwind v4 の `@theme` 記法）と `tsconfig.json`（`next build` が自動整形）は Biome 対象外（`biome.json` の `files.includes` で除外）。ESLint は TSX パース用に `@typescript-eslint/parser` を設定（型情報なしの軽量構成）。
 
+Biome の linter ルールは `recommended` プリセットに **`style/useBlockStatements`（error）** を足した構成。`if` / `for` / `while` などの本体で**波括弧の省略を禁止**する（ブレース位置を `{` 同じ行に置く K&R は Biome formatter が常に強制するため設定項目は無い）。このルールの自動修正は Biome が **unsafe fix** に分類しており、`npm run lint:fix`（= `biome check --write`）では直らない。手で波括弧を足すか、`npx biome check --write --unsafe` を個別に実行する。
+
 プロジェクト独自ルールは `eslint-rules/` に置き、`eslint.config.mjs` でインラインの `local` プラグインとして
 `**/*.{jsx,tsx}` に適用する。現在は **`local/no-conditional-jsx`**（error）の1本で、
 **三項演算子の consequent / alternate のどちらかが JSX 要素・フラグメントなら違反**とする

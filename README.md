@@ -11,7 +11,7 @@
 | 言語 | TypeScript 6 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`）+ clsx / tailwind-merge |
 | フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
-| Lint / Format | Biome 2（汎用 lint + format）+ ESLint（Next core-web-vitals + 独自ルール） |
+| Lint / Format | Biome 2（汎用 lint + format。`recommended` + `useBlockStatements`）+ ESLint（Next core-web-vitals + 独自ルール） |
 | テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
 | フォーム | React Hook Form + Zod（お問い合わせフォームの入力検証） |
 | メール送信 | Resend + Cloudflare Turnstile（お問い合わせフォーム） |
