@@ -3,7 +3,7 @@ import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { GlassCard } from "@/commons/GlassCard";
 import { ContactForm } from "@/components/ContactForm";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeader } from "@/components/PageHeader";
 
 export const metadata: Metadata = {
     title: "お問い合わせ — Megumi Ayuha",
@@ -16,14 +16,13 @@ export default function Contact() {
 
             {/* カードと同じ 6 カラムグリッドに乗せ、文の開始位置をカード左端に揃える */}
             <div className="grid grid-cols-6 gap-4">
-                <header className="col-span-4 col-start-2 pt-10 pb-12">
-                    <PageHeading
-                        size="list"
-                        eyebrow="contact"
-                        title="お問い合わせ"
-                        lead="お仕事のご相談・ご質問など、お気軽にご連絡ください。"
-                    />
-                </header>
+                <PageHeader
+                    className="col-span-4 col-start-2"
+                    size="list"
+                    eyebrow="contact"
+                    title="お問い合わせ"
+                    lead="お仕事のご相談・ご質問など、お気軽にご連絡ください。"
+                />
             </div>
 
             <CardGrid>

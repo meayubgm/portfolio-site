@@ -4,13 +4,16 @@ import { cn } from "@/lib/cn";
 /**
  * サイズ・行間・ウェイトの組み合わせ。値はすべて Tailwind 標準スケール。
  * クラス文字列が必要な箇所（ul / input 等）向けに export している。
+ *
+ * 段落用の lead / body には text-justify を含める。日本語の折り返しで右端が
+ * ガタつくのを防ぐため。折り返しの起きない span 用途では効果が出ないだけで害はない。
  */
 export const textStyles = {
     // 本文（font-body）
     /** ページ / カードのリード文・ケーススタディ本文（16px / 1.75） */
-    lead: "text-base/7",
+    lead: "text-base/7 text-justify",
     /** 通常の本文（14px / 1.71） */
-    body: "text-sm/6",
+    body: "text-sm/6 text-justify",
     /** 補足・注記・小ラベル（12px / 1.67） */
     note: "text-xs/5",
 

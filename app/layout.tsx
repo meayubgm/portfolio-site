@@ -19,14 +19,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 {/* ambient glow */}
                 <div
                     aria-hidden
-                    className="pointer-events-none fixed left-1/2 top-[-20%] z-0 h-175 w-275 -translate-x-1/2 blur-md"
-                    style={{
-                        background:
-                            "radial-gradient(ellipse at center, rgba(107,174,219,0.16) 0%, rgba(168,216,240,0.08) 35%, rgba(255,255,255,0) 70%)",
-                    }}
+                    className="pointer-events-none fixed left-1/2 -top-1/4 z-0 h-175 w-275 -translate-x-1/2 bg-ambient-glow blur-md"
                 />
                 <SiteNav />
-                <div className="relative z-2 mx-auto max-w-[1800px] px-8 pb-15">{children}</div>
+                <div className="relative z-2 mx-auto max-w-site px-8 pb-15">{children}</div>
                 <footer className="relative z-2 py-8 text-center">
                     <Text as="small" variant="monoSm" tone="muted">
                         &copy; 2026 Megumi Ayuha

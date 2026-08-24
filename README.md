@@ -126,21 +126,25 @@ portfolio-site/
 │   └── works/brew/         # BREW ケーススタディの画像（iPhone モック・UI キャプチャ）
 ├── commons/                # ドメイン非依存の DS プリミティブ（どこからでも使える）
 │   ├── BackLink.tsx        # ページ左上の戻りリンク（← home に戻る 等）
+│   ├── BulletList.tsx      # 中黒付きの箇条書き（list-disc + インデント）
 │   ├── Button.tsx
 │   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
-│   ├── CardLabel.tsx
+│   ├── CardLabel.tsx       # カード左上の mono ラベル（meta で右端に通し番号を添えられる）
 │   ├── EyebrowLabel.tsx
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
 │   ├── HoverCue.tsx        # カード内の導線テキスト（親カードのホバー時のみ表示）
 │   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
+│   ├── LearnMoreCue.tsx    # 「learn more ↗」固定の HoverCue
 │   ├── LinkRow.tsx
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
 │   ├── StatBlock.tsx
 │   ├── Tag.tsx
+│   ├── TagList.tsx         # Tag を折り返しながら並べる列
 │   └── Text.tsx            # Text（variant / tone）。サイト内テキストの共通入口
 ├── components/             # このサイト固有のコンポーネント（再利用しない）
 │   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
 │   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
+│   ├── PageHeader.tsx      # 一覧系ページ共通の header ラッパー + PageHeading
 │   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文（hero / list / detail）
 │   ├── SiteNav.tsx         # "use client"（usePathname で active 判定）
 │   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
@@ -179,13 +183,19 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
 | `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
 | `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
+| `--text-hero` / `--text-page` / `--text-detail` | `text-hero` / `text-page` / `text-detail`（h1 の3サイズ。行間も対のトークンで決まる） |
+| `--container-site` | `max-w-site`（サイト全体の最大幅 1800px） |
 
-featured カード（BREW）のグラデーション面は `@utility bg-featured` として定義しています。
+`@theme` に収まらないものは `@utility` / `@custom-variant` で定義しています。featured カード（BREW）の
+グラデーション面が `bg-featured`、画面上部のアンビエントグローが `bg-ambient-glow`、
+ホバー非対応環境向けの variant が `hover-none:`（`@custom-variant`）です。
 
 文字サイズ・行間はカスタムトークンを持たず、Tailwind 標準スケール（`xs` / `sm` / `base` / `lg` /
 `xl` / `2xl` と `leading-5` 〜 `leading-8`）だけを使います。サイト内のテキストは
 `commons/Text.tsx` の `Text` を経由して描き、`variant`（サイズ・行間・ウェイト・font-family）と
-`tone`（文字色）から選びます。h1 のみレスポンシブな `clamp()` のため `PageHeading` 内に直接指定しています。
+`tone`（文字色）から選びます。h1 のみレスポンシブな `clamp()` が必要ですが、これも `@theme` の
+`--text-hero` / `--text-page` / `--text-detail` にトークン化してあり、`PageHeading` はそのユーティリティを
+当てるだけです。段落用の `lead` / `body` には `text-justify` を含めており、日本語の折り返しでも右端が揃います。
 
 色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せており、custom な `--color-*`
 トークンは持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。

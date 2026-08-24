@@ -6,6 +6,7 @@ import { useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/commons/Button";
 import { Text } from "@/commons/Text";
+import { cn } from "@/lib/cn";
 import { CONTACT_LIMITS, type ContactInput, contactSchema } from "@/lib/contactSchema";
 import { errorId, FormField, formControlClass } from "./FormField";
 
@@ -210,7 +211,7 @@ export function ContactForm() {
                         disabled={sending}
                         aria-invalid={errors.message ? "true" : undefined}
                         aria-describedby={describedBy("contact-message", !!errors.message)}
-                        className={`${formControlClass} resize-y`}
+                        className={cn(formControlClass, "resize-y")}
                         {...register("message")}
                     />
                 </FormField>
@@ -218,6 +219,8 @@ export function ContactForm() {
                 {/*
                   Honeypot: 人間には見えず、キーボード・スクリーンリーダーからも到達できない欄。
                   display:none を検出するボットがあるため画面外に送る方式にしている。触らないこと。
+                  sr-only はスクリーンリーダーに読ませてしまうため使えず、left も標準スケールに
+                  無い距離が要るのでここだけ arbitrary value を残している。
                 */}
                 <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
                     <label htmlFor="contact-website">Website</label>

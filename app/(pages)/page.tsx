@@ -2,9 +2,9 @@ import { Button } from "@/commons/Button";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
-import { HoverCue } from "@/commons/HoverCue";
+import { LearnMoreCue } from "@/commons/LearnMoreCue";
 import { LinkRow } from "@/commons/LinkRow";
-import { Tag } from "@/commons/Tag";
+import { TagList } from "@/commons/TagList";
 import { Text, withLineBreaks } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
@@ -57,7 +57,7 @@ export default function Home() {
                     <Text variant="body" className="mt-5.5">
                         {withLineBreaks(introBody)}
                     </Text>
-                    <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
+                    <LearnMoreCue />
                 </GlassCard>
 
                 <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured">
@@ -66,12 +66,8 @@ export default function Home() {
                         コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
                     </Text>
                     <Text variant="body">企画・要件定義・UIデザイン・実装まで一人で担当。</Text>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                        {brewCase.tags.map((t) => (
-                            <Tag key={t}>{t}</Tag>
-                        ))}
-                    </div>
-                    <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
+                    <TagList tags={brewCase.tags} className="mt-4" />
+                    <LearnMoreCue />
                 </GlassCard>
 
                 {homeSkillGroups.map((g) => (
@@ -88,7 +84,7 @@ export default function Home() {
                                 <SkillBar key={s.name} name={s.name} percent={s.percent} />
                             ))}
                         </div>
-                        <HoverCue className="mt-auto block pt-4 text-right">learn more ↗</HoverCue>
+                        <LearnMoreCue />
                     </GlassCard>
                 ))}
 

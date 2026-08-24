@@ -27,6 +27,7 @@ make help     # 全ターゲット一覧
 - ソースはコンテナへバインドマウントされ、`node_modules` と `.next` は匿名ボリュームでコンテナ内のものを使う。ホスト（macOS）は musl 非対応なので依存はコンテナ内でのみ解決する。
 - Next.js 16 は `next dev` / `next build` とも **Turbopack がデフォルト**。macOS の Docker Desktop（VirtioFS）はファイルイベントが透過するため、バインドマウント経由でも監視が効く。`WATCHPACK_POLLING=true` は Turbopack では参照されず、`next dev --webpack` に切り替えた場合のフォールバック用に残してある。
 - Node 要件は 20.9+（Next.js 16）。イメージは `node:24-alpine`（Active LTS）を使用。`@types/node` もランタイムに合わせて 24 系。
+- **`globals.css` の `@theme` / `@utility` / `@custom-variant` を編集したときは、dev サーバーが古い CSS を配り続けることがある**（tsx の変更は反映されるのに新しいユーティリティだけ効かない、という出方をする）。コンテナ内の `.next` を消してから再起動すると直る: `docker compose exec app sh -c 'rm -rf .next/*'` → `docker compose restart app`。
 
 Docker を使わない場合:
 
@@ -76,8 +77,12 @@ CSS 変数として定義し、Tailwind v4 が自動でユーティリティを�
 | `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
 | `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
+| `--text-hero` / `--text-page` / `--text-detail` | `text-hero` / `text-page` / `text-detail`（h1 の3サイズ。`--text-*--line-height` を対で置いてあるので行間もこれ1つで決まる） |
+| `--container-site` | `max-w-site`（サイト全体の最大幅 1800px） |
 
-featured カード（BREW）のグラデーション面は `@theme` ではなく `@utility bg-featured` として定義している。
+`@theme` に収まらない面・variant は `@utility` / `@custom-variant` で定義している。
+featured カード（BREW）のグラデーション面が `@utility bg-featured`、画面上部のアンビエントグローが
+`@utility bg-ambient-glow`、ホバー非対応環境向けの `@custom-variant hover-none`（`hover-none:opacity-100` のように使う）。
 
 - **色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せている**。custom な `--color-*` トークンは廃止し、マークアップは組み込みユーティリティを直接使う（`text-slate-900`＝旧 navy、`text-slate-600`＝旧 slate、`text-slate-500`＝旧 slate-soft、`text-sky-700`＝旧 glow-c、`text-indigo-600`＝旧 indigo、`border-indigo-600/15`＝旧 indigo-soft、`bg-slate-200`＝旧 ice-2）。**新しい色は原則パレットから選ぶ**。ピクセル完全一致より Tailwind パレット準拠を優先する方針（過去の色トークン群は近似シフトで移行済み）。
 - `tailwind.config.js` は存在しない（v4 の CSS ファースト設定）。設定はすべて `globals.css`。
@@ -85,8 +90,9 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
   arbitrary value を使っていたが、サイズ16段階・行間8段階まで乱立したため `xs / sm / base / lg / xl / 2xl` と
   `leading-5 / 6 / 7 / 8`（`text-sm/6` 記法）へ丸めた。**カスタムのサイズ段は持たない**（`xs` = 12px が最小）。
   **本文・見出し・ラベルは直接クラスを書かず `commons/Text.tsx` の `Text` を使う**（後述）。
-  h1 だけは `clamp()` によるレスポンシブ指定のため `PageHeading` 内に arbitrary value で残している。
-- Tailwind の preflight が `*` に `margin: 0; padding: 0` を当てるため、**`p` / `h1`-`h6` / `ul` に `m-0` を書く必要はない**（かつて全要素に付いていた `m-0` は冗長だったので一括削除した）。リスト記号とインデントも preflight で消えるので、必要な箇所だけ `list-disc pl-[1.3em]` を明示する。
+  h1 だけは `clamp()` によるレスポンシブ指定が要るが、これも `@theme` の `--text-hero` / `--text-page` /
+  `--text-detail` にトークン化してあり、`PageHeading` は `text-hero` のようなユーティリティを当てるだけになっている。
+- Tailwind の preflight が `*` に `margin: 0; padding: 0` を当てるため、**`p` / `h1`-`h6` / `ul` に `m-0` を書く必要はない**（かつて全要素に付いていた `m-0` は冗長だったので一括削除した）。リスト記号とインデントも preflight で消えるので、箇条書きは `commons/BulletList.tsx` の `BulletList`（`list-disc pl-5`）を使う。
 - 背景のブループリント格子（`--grid-cell` + `body` 直接適用）と、格子・面の淡い indigo は `color-mix(in srgb, var(--color-indigo-600) 6%, transparent)` のように Tailwind パレット変数から生成する。
 
 ### Client / Server の切り分け
@@ -99,9 +105,10 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 ### ディレクトリ
 
 - `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ・フッター）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめてある**（括弧付きのディレクトリ名は URL セグメントにならないため、`app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）で、これはページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は作っていない（現状レイアウトは API 以外の全ページで共通のため）。
-- `commons/` — **ドメイン非依存の DS プリミティブ**（13種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、テキストの共通入口 `Text`。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
+- `commons/` — **ドメイン非依存の DS プリミティブ**（16種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / LearnMoreCue / BackLink / TagList / BulletList）、テキストの共通入口 `Text`。`CardLabel` は `meta` を渡すと右端に補足（ケーススタディの通し番号など）を並べた1行になる。`TagList` は `Tag` を `flex flex-wrap gap-2` で並べる列、`LearnMoreCue` は「learn more ↗」固定の `HoverCue`（既定はカード下部の右寄せ、`inline` でその場に置く）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
   **`commons/Text.tsx` の `Text` がサイト内テキストの唯一の入口**で、`variant`（サイズ・行間・ウェイト・font-family の組み合わせ）と `tone`（`strong` / `default` / `muted` / `accent` / `danger` の文字色）を選ぶ。`as` で要素を差し替えられ（既定 `p`。`h2` / `span` / `ul` / `figcaption` / `small` / `Link` など）、残余 props は要素へ透過する。クラス文字列が必要な箇所（`SiteNav` のリンク列など）向けに `textStyles` / `toneStyles` も export している。**新しいテキストを足すときは、まず既存の variant で足りるか確認する**。足りなければ `textStyles` に1段追加し、ページ側に arbitrary value を書かない。
-- `components/` — **このサイト固有のコンポーネント**（6種）。特定のデータ・特定のページに結びつくため再利用しない。`SiteNav`（ナビのリンク定義を内包）/ `PageHeading`（hero / list / detail の3サイズはこのサイトのページ構成そのもの）/ `ContactForm` + `FormField`（`/contact` 専用）/ `SkillBar`（**Home 専用**。バー表示で `percent` 必須）/ `SkillName`（**`/skills` 専用**。バーを出さず mono / indigo の名前だけ）。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`tone="danger"`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
+  段落用の `lead` / `body` には **`text-justify` を含めてある**（日本語の折り返しで右端がガタつくのを防ぐため）。折り返しの起きない `span` 用途では効かないだけなので害はない。
+- `components/` — **このサイト固有のコンポーネント**（7種）。特定のデータ・特定のページに結びつくため再利用しない。`SiteNav`（ナビのリンク定義を内包）/ `PageHeading`（hero / list / detail の3サイズはこのサイトのページ構成そのもの）/ `PageHeader`（一覧系ページ共通の `<header className="pt-10 pb-12">` + `PageHeading`。`children` で見出しの下に文を足せる）/ `ContactForm` + `FormField`（`/contact` 専用）/ `SkillBar`（**Home 専用**。バー表示で `percent` 必須）/ `SkillName`（**`/skills` 専用**。バーを出さず mono / indigo の名前だけ）。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`tone="danger"`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
 - `public/works/brew/` — BREW ケーススタディの画像。**元 PNG は表示幅に合わせて縮小済み**（hero 3枚は 1200x2037）。`next/image` には **必ず `sizes` を指定する**（未指定だと Next が `100vw` 扱いで `w=3840` の最適化を要求し、dev サーバーの image optimizer が詰まって画像が表示されなくなることがある）。
 - `lib/cn.ts` — `clsx` + `tailwind-merge` の `cn()`。Tailwind の衝突を後勝ちで解決するため、`Text` の `className` から variant / tone のクラスを安全に上書きできる。`@theme` のカスタム字間（`tracking-heading` / `tracking-label`）は `extendTailwindMerge` で classGroup に登録済み。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。

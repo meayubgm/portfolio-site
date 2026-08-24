@@ -5,7 +5,7 @@ import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { MonoHeading } from "@/commons/MonoHeading";
 import { Text, withLineBreaks } from "@/commons/Text";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeader } from "@/components/PageHeader";
 import {
     favorites,
     introBody,
@@ -15,6 +15,7 @@ import {
     story,
     strengths,
 } from "@/lib/about";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
     title: "私自身について — Megumi Ayuha",
@@ -25,17 +26,11 @@ export default function About() {
         <div>
             <BackLink href="/">home に戻る</BackLink>
 
-            <header className="pt-10 pb-12">
-                <PageHeading
-                    size="list"
-                    eyebrow="about"
-                    title="私自身について"
-                    lead={introGreeting}
-                />
+            <PageHeader size="list" eyebrow="about" title="私自身について" lead={introGreeting}>
                 <Text variant="lead" className="mt-4">
                     {withLineBreaks(introBody)}
                 </Text>
-            </header>
+            </PageHeader>
 
             <MonoHeading>{"// strength — エンジニアとしての強み"}</MonoHeading>
             <CardGrid>
@@ -91,9 +86,10 @@ export default function About() {
                         {story.map((e, i) => (
                             <div
                                 key={e.period}
-                                className={`flex gap-6 py-3.5 ${
-                                    i === 0 ? "" : "border-t border-dashed border-indigo-600/15"
-                                }`}
+                                className={cn(
+                                    "flex gap-6 py-3.5",
+                                    i > 0 && "border-t border-dashed border-indigo-600/15",
+                                )}
                             >
                                 <Text
                                     variant="monoSm"

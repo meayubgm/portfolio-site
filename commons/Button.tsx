@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
 
 type ButtonProps = {
     variant?: "primary" | "ghost";
@@ -11,11 +12,11 @@ type ButtonProps = {
 };
 
 const base =
-    "inline-flex items-center gap-2 rounded-lg font-body text-sm font-medium px-6 py-[13px] cursor-pointer transition-all duration-250 ease-in-out";
+    "inline-flex items-center gap-2 rounded-lg font-body text-sm font-medium px-6 py-3.5 cursor-pointer transition-all duration-250 ease-in-out";
 
 const styles = {
     primary: "bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-px",
-    ghost: "bg-white/60 text-slate-900 border border-sky-700/15 backdrop-blur-[6px] hover:bg-white/85 hover:border-sky-700/30",
+    ghost: "bg-white/60 text-slate-900 border border-sky-700/15 backdrop-blur-xs hover:bg-white/85 hover:border-sky-700/30",
 };
 
 export function Button({
@@ -25,7 +26,7 @@ export function Button({
     type = "button",
     disabled = false,
 }: ButtonProps) {
-    const className = `${base} ${styles[variant]}`;
+    const className = cn(base, styles[variant]);
     if (href) {
         return (
             <Link href={href} className={className}>
@@ -37,7 +38,10 @@ export function Button({
         <button
             type={type}
             disabled={disabled}
-            className={`${className} disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0`}
+            className={cn(
+                className,
+                "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0",
+            )}
         >
             {children}
         </button>

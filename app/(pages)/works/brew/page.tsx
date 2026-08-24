@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { BackLink } from "@/commons/BackLink";
+import { BulletList } from "@/commons/BulletList";
 import { LinkRow } from "@/commons/LinkRow";
 import { MonoHeading } from "@/commons/MonoHeading";
-import { Tag } from "@/commons/Tag";
+import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
 import { PageHeading } from "@/components/PageHeading";
 import { brewCase } from "@/lib/cases";
@@ -38,11 +39,7 @@ export default function BrewCaseStudy() {
                         period={brewCase.period}
                         lead={brewCase.summary}
                     />
-                    <div className="flex flex-wrap gap-2">
-                        {brewCase.tags.map((t) => (
-                            <Tag key={t}>{t}</Tag>
-                        ))}
-                    </div>
+                    <TagList tags={brewCase.tags} />
                 </header>
                 <div className="flex flex-col gap-12 pb-section pt-12">
                     <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 p-6">
@@ -80,7 +77,7 @@ export default function BrewCaseStudy() {
                     </section>
                     <section>
                         <MonoHeading>{"// 要件定義"}</MonoHeading>
-                        <Text as="ul" variant="lead" className="mb-4 list-disc pl-[1.3em]">
+                        <BulletList className="mb-4">
                             <li>
                                 デフォルトで複数の抽出メソッド（4:6メソッド／浸漬式ドリッパー／エアロプレス／フレンチプレス）をプリセットとして用意
                             </li>
@@ -93,7 +90,7 @@ export default function BrewCaseStudy() {
                             <li>
                                 ユーザー独自の抽出レシピを保存できるカスタムプリセット機能（フェーズ2として設計）
                             </li>
-                        </Text>
+                        </BulletList>
                         <Text variant="lead">
                             工程を通じて意識したのは、単なるタイマーではなく「抽出ガイド」として機能させること。アラーム時に「今回注ぐ量」「累計注湯量」「次のステップまでの待機時間」をまとめて提示する設計にしました。
                         </Text>
@@ -154,23 +151,23 @@ export default function BrewCaseStudy() {
                                 <Text variant="labelStrong" tone="strong" className="mb-2">
                                     実装済み
                                 </Text>
-                                <Text as="ul" variant="body" className="list-disc pl-[1.3em]">
+                                <BulletList variant="body">
                                     <li>複数抽出メソッドのプリセット選択</li>
                                     <li>人数・豆量に応じた湯量自動計算</li>
                                     <li>ステップタイマーとアラーム通知</li>
                                     <li>ユーザーカスタムプリセット機能</li>
                                     <li>Android実機での動作確認</li>
                                     <li>Web版のVercelデプロイ</li>
-                                </Text>
+                                </BulletList>
                             </div>
                             <div>
                                 <Text variant="labelStrong" tone="strong" className="mb-2">
                                     今後の実装予定
                                 </Text>
-                                <Text as="ul" variant="body" className="list-disc pl-[1.3em]">
+                                <BulletList variant="body">
                                     <li>iOS/Androidのストア配信</li>
                                     <li>クラウド同期</li>
-                                </Text>
+                                </BulletList>
                             </div>
                         </div>
                         {/* <Text variant="lead" className="mt-4">

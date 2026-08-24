@@ -3,12 +3,12 @@ import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
-import { HoverCue } from "@/commons/HoverCue";
 import { LabeledField } from "@/commons/LabeledField";
+import { LearnMoreCue } from "@/commons/LearnMoreCue";
 import { StatBlock } from "@/commons/StatBlock";
-import { Tag } from "@/commons/Tag";
+import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeader } from "@/components/PageHeader";
 import { brewCase, cases, otherWorks } from "@/lib/cases";
 
 export const metadata: Metadata = {
@@ -20,24 +20,19 @@ export default function Works() {
         <div>
             <BackLink href="/">home に戻る</BackLink>
 
-            <header className="pt-10 pb-12">
-                <PageHeading
-                    size="list"
-                    eyebrow="works"
-                    title="実績一覧"
-                    lead="受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。"
-                />
-            </header>
+            <PageHeader
+                size="list"
+                eyebrow="works"
+                title="実績一覧"
+                lead="受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。"
+            />
 
             <CardGrid>
                 {/* 01 BREW — featured */}
                 <GlassCard span={6} padding="lg" href="/works/brew" className="bg-featured">
-                    <div className="flex items-start justify-between">
-                        <CardLabel>個人開発 — code / design 全プロセス公開</CardLabel>
-                        <Text as="span" variant="monoSm" tone="muted">
-                            {brewCase.no}
-                        </Text>
-                    </div>
+                    <CardLabel meta={brewCase.no}>
+                        個人開発 — code / design 全プロセス公開
+                    </CardLabel>
                     <Text as="h3" variant="featureTitle" tone="strong" className="mb-2.5 mt-1.5">
                         {`${brewCase.titleEn} — ${brewCase.titleJa}`}
                     </Text>
@@ -51,24 +46,15 @@ export default function Works() {
                         <StatBlock number="実機検証済" label="Android / Expo Go" />
                     </div>
                     <div className="mt-3.5 flex items-center justify-between">
-                        <div className="flex flex-wrap gap-2">
-                            {brewCase.tags.map((t) => (
-                                <Tag key={t}>{t}</Tag>
-                            ))}
-                        </div>
-                        <HoverCue className="whitespace-nowrap">learn more ↗</HoverCue>
+                        <TagList tags={brewCase.tags} />
+                        <LearnMoreCue inline />
                     </div>
                 </GlassCard>
 
                 {/* 02–05 匿名化ケーススタディ */}
                 {cases.map((c) => (
                     <GlassCard key={c.no} span={3} className="flex flex-col">
-                        <div className="flex items-start justify-between">
-                            <CardLabel>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
-                            <Text as="span" variant="monoSm" tone="muted">
-                                {c.no}
-                            </Text>
-                        </div>
+                        <CardLabel meta={c.no}>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
                         <Text as="h3" variant="cardTitle" tone="strong" className="mb-1 mt-1.5">
                             {c.title}
                         </Text>
@@ -80,11 +66,7 @@ export default function Works() {
                             {c.role}
                         </LabeledField>
                         <LabeledField label="// point">{c.point}</LabeledField>
-                        <div className="mt-auto flex flex-wrap gap-2 pt-3.5">
-                            {c.tags.map((t) => (
-                                <Tag key={t}>{t}</Tag>
-                            ))}
-                        </div>
+                        <TagList tags={c.tags} className="mt-auto pt-3.5" />
                     </GlassCard>
                 ))}
 

@@ -15,7 +15,7 @@ type FormFieldProps = {
 
 /** フォーム入力コントロールに共通で当てるクラス（input / textarea 双方で使う） */
 export const formControlClass =
-    "w-full rounded-lg border border-sky-700/15 bg-white/60 px-3.5 py-2.5 font-body text-sm text-slate-900 backdrop-blur-[6px] outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-600 disabled:cursor-not-allowed disabled:opacity-60";
+    "w-full rounded-lg border border-sky-700/15 bg-white/60 px-3.5 py-2.5 font-body text-sm text-slate-900 backdrop-blur-xs outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-600 disabled:cursor-not-allowed disabled:opacity-60";
 
 /** エラーメッセージの要素 id。input 側の aria-describedby と揃える */
 export function errorId(id: string) {

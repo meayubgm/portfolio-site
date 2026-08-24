@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
 import { Text } from "./Text";
 
 type LabeledFieldProps = {
@@ -9,9 +10,9 @@ type LabeledFieldProps = {
 };
 
 /** 破線区切り + mono ラベル + 本文のフィールド行（ケーススタディカードの role / point 等） */
-export function LabeledField({ label, children, className = "" }: LabeledFieldProps) {
+export function LabeledField({ label, children, className }: LabeledFieldProps) {
     return (
-        <div className={`border-t border-dashed border-indigo-600/15 py-3 ${className}`}>
+        <div className={cn("border-t border-dashed border-indigo-600/15 py-3", className)}>
             <Text variant="monoSm" tone="accent" className="mb-1">
                 {label}
             </Text>

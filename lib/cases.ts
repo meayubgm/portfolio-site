@@ -1,5 +1,14 @@
+export type FeaturedCase = {
+    no: string;
+    titleEn: string;
+    titleJa: string;
+    period: string;
+    summary: string;
+    tags: string[];
+};
+
 /** featured（01）— BREW。Home / Works 一覧 / ケーススタディの3ページから参照する単一ソース */
-export const brewCase = {
+export const brewCase: FeaturedCase = {
     no: "01",
     titleEn: "Coffee Brew Timer",
     titleJa: "抽出メソッドに合わせて湯を注ぐタイミングまで導くコーヒー抽出タイマー",

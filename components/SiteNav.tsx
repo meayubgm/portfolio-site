@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { textStyles } from "@/commons/Text";
+import { cn } from "@/lib/cn";
 import icon from "../app/icon.svg";
 
 const links = [
@@ -25,14 +26,15 @@ export function SiteNav() {
             <Link href="/">
                 <Image src={icon} alt="icon" width="40" height="40" />
             </Link>
-            <div className={`flex gap-9 ${textStyles.monoMd}`}>
+            <div className={cn("flex gap-9", textStyles.monoMd)}>
                 {links.map((l) => (
                     <Link
                         key={l.href}
                         href={l.href}
-                        className={`transition-colors hover:text-sky-700 ${
-                            isActive(l.href) ? "text-indigo-600" : "text-slate-600"
-                        }`}
+                        className={cn(
+                            "transition-colors hover:text-sky-700",
+                            isActive(l.href) ? "text-indigo-600" : "text-slate-600",
+                        )}
                     >
                         {l.label}
                     </Link>

@@ -4,7 +4,7 @@ import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { Text } from "@/commons/Text";
-import { PageHeading } from "@/components/PageHeading";
+import { PageHeader } from "@/components/PageHeader";
 import { SkillName } from "@/components/SkillName";
 import type { SkillGroup, SkillItem, SkillSection } from "@/lib/skills";
 import { skillGroups } from "@/lib/skills";
@@ -108,14 +108,12 @@ export default function Skill() {
         <div>
             <BackLink href="/">home に戻る</BackLink>
 
-            <header className="pt-10 pb-12">
-                <PageHeading
-                    size="list"
-                    eyebrow="skills"
-                    title="スキル"
-                    lead="実務および個人開発で使用してきた技術を、実際の関わり方とあわせて記載しています。"
-                />
-            </header>
+            <PageHeader
+                size="list"
+                eyebrow="skills"
+                title="スキル"
+                lead="実務および個人開発で使用してきた技術を、実際の関わり方とあわせて記載しています。"
+            />
 
             <CardGrid>
                 {skillGroups.map((group) => (
