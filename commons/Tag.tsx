@@ -10,7 +10,7 @@ export function Tag({ children }: { children: ReactNode }) {
         <Text
             as="span"
             variant="monoSm"
-            className="inline-block rounded-tag border border-sky-700/15 bg-sky-700/10 px-2.5 py-1.5 text-sky-700"
+            className="inline-block rounded-lg border border-sky-700/15 bg-sky-700/10 px-2.5 py-1.5 text-sky-700"
         >
             {children}
         </Text>
