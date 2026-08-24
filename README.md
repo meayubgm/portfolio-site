@@ -112,15 +112,16 @@ npm run test:e2e:report    # 直近の HTML レポートを表示
 portfolio-site/
 ├── app/                    # App Router
 │   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ）
-│   ├── page.tsx            # Home（/）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
-│   ├── skills/page.tsx     # スキル一覧（/skills）
-│   ├── about/page.tsx      # 自己紹介（/about）
-│   ├── contact/page.tsx    # お問い合わせ（/contact）
 │   ├── api/contact/route.ts # お問い合わせ送信（POST。Honeypot → Turnstile → Resend）
-│   └── works/
-│       ├── page.tsx        # 実績一覧（/works）
-│       └── brew/page.tsx   # BREW ケーススタディ（/works/brew）
+│   └── (pages)/            # Route Group。括弧付きなので URL には現れない
+│       ├── page.tsx        # Home（/）
+│       ├── skills/page.tsx # スキル一覧（/skills）
+│       ├── about/page.tsx  # 自己紹介（/about）
+│       ├── contact/page.tsx # お問い合わせ（/contact）
+│       └── works/
+│           ├── page.tsx    # 実績一覧（/works）
+│           └── brew/page.tsx # BREW ケーススタディ（/works/brew）
 ├── public/                 # 静的アセット
 │   └── works/brew/         # BREW ケーススタディの画像（iPhone モック・UI キャプチャ）
 ├── commons/                # ドメイン非依存の DS プリミティブ（どこからでも使える）

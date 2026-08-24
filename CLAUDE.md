@@ -91,14 +91,14 @@ featured カード（BREW）のグラデーション面は `@theme` ではなく
 
 ### Client / Server の切り分け
 
-- ページ本体（`app/**/page.tsx`）とほとんどのコンポーネントは Server Component。
+- ページ本体（`app/(pages)/**/page.tsx`）とほとんどのコンポーネントは Server Component。
 - `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の3つだけ。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` ネストは不可、という制約からこの設計になっている。
 - `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため、`col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
 ### ディレクトリ
 
-- `app/` — App Router。`layout.tsx` に共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）。
+- `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめてある**（括弧付きのディレクトリ名は URL セグメントにならないため、`app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）で、これはページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は作っていない（現状レイアウトは API 以外の全ページで共通のため）。
 - `commons/` — **ドメイン非依存の DS プリミティブ**（13種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / BackLink）、テキストの共通入口 `Text`。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
   **`commons/Text.tsx` の `Text` がサイト内テキストの唯一の入口**で、`variant`（サイズ・行間・ウェイト・font-family の組み合わせ）と `tone`（`strong` / `default` / `muted` / `accent` / `danger` の文字色）を選ぶ。`as` で要素を差し替えられ（既定 `p`。`h2` / `span` / `ul` / `figcaption` / `Link` など）、残余 props は要素へ透過する。クラス文字列が必要な箇所（`SiteNav` のリンク列など）向けに `textStyles` / `toneStyles` も export している。**新しいテキストを足すときは、まず既存の variant で足りるか確認する**。足りなければ `textStyles` に1段追加し、ページ側に arbitrary value を書かない。
 - `components/` — **このサイト固有のコンポーネント**（6種）。特定のデータ・特定のページに結びつくため再利用しない。`SiteNav`（ナビのリンク定義を内包）/ `PageHeading`（hero / list / detail の3サイズはこのサイトのページ構成そのもの）/ `ContactForm` + `FormField`（`/contact` 専用）/ `SkillBar`（**Home 専用**。バー表示で `percent` 必須）/ `SkillName`（**`/skills` 専用**。バーを出さず mono / indigo の名前だけ）。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`tone="danger"`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
