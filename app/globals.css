@@ -68,6 +68,15 @@
 /* ホバー非対応環境（タッチデバイス）向けの variant。hover-none:opacity-100 のように使う */
 @custom-variant hover-none (@media (hover: none));
 
+/* JS 無効時の保険。Typewriter は完成テキストを opacity-0 で置いて高さを確保し、
+   浮き上がり待ちの要素も opacity-0 で伏せているため、JS が動かないと見えないままになる */
+@media (scripting: none) {
+  [data-typewriter-target],
+  [data-rise-in] {
+    opacity: 1;
+  }
+}
+
 /* トークン化しない値（背景グリッド用） */
 :root {
   --grid-cell: 24px;

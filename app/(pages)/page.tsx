@@ -4,12 +4,15 @@ import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { LearnMoreCue } from "@/commons/LearnMoreCue";
 import { LinkRow } from "@/commons/LinkRow";
+import { RiseIn } from "@/commons/RiseIn";
 import { TagList } from "@/commons/TagList";
 import { Text, withLineBreaks } from "@/commons/Text";
+import { Typewriter } from "@/commons/Typewriter";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
 import { introBody } from "@/lib/about";
 import { brewCase } from "@/lib/cases";
+import { heroActionsDelay, heroCopy, heroTyping } from "@/lib/home";
 import { homeSkillGroups } from "@/lib/skills";
 
 export default function Home() {
@@ -19,34 +22,30 @@ export default function Home() {
                 <div>
                     <PageHeading
                         size="hero"
-                        eyebrow="design × development"
-                        title="意図を汲みとって、かたちにする"
+                        eyebrow={<Typewriter lines={heroCopy.eyebrow} {...heroTyping.eyebrow} />}
+                        title={<Typewriter lines={heroCopy.title} {...heroTyping.title} />}
                     />
                 </div>
                 <div>
                     <Text variant="monoLg" tone="muted" className="pb-4.5">
-                        Megumi Ayuha / Web Design × Frontend Development — Portfolio
+                        <Typewriter lines={heroCopy.mono} {...heroTyping.mono} />
                     </Text>
                     <Text variant="lead" className="pb-12">
-                        ご覧いただきありがとうございます。
-                        <br />
-                        デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。
-                        <br />
-                        指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。
+                        <Typewriter lines={heroCopy.lead} {...heroTyping.lead} />
                     </Text>
-                    <div className="flex gap-3.5">
+                    <RiseIn delay={heroActionsDelay} className="flex gap-3.5">
                         <Button variant="primary" href="/works">
                             Works を見る
                         </Button>
                         <Button variant="ghost" href="/contact">
                             連絡する
                         </Button>
-                    </div>
+                    </RiseIn>
                 </div>
             </header>
 
             <CardGrid>
-                <GlassCard span={4} padding="lg" href="/about" className="flex flex-col">
+                <GlassCard span={4} padding="lg" href="/about" className="flex flex-col" reveal>
                     <CardLabel>about</CardLabel>
                     <Text variant="cardLead" tone="strong" className="mt-1.5">
                         「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」
@@ -60,7 +59,7 @@ export default function Home() {
                     <LearnMoreCue />
                 </GlassCard>
 
-                <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured">
+                <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured" reveal>
                     <CardLabel>featured work — 個人開発</CardLabel>
                     <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
                         コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
@@ -71,7 +70,13 @@ export default function Home() {
                 </GlassCard>
 
                 {homeSkillGroups.map((g) => (
-                    <GlassCard key={g.heading} span={2} href="/skills" className="flex flex-col">
+                    <GlassCard
+                        key={g.heading}
+                        span={2}
+                        href="/skills"
+                        className="flex flex-col"
+                        reveal
+                    >
                         <CardLabel>{g.label}</CardLabel>
                         <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
                             {g.heading}
@@ -88,7 +93,7 @@ export default function Home() {
                     </GlassCard>
                 ))}
 
-                <GlassCard span={2} className="flex flex-col justify-between">
+                <GlassCard span={2} className="flex flex-col justify-between" reveal>
                     <div>
                         <CardLabel>contact</CardLabel>
                         <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">

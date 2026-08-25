@@ -29,7 +29,7 @@ export default function Works() {
 
             <CardGrid>
                 {/* 01 BREW — featured */}
-                <GlassCard span={6} padding="lg" href="/works/brew" className="bg-featured">
+                <GlassCard span={6} padding="lg" href="/works/brew" className="bg-featured" reveal>
                     <CardLabel meta={brewCase.no}>
                         個人開発 — code / design 全プロセス公開
                     </CardLabel>
@@ -53,7 +53,7 @@ export default function Works() {
 
                 {/* 02–05 匿名化ケーススタディ */}
                 {cases.map((c) => (
-                    <GlassCard key={c.no} span={3} className="flex flex-col">
+                    <GlassCard key={c.no} span={3} className="flex flex-col" reveal>
                         <CardLabel meta={c.no}>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
                         <Text as="h3" variant="cardTitle" tone="strong" className="mb-1 mt-1.5">
                             {c.title}
@@ -71,7 +71,7 @@ export default function Works() {
                 ))}
 
                 {/* その他の案件 */}
-                <GlassCard span={6}>
+                <GlassCard span={6} reveal>
                     <CardLabel>その他</CardLabel>
                     <div className="mt-2 flex flex-col">
                         {otherWorks.map((w) => (

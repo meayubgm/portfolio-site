@@ -82,7 +82,7 @@ function SkillColumn({ sections }: { sections: SkillSection[] }) {
 /** スキルグループ1つ分のカード。列コンテナまでを組み立てる */
 function SkillGroupCard({ group }: { group: SkillGroup }) {
     return (
-        <GlassCard span={group.layout.span} padding="lg">
+        <GlassCard span={group.layout.span} padding="lg" reveal>
             <CardLabel>{`${group.label} — ${group.heading}`}</CardLabel>
             <Text as="h2" variant="cardTitle" tone="strong" className="mb-2">
                 {group.heading}

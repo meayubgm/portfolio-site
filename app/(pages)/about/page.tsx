@@ -35,7 +35,7 @@ export default function About() {
             <MonoHeading>{"// strength — エンジニアとしての強み"}</MonoHeading>
             <CardGrid>
                 {strengths.map((s) => (
-                    <GlassCard key={s.no} span={3}>
+                    <GlassCard key={s.no} span={3} reveal>
                         <CardLabel>{`strength ${s.no}`}</CardLabel>
                         <Text as="h2" variant="cardTitle" tone="strong" className="mb-2.5">
                             {s.title}
@@ -47,7 +47,7 @@ export default function About() {
 
             <MonoHeading>{"// person — 人となり"}</MonoHeading>
             <CardGrid>
-                <GlassCard span={6} padding="lg">
+                <GlassCard span={6} padding="lg" reveal>
                     <Text variant="body" className="mb-4">
                         {person[0]}
                     </Text>
@@ -58,7 +58,7 @@ export default function About() {
             <MonoHeading>{"// favorites — 好きなもの"}</MonoHeading>
             <CardGrid>
                 {favorites.map((f) => (
-                    <GlassCard key={f.name} span={3}>
+                    <GlassCard key={f.name} span={3} reveal>
                         <Text as="h3" variant="subTitle" tone="strong" className="mb-1.5">
                             {f.name}
                         </Text>
@@ -71,7 +71,7 @@ export default function About() {
 
             <MonoHeading>{"// next — これからやってみたいこと"}</MonoHeading>
             <CardGrid>
-                <GlassCard span={6} padding="lg">
+                <GlassCard span={6} padding="lg" reveal>
                     <Text variant="body" className="mb-4">
                         {nextSteps[0]}
                     </Text>
@@ -81,7 +81,7 @@ export default function About() {
 
             <MonoHeading>{"// story — 来歴"}</MonoHeading>
             <CardGrid>
-                <GlassCard span={6} padding="lg">
+                <GlassCard span={6} padding="lg" reveal>
                     <div className="flex flex-col">
                         {story.map((e, i) => (
                             <div

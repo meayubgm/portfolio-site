@@ -131,31 +131,35 @@ portfolio-site/
 │   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
 │   ├── CardLabel.tsx       # カード左上の mono ラベル（meta で右端に通し番号を添えられる）
 │   ├── EyebrowLabel.tsx
-│   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移）
+│   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移＋scroll reveal）
 │   ├── HoverCue.tsx        # カード内の導線テキスト（親カードのホバー時のみ表示）
 │   ├── LabeledField.tsx    # 破線区切り + mono ラベル + 本文（role / point 等）
 │   ├── LearnMoreCue.tsx    # 「learn more ↗」固定の HoverCue
 │   ├── LinkRow.tsx
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
+│   ├── RiseIn.tsx          # "use client"（指定時間後に浮き上がって現れるブロック）
 │   ├── StatBlock.tsx
 │   ├── Tag.tsx
 │   ├── TagList.tsx         # Tag を折り返しながら並べる列
-│   └── Text.tsx            # Text（variant / tone）。サイト内テキストの共通入口
+│   ├── Text.tsx            # Text（variant / tone）。サイト内テキストの共通入口
+│   └── Typewriter.tsx      # "use client"（文字を左から打ち込むテキスト）
 ├── components/             # このサイト固有のコンポーネント（再利用しない）
 │   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
 │   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
 │   ├── PageHeader.tsx      # 一覧系ページ共通の header ラッパー + PageHeading
 │   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文（hero / list / detail）
-│   ├── SiteNav.tsx         # "use client"（usePathname で active 判定）
+│   ├── SiteNav.tsx         # "use client"（usePathname で active 判定＋スクロール連動の出し入れ）
 │   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
 │   └── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
 ├── lib/
 │   ├── about.ts            # About のテキストデータ（挨拶文は Home と共用。強み・人となり・来歴 ほか）
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
 │   ├── cn.ts               # clsx + tailwind-merge のクラス結合（衝突は後勝ち）
+│   ├── home.ts             # Home ヒーローの文言とタイピング演出のスケジュール
+│   ├── useRiseIn.ts        # 浮き上がり表示を当てるフック（RiseIn / GlassCard が共用）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
-├── e2e/                    # Playwright E2E テスト（smoke / navigation）
+├── e2e/                    # Playwright E2E テスト（smoke / navigation / motion）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）
 ├── .env.example            # お問い合わせフォームの環境変数の雛形（.env.local にコピーして使う）
@@ -205,9 +209,29 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
 
 ## Client / Server の切り分け
 
-- `GlassCard`（マウス追従グロー＋クリック遷移）・`SiteNav`（`usePathname`）・`ContactForm`（フォーム状態と Turnstile）は `"use client"`。
+- `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・`RiseIn`（浮き上がり）・
+  `SiteNav`（`usePathname` とスクロール連動）・`ContactForm`（フォーム状態と Turnstile）は `"use client"`。
 - ページ本体・その他のコンポーネントは Server Component。全ページが静的生成（SSG）されます。
   唯一の動的ルートが `app/api/contact/route.ts`（お問い合わせの送信先）です。
+
+## モーション
+
+アニメーションライブラリは使わず、CSS transition と IntersectionObserver で実装しています。
+いずれも `prefers-reduced-motion: reduce` で即時表示に切り替わります。
+
+- **SiteNav** — 下スクロールで `-translate-y-full`、上スクロールで復帰（最上部 80px 以内では隠さない）。
+- **Home ヒーロー** — `Typewriter` が eyebrow / h1 / mono行 / リード文を左から打ち込む。
+  遅延と速度は `lib/home.ts` が文字数から静的に算出（h1 は eyebrow に少し重ねて開始し、
+  両方が終わってから mono行とリード文が同時に始まる）。
+  完成テキストは `opacity-0` で重ねたまま DOM に残すため、高さが動かず SSG の HTML にも文言が載ります。
+- **浮き上がり** — `opacity-0 translate-y-4` → `opacity-100 translate-y-0` を 0.5 秒の transition で
+  同時に動かします（当て方は `lib/useRiseIn.ts` に集約。終わったらクラスを外します）。
+- **カード** — `GlassCard` の `reveal`。画面に入ったら浮き上がり、初回の交差で監視を打ち切るので
+  一度出たら戻りません（カードごとの時間差は付けていません）。`/`・`/works`・`/skills`・`/about` が対象で、
+  ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のままです。
+- **ヒーローのボタン列** — `RiseIn` に `lib/home.ts` の `heroActionsDelay` を渡し、打ち終わりの直後に続けます。
+- **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の
+  `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻します。
 
 ## メモ
 

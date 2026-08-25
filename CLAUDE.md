@@ -98,21 +98,24 @@ featured カード（BREW）のグラデーション面が `@utility bg-featured
 ### Client / Server の切り分け
 
 - ページ本体（`app/(pages)/**/page.tsx`）とほとんどのコンポーネントは Server Component。
-- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の3つだけ。
+- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`components/SiteNav.tsx`**（`usePathname` でナビの active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の4つだけ。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` ネストは不可、という制約からこの設計になっている。
+- `GlassCard` の `reveal` は scroll reveal（後述のモーション節）。`/`・`/works`・`/skills`・`/about` のカードが渡す。既定は OFF で、`/works/brew` と `/contact` のカードは即表示のまま。
 - `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため、`col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
 ### ディレクトリ
 
 - `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ・フッター）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめてある**（括弧付きのディレクトリ名は URL セグメントにならないため、`app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**）。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。加えて `app/api/contact/route.ts`（POST 専用の Route Handler。`runtime = "nodejs"`）で、これはページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は作っていない（現状レイアウトは API 以外の全ページで共通のため）。
-- `commons/` — **ドメイン非依存の DS プリミティブ**（16種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / LearnMoreCue / BackLink / TagList / BulletList）、テキストの共通入口 `Text`。`CardLabel` は `meta` を渡すと右端に補足（ケーススタディの通し番号など）を並べた1行になる。`TagList` は `Tag` を `flex flex-wrap gap-2` で並べる列、`LearnMoreCue` は「learn more ↗」固定の `HoverCue`（既定はカード下部の右寄せ、`inline` でその場に置く）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
+- `commons/` — **ドメイン非依存の DS プリミティブ**（18種）。どのページ・どのコンポーネントからでも使え、**`commons/` から `components/` を import してはいけない**（依存の向きは `app/` → `components/` → `commons/` の一方向）。プロトタイプの `_ds_bundle.js` 由来（Button / CardLabel / EyebrowLabel / GlassCard / LinkRow / StatBlock / Tag）と、ページ間の同型マークアップを集約したレイアウト系（CardGrid / LabeledField / MonoHeading / HoverCue / LearnMoreCue / BackLink / TagList / BulletList）、テキストの共通入口 `Text`、モーション用の `Typewriter` / `RiseIn`。`CardLabel` は `meta` を渡すと右端に補足（ケーススタディの通し番号など）を並べた1行になる。`TagList` は `Tag` を `flex flex-wrap gap-2` で並べる列、`LearnMoreCue` は「learn more ↗」固定の `HoverCue`（既定はカード下部の右寄せ、`inline` でその場に置く）。`HoverCue` はカード内の導線テキストで、`GlassCard` の `group` に乗って親カードのホバー時のみフェードインする（ホバー非対応環境では常時表示）。`BackLink` はページ左上の戻りリンクで、`/works`・`/skills`・`/about`・`/contact` は Home へ、`/works/brew` は `/works` へ戻る。
   **`commons/Text.tsx` の `Text` がサイト内テキストの唯一の入口**で、`variant`（サイズ・行間・ウェイト・font-family の組み合わせ）と `tone`（`strong` / `default` / `muted` / `accent` / `danger` の文字色）を選ぶ。`as` で要素を差し替えられ（既定 `p`。`h2` / `span` / `ul` / `figcaption` / `small` / `Link` など）、残余 props は要素へ透過する。クラス文字列が必要な箇所（`SiteNav` のリンク列など）向けに `textStyles` / `toneStyles` も export している。**新しいテキストを足すときは、まず既存の variant で足りるか確認する**。足りなければ `textStyles` に1段追加し、ページ側に arbitrary value を書かない。
   段落用の `lead` / `body` には **`text-justify` を含めてある**（日本語の折り返しで右端がガタつくのを防ぐため）。折り返しの起きない `span` 用途では効かないだけなので害はない。
 - `components/` — **このサイト固有のコンポーネント**（7種）。特定のデータ・特定のページに結びつくため再利用しない。`SiteNav`（ナビのリンク定義を内包）/ `PageHeading`（hero / list / detail の3サイズはこのサイトのページ構成そのもの）/ `PageHeader`（一覧系ページ共通の `<header className="pt-10 pb-12">` + `PageHeading`。`children` で見出しの下に文を足せる）/ `ContactForm` + `FormField`（`/contact` 専用）/ `SkillBar`（**Home 専用**。バー表示で `percent` 必須）/ `SkillName`（**`/skills` 専用**。バーを出さず mono / indigo の名前だけ）。`FormField` はラベル + 必須（indigo）／任意（slate）の注記 + 入力コントロール + 検証エラー（`tone="danger"`）の行で、`input` / `textarea` に当てる共通クラスを `formControlClass`、エラー要素の id を組み立てる `errorId` として export する。
 - `public/works/brew/` — BREW ケーススタディの画像。**元 PNG は表示幅に合わせて縮小済み**（hero 3枚は 1200x2037）。`next/image` には **必ず `sizes` を指定する**（未指定だと Next が `100vw` 扱いで `w=3840` の最適化を要求し、dev サーバーの image optimizer が詰まって画像が表示されなくなることがある）。
+- `lib/useRiseIn.ts` — 浮き上がり表示を要素に当てるフック（`RiseIn` と `GlassCard` が共用）。開始前は `opacity-0 translate-y-4`、`transitionend` でクラスを外す。`prefers-reduced-motion` の判定は hydration 不一致を避けるため `useEffect` 内で行う。
 - `lib/cn.ts` — `clsx` + `tailwind-merge` の `cn()`。Tailwind の衝突を後勝ちで解決するため、`Text` の `className` から variant / tone のクラスを安全に上書きできる。`@theme` のカスタム字間（`tracking-heading` / `tracking-label`）は `extendTailwindMerge` で classGroup に登録済み。
 - `lib/cases.ts` — 実績データ。featured の `brewCase`（3ページから参照する単一ソース）・匿名化ケーススタディの `cases`・`otherWorks`。Works ページはここを map して描画。
 - `lib/contactSchema.ts` — お問い合わせフォームの検証ルール（Zod）。`contactSchema` を `ContactForm` が、Honeypot と Turnstile トークンを足した `contactPayloadSchema` を Route Handler が使う（**検証ルールの単一ソース**）。
+- `lib/home.ts` — Home ヒーローの文言（`heroCopy`）と、タイピング演出の遅延・速度（`heroTyping`）。**遅延は文字数から静的に算出する**（実行時のコールバック連鎖を持たない）ため、文言を書き換えるとスケジュールも自動で追従する。
 - `lib/about.ts` — About ページのテキストデータ（挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴）。
 - `lib/skills.ts` — スキルデータ（Development / Design / Tools）。Home のスキルカードと `/skills` ページの単一ソース。各グループは `sections`（職能ベースの分類。`heading` 省略で見出し無しの単一セクション＝Design / Tools）と `layout`（`/skills` でのカード幅 `span` とセクションの列数 `columns`）を持つ。Development は span 6 / 2列（左＝フロントエンド、右＝バックエンド + AI活用。どちらの列に置くかは各 section の `column`）、Design と Tools は span 3 / 1列で横並びになる。`note` は Home のカード用で、`/skills` では `skillsNote`（あれば）を優先して表示する（Development と Tools の守備範囲を書き分けるため）。`description` は `/skills` でのみ表示する。`percent` は **optional** で、**Home に載せるかどうかの分岐を兼ねる**（値はバーの長さ）。Home は `sections` を flatMap して `percent` を持つ項目だけを残した派生配列 `homeSkillGroups` を使う（**並べ替えはしない**＝データの順序がそのままバーの順序）。`homeName` を持つ項目は Home でだけその名前で表示する（React が `homeName: "React / Next.js"` を持ち、Next.js 側は `percent` を持たないことで Home の1本のバーにまとまる。PHP も同様に `percent` 無しで Home からは外している）。`/skills` は `percent` の有無にかかわらず**全項目をバー無し**（`SkillName`）で表示する。
 
@@ -157,6 +160,36 @@ RHF の管理外で、従来どおり `useState` で保持して送信時に足�
 - 「送信までの経過時間が短すぎたら弾く」判定は**入れない**（一度実装して削除した）。経過時間はクライアントが
   自由に値を作れるためフォームを介さない POST には無力な一方、オートフィル + 貼り付けで素早く送信した
   実在の訪問者のメールを、成功表示のまま黙って捨ててしまう副作用があるため。
+
+## モーション
+
+アニメーションライブラリは入れない方針。**CSS transition + IntersectionObserver + 小さな client コンポーネント**で実装する。
+3つとも `prefers-reduced-motion: reduce` で即時表示に切り替わる（`window.matchMedia` での分岐、および `motion-reduce:transition-none`）。
+
+- **SiteNav の出し入れ** — `scroll` を購読し、下スクロールで `-translate-y-full`、上スクロールで復帰。
+  8px 未満の差分は無視（トラックパッドの微振動対策）、`scrollY` が 80px 以内なら隠さない。
+- **Home ヒーローのタイピング** — `commons/Typewriter.tsx`。**完成テキストを `opacity-0` で敷き、打ち込み中のテキストを
+  `aria-hidden` でグリッド重ねする**構成。これにより (1) 行数が増えても高さが動かない (2) SSG の HTML と
+  アクセシビリティツリーには最初から完成テキストが載る（SEO と e2e の `toContainText` が壊れない）。
+  打ち終わったら重ねを解いて素の1枚テキストに戻す。JS 無効時の保険として `globals.css` に
+  `@media (scripting: none) { [data-typewriter-target] { opacity: 1 } }` を置いてある。
+- **浮き上がり** — `lib/useRiseIn.ts` に集約。`opacity-0 translate-y-4` → `opacity-100 translate-y-0` を
+  `transition-[translate,opacity] duration-500` で動かすだけ（**フェードと移動は同時**。16px / 0.5秒）。
+  キーフレームで「先に姿を見せてから動かす」版も試したが、動きが大きく不自然だったため採らなかった。
+  終わったら **`transitionend`（`propertyName === "translate"`）でクラスを外す**。
+  ただし**開始前のホバー**でも `hover:-translate-y-0.5` が同じイベントを飛ばすため、`started` で弾いている
+  （弾かないと、表示前のカードをホバーしただけで reveal が打ち切られて一瞬で出てしまう）。
+  付けっぱなしだと `duration-500` がホバーの浮き上がりにも効き続けるため。
+  なお `GlassCard` の transition 対象は `transform` ではなく **`translate`**（Tailwind v4 の
+  `translate-y-*` は `transform` ではなく `translate` プロパティを使うため）。
+- **カードの scroll reveal** — `GlassCard` の `reveal`（既定 OFF）。`/`・`/works`・`/skills`・`/about` の
+  一覧系カードが渡す。ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のまま。
+  `IntersectionObserver` で初回の交差を拾ったら `disconnect()` するので、**一度出たら上に戻しても消えない**。
+  **カードごとの時間差は付けない**（隣り合うカードは同時に出る）。
+  **`GlassCard` にラッパー div を被せてはいけない**
+  （`e2e/navigation.spec.ts` が `page.locator("div.group")` で GlassCard のルートを直接掴んでいる）。
+- **ヒーローのボタン列** — `commons/RiseIn.tsx`。スクロールではなく時間で始める版で、
+  `lib/home.ts` の `heroActionsDelay`（打ち終わり + 150ms）を渡している。
 
 ## コンテンツ方針（デザインシステム由来）
 
