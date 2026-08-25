@@ -13,9 +13,9 @@
    --text-hero        -> text-hero（--text-*--line-height で行間もセットになる）
    --container-site   -> max-w-site
 
-   色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せたため、
-   custom な --color-* トークンは廃止。マークアップは組み込みユーティリティ
-   （text-slate-900 / text-sky-700 / border-indigo-600/15 等）を直接使う。
+   色は Tailwind の組み込みパレット（slate / sky / indigo）を直接使う。
+   custom な --color-* トークンは持たず、マークアップは組み込みユーティリティ
+   （text-slate-900 / text-sky-700 / border-indigo-600/15 等）を書く。
    ============================================================ */
 @theme {
   /* fonts */
@@ -29,7 +29,7 @@
   /* shadows */
   --shadow-card-hover: 0 18px 40px -22px rgba(18, 33, 61, 0.25);
 
-  /* spacing: ページ下部セクション余白（旧 pb-22.5 = 90px 相当） */
+  /* spacing: ページ下部セクション余白（90px） */
   --spacing-section: 5.625rem;
 
   /* tracking: ページ見出し h1 共通の字間 */

@@ -1,7 +1,10 @@
 # portfolio-site
 
-**Megumi Ayuha** のポートフォリオサイト。Claude Design で作成したプロトタイプ
-（Frost & Blueprint デザインシステム）を **Next.js (App Router) + Tailwind CSS v4** で実装したもの。全ページ静的生成（SSG。唯一の例外がお問い合わせ送信の Route Handler `/api/contact`）。
+**Megumi Ayuha** のポートフォリオサイト。デザインシステム **Frost & Blueprint**（フロスト＝磨りガラス面＋
+ブループリント＝設計図の格子）を **Next.js (App Router) + Tailwind CSS v4** で実装しています。
+全ページ静的生成（SSG）で、唯一の動的ルートがお問い合わせ送信の Route Handler `/api/contact` です。
+
+ページは `/`（Home）・`/works`・`/works/brew`（BREW ケーススタディ）・`/skills`・`/about`・`/contact` の6つ。
 
 ## 技術スタック
 
@@ -10,7 +13,7 @@
 | フレームワーク | Next.js 16 LTS（App Router / SSG・Turbopack） |
 | 言語 | TypeScript 6 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`）+ clsx / tailwind-merge |
-| フォント | Space Grotesk / IBM Plex Sans JP（Google Fonts） |
+| フォント | Space Grotesk / Inter / JetBrains Mono / IBM Plex Sans JP（Google Fonts） |
 | Lint / Format | Biome 2（汎用 lint + format。`recommended` + `useBlockStatements`）+ ESLint（Next core-web-vitals + 独自ルール） |
 | テスト | Playwright（E2E / Chromium・WebKit）+ Playwright MCP |
 | フォーム | React Hook Form + Zod（お問い合わせフォームの入力検証） |
@@ -18,7 +21,7 @@
 | 開発環境 | Docker（Node 24 Alpine）+ Make |
 | デプロイ形態 | 静的生成（SSG）+ Route Handler 1本（`/api/contact`） |
 
-型チェックは `npm run build`（`next build`）に含まれる。E2E テストは Playwright を使用（後述）。
+型チェックは `npm run build`（`next build`）に含まれます。
 
 ## 開発
 
@@ -34,7 +37,9 @@ make lint     # Biome + ESLint(Next / 独自ルール) で lint/format をチェ
 make help     # 全ターゲット一覧
 ```
 
-Docker Compose v1 環境では `make up COMPOSE=docker-compose` のように上書きする。
+ソースはコンテナへバインドマウントし、`node_modules` と `.next` はコンテナ内のもの（匿名ボリューム）を
+使います。ホスト（macOS）は musl 非対応なので、依存はコンテナ内で解決してください。
+Docker Compose v1 環境では `make up COMPOSE=docker-compose` のように上書きします。
 
 Docker を使わない場合:
 
@@ -45,10 +50,15 @@ npm run build    # 本番ビルド（型チェック込み）
 npm run start    # 本番サーバー
 ```
 
+> **Tip**: `app/globals.css` の `@theme` / `@utility` / `@custom-variant` を編集したのに新しい
+> ユーティリティだけ効かない場合は、dev サーバーが古い CSS をキャッシュしています。
+> `docker compose exec app sh -c 'rm -rf .next/*'` のうえ `docker compose restart app` で直ります。
+
 ## お問い合わせフォーム（/contact）
 
-`/contact` の送信は `POST /api/contact` で処理され、**Honeypot →（Cloudflare Turnstile）→ Resend でメール送信**
+`/contact` の送信は `POST /api/contact` で処理され、**Honeypot → Cloudflare Turnstile → Resend でメール送信**
 の順に進みます。ページ自体は SSG のままで、動的なのはこの Route Handler だけです。
+ボット対策は Honeypot と Turnstile の2段構えです。
 
 入力検証は **React Hook Form + Zod** で行います。スキーマは `lib/contactSchema.ts` に置き、
 クライアント（`ContactForm`）と Route Handler の双方が同じルールを参照します。
@@ -65,27 +75,32 @@ cp .env.example .env.local
 | `RESEND_API_KEY` | Resend の API キー |
 | `CONTACT_TO_EMAIL` | 送信先（受信したいアドレス） |
 | `CONTACT_FROM_EMAIL` | 送信元。ドメイン未検証のため `onboarding@resend.dev` |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー |
-| `TURNSTILE_SECRET_KEY` | Turnstile のシークレット |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー（クライアント側） |
+| `TURNSTILE_SECRET_KEY` | Turnstile のシークレット（サーバー側） |
 
 `.env.example` の Turnstile はローカル確認用の公式テストキー（常に成功）です。
 サイトキーが未設定の場合、フォームはウィジェットの代わりに未設定の注記を表示します。
+環境変数が揃っていなくてもビルドは通り（モジュールトップで throw しません）、送信時に 500 を返します。
 
 > **注意**: 独自ドメインを Resend で検証していないため、送信元は共有ドメインの `onboarding@resend.dev` です。
 > この状態では Resend の sandbox 制限により、**宛先は Resend アカウントの登録メールアドレスにしか送れません**。
 > `CONTACT_TO_EMAIL` に別のアドレスを指定すると Resend が 403 を返し、`[contact] resend error:` がログに出て
-> 500 になります。別のアドレスで受け取りたい場合は独自ドメインの取得と検証が必要です。
+> 500 になります。別のアドレスで受け取りたい場合は独自ドメインの取得と検証（MX / SPF / DKIM）が必要です。
 
 > **注意**: `NEXT_PUBLIC_TURNSTILE_SITE_KEY` は `NEXT_PUBLIC_` 接頭辞のとおり
 > **ビルド時にバンドルへ埋め込まれます**。実行時にだけ環境変数を渡す構成（Docker の `environment` など）では
 > 空文字のままになり、ウィジェットが出ず送信が必ず 400 になります。`next build` を実行する環境にも
 > 必ず設定してください（Vercel なら Environment Variables に入れておけば OK）。
 
+> **注意**: Turnstile のホスト名は **FQDN のみ・ワイルドカード不可**で、登録したホスト名の配下の
+> サブドメインだけが自動許可されます。Vercel のプレビューデプロイは `<project>-<hash>-<team>.vercel.app` と
+> いう**兄弟サブドメイン**になるため、本番ホスト名を登録してもプレビューでは Turnstile を通過できません。
+
 ## E2E テスト（Playwright）
 
 E2E テストは **Playwright**（`@playwright/test`）で実装。開発コンテナ（`node:24-alpine`）は
 Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、Docker が配信する
-`http://localhost:3000` を叩く。
+`http://localhost:3000` を叩きます。
 
 ```bash
 # 初回のみ: ホストで依存とブラウザを取得
@@ -101,18 +116,23 @@ npm run test:e2e:report    # 直近の HTML レポートを表示
 
 `playwright.config.ts` の `webServer` は `reuseExistingServer: true`。`make up` が :3000 を
 占有していればそれを再利用し、Docker 未起動時や CI（Linux）では `npm run build && npm run start`
-でフォールバック起動する。spec は `e2e/` 配下。
+でフォールバック起動します。spec は `e2e/` 配下（smoke / navigation / motion）。
 
 `.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助（Claude Code から使用）。
-リグレッション検知は `@playwright/test` に一任する。
+リグレッション検知は `@playwright/test` に一任します。
 
 ## ディレクトリ構成
+
+`commons/` は**ドメイン非依存の DS プリミティブ**、`components/` は**このサイト固有**のコンポーネントです。
+依存は `app/` → `components/` → `commons/` の一方向で、`commons/` から `components/` は参照しません。
+import には `@/` エイリアスを使います（`tsconfig.json` の `paths` でリポジトリルートに解決）。
 
 ```
 portfolio-site/
 ├── app/                    # App Router
 │   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ＋フッター）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
+│   ├── icon.svg / icon.png / apple-icon.png  # metadata ファイル（favicon・アプリアイコン）
 │   ├── api/contact/route.ts # お問い合わせ送信（POST。Honeypot → Turnstile → Resend）
 │   └── (pages)/            # Route Group。括弧付きなので URL には現れない
 │       ├── page.tsx        # Home（/）
@@ -174,20 +194,42 @@ portfolio-site/
 └── tsconfig.json
 ```
 
+## データの持ち方
+
+ページに表示する内容は `lib/` のデータモジュールに集約し、ページはそれを map して描画します。
+
+- `lib/cases.ts` — featured の `brewCase` は Home / `/works` / `/works/brew` の3ページから参照する単一ソース。
+  ほかに匿名化ケーススタディの `cases` と `otherWorks`。
+- `lib/skills.ts` — Home のスキルカードと `/skills` の単一ソース。各グループ（Development / Design / Tools）は
+  `sections`（職能ベースの分類。`heading` を省略すると見出し無しの単一セクション＝Design / Tools）と
+  `layout`（`/skills` でのカード幅 `span` とセクションの列数 `columns`）を持ちます。
+  Development は span 6 / 2列（左＝フロントエンド、右＝バックエンド + AI活用。どちらの列に置くかは各 section の
+  `column`）、Design と Tools は span 3 / 1列で横並びになります。`note` は Home のカード用で、`/skills` では
+  `skillsNote`（あれば）を優先表示、`description` は `/skills` でのみ表示します。
+  `percent` は optional で、**Home に載せるかどうかの分岐を兼ねます**（値はバーの長さ）。Home は `percent` を
+  持つ項目だけを残した派生配列 `homeSkillGroups` を使い、並べ替えはしません。`homeName` を持つ項目は
+  Home でだけその名前で表示します（React が `homeName: "React / Next.js"` を持ち、Next.js 側が `percent` を
+  持たないことで Home の1本のバーにまとまります）。`/skills` は `percent` の有無にかかわらず全項目を
+  バー無し（`SkillName`）で表示します。
+- `lib/about.ts` — 挨拶文・強み4項目・人となり／好きなもの・これからやってみたいこと・年表形式の来歴。
+- `lib/home.ts` — ヒーローの文言（`heroCopy`）とタイピングの遅延・速度（`heroTyping`）。
+  遅延は文字数から静的に算出するため、文言を書き換えればスケジュールも追従します。
+
 ## デザイントークンの扱い
 
-DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 変数として Tailwind テーマに統合しています
-（`app/globals.css` の `@theme`）。命名規則は Tailwind v4 の慣習どおり:
+DS 固有トークン（フォント・角丸・影・余白・字間・h1 のサイズ段・コンテナ幅）を CSS 変数として
+Tailwind テーマに統合しています（`app/globals.css` の `@theme`）。命名規則は Tailwind v4 の慣習どおりで、
+変数を足せばそのままユーティリティが生成されます。
 
 | 変数 | 生成されるユーティリティ |
 | --- | --- |
-| `--font-display` | `font-display` |
+| `--font-display` / `--font-body` / `--font-mono` | `font-display` / `font-body` / `font-mono` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
 | `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
 | `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
-| `--text-hero` / `--text-page` / `--text-detail` | `text-hero` / `text-page` / `text-detail`（h1 の3サイズ。行間も対のトークンで決まる） |
+| `--text-hero` / `--text-page` / `--text-detail` | `text-hero` / `text-page` / `text-detail`（h1 の3サイズ。`--text-*--line-height` を対で置いているので行間もこれ1つで決まる） |
 | `--container-site` | `max-w-site`（サイト全体の最大幅 1800px） |
 
 `@theme` に収まらないものは `@utility` / `@custom-variant` で定義しています。featured カード（BREW）の
@@ -201,18 +243,21 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
 `--text-hero` / `--text-page` / `--text-detail` にトークン化してあり、`PageHeading` はそのユーティリティを
 当てるだけです。段落用の `lead` / `body` には `text-justify` を含めており、日本語の折り返しでも右端が揃います。
 
-色は Tailwind の組み込みパレット（slate / sky / indigo）へ寄せており、custom な `--color-*`
-トークンは持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。
-`tailwind.config.js` は存在しません（v4 の CSS ファースト設定）。
+色は Tailwind の組み込みパレット（slate / sky / indigo）に準拠し、custom な `--color-*` トークンは
+持ちません（`text-slate-900` / `text-sky-700` / `border-indigo-600/15` のように直接使用）。
+`tailwind.config.js` はありません（v4 の CSS ファースト設定）。
 背景のブループリント格子は `--grid-cell` と `body` への直接適用で描画し、淡い indigo は
 `color-mix` で Tailwind パレット変数（`--color-indigo-600`）から生成しています。
 
 ## Client / Server の切り分け
 
-- `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・`RiseIn`（浮き上がり）・
-  `SiteNav`（`usePathname` とスクロール連動）・`ContactForm`（フォーム状態と Turnstile）は `"use client"`。
-- ページ本体・その他のコンポーネントは Server Component。全ページが静的生成（SSG）されます。
+- `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・
+  `RiseIn`（浮き上がり）・`SiteNav`（`usePathname` とスクロール連動）・`ContactForm`（フォーム状態と
+  Turnstile）の5ファイルが `"use client"`。
+- ページ本体・その他のコンポーネントは Server Component で、全ページが静的生成（SSG）されます。
   唯一の動的ルートが `app/api/contact/route.ts`（お問い合わせの送信先）です。
+- カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡します
+  （内部で `useRouter().push`。カード内に `<a>` が入るため `<a>` のネストは避けています）。
 
 ## モーション
 
@@ -220,7 +265,8 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
 いずれも `prefers-reduced-motion: reduce` で即時表示に切り替わります。
 
 - **SiteNav** — 下スクロールで `-translate-y-full`、上スクロールで復帰（最上部 80px 以内では隠さない）。
-- **Home ヒーロー** — `Typewriter` が eyebrow / h1 / mono行 / リード文を左から打ち込む。
+  隠れている状態でリンクにフォーカスが入った場合は出し直します。
+- **Home ヒーロー** — `Typewriter` が eyebrow / h1 / mono行 / リード文を左から打ち込みます。
   遅延と速度は `lib/home.ts` が文字数から静的に算出（h1 は eyebrow に少し重ねて開始し、
   両方が終わってから mono行とリード文が同時に始まる）。
   完成テキストは `opacity-0` で重ねたまま DOM に残すため、高さが動かず SSG の HTML にも文言が載ります。
@@ -228,14 +274,25 @@ DS 固有トークン（フォント・角丸・影・余白・字間）を CSS 
   同時に動かします（当て方は `lib/useRiseIn.ts` に集約。終わったらクラスを外します）。
 - **カード** — `GlassCard` の `reveal`。画面に入ったら浮き上がり、初回の交差で監視を打ち切るので
   一度出たら戻りません（カードごとの時間差は付けていません）。`/`・`/works`・`/skills`・`/about` が対象で、
-  ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のままです。
+  ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示です。
 - **ヒーローのボタン列** — `RiseIn` に `lib/home.ts` の `heroActionsDelay` を渡し、打ち終わりの直後に続けます。
 - **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の
   `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻します。
 
-## メモ
+## コンテンツ方針
 
-- 日本語見出しフォントは LINE Seed JP の代替として IBM Plex Sans JP を使用（再配布不可のため）。
-- サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも `/contact` へ。Home の GitHub / X、BREW ケーススタディのデモ / リポジトリは実 URL）。
-- Resend / Turnstile とも実キーを取得済みで、フォームからの送信・受信を確認済み（ローカル）。送信元は `onboarding@resend.dev` のままで、宛先は Resend アカウントの登録アドレスに限られます（上記の注意を参照）。デプロイ先では環境変数を設定したうえで再ビルドが必要です。
-- BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像（`public/works/brew/`）。
+- バイリンガル・日本語主体。UI ラベル・固有名詞・モノスペース注釈のみ英語で、絵文字は使いません。
+- トーンはプロフェッショナル／技術寄り。
+- 受託案件は契約上キャプチャ不可のため、匿名化テキストのケーススタディとして掲載しています。
+  BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像
+  （`public/works/brew/`）です。
+- 日本語見出しフォントは LINE Seed JP が再配布不可のため、代替として IBM Plex Sans JP を使用しています。
+
+## 現状
+
+- サイト内のリンクはすべて設定済み（Home の「連絡する」ボタン・Contact Form・ヘッダーの contact はいずれも
+  `/contact` へ。Home の GitHub / X、BREW ケーススタディのデモ / リポジトリは実 URL）。
+- Resend / Turnstile とも実キーを取得済みで、ローカルでの送信・受信を確認済みです。送信元は
+  `onboarding@resend.dev` のため、宛先は Resend アカウントの登録アドレスに限られます（上記の注意を参照）。
+  デプロイ先では環境変数を設定したうえで再ビルドが必要です。
+- `/api/contact` にレート制限は入れていません（永続ストアが必要なため）。Honeypot + Turnstile の2段で防いでいます。
