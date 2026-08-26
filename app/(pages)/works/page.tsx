@@ -21,6 +21,7 @@ export default function Works() {
             <BackLink href="/">home に戻る</BackLink>
 
             <PageHeader
+                geometry="works"
                 size="list"
                 eyebrow="works"
                 title="実績一覧"

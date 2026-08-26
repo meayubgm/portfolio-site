@@ -39,6 +39,13 @@ export const heroTyping = {
     lead: { delay: bodyStart, speed: SPEED.lead },
 } as const;
 
+/**
+ * ヒーローの正多面体（components/HeroGeometry.tsx）が組み上がる尺。
+ * h1 の打ち終わりで図形も完成するよう、titleEnd をそのまま尺にする。
+ * 文言を変えれば打ち込みと同じように追従する。
+ */
+export const heroGeometryBuild = { delay: 0, duration: titleEnd } as const;
+
 /** ボタン列が浮き上がり始めるまでの時間（ms）。打ち終わりの直後に続ける */
 export const heroActionsDelay =
     bodyStart +

@@ -6,6 +6,7 @@ import { LinkRow } from "@/commons/LinkRow";
 import { MonoHeading } from "@/commons/MonoHeading";
 import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
+import { HeroGeometry } from "@/components/HeroGeometry";
 import { PageHeading } from "@/components/PageHeading";
 import { brewCase } from "@/lib/cases";
 
@@ -26,6 +27,7 @@ export default function BrewCaseStudy() {
 
             <div className="px-9">
                 <header className="border-b border-dashed border-indigo-600/15 py-10">
+                    <HeroGeometry page="brew" />
                     <PageHeading
                         size="detail"
                         eyebrow={`${brewCase.no} — 個人開発`}

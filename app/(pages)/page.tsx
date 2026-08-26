@@ -8,6 +8,7 @@ import { RiseIn } from "@/commons/RiseIn";
 import { TagList } from "@/commons/TagList";
 import { Text, withLineBreaks } from "@/commons/Text";
 import { Typewriter } from "@/commons/Typewriter";
+import { HeroGeometry } from "@/components/HeroGeometry";
 import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
 import { introBody } from "@/lib/about";
@@ -19,6 +20,7 @@ export default function Home() {
     return (
         <div>
             <header className="pt-35 pb-20 h-screen flex flex-col justify-between">
+                <HeroGeometry page="home" />
                 <div>
                     <PageHeading
                         size="hero"

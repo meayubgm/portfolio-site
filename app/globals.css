@@ -48,6 +48,31 @@
 
   /* container: サイト全体の最大幅（app/layout.tsx の中央コンテナ） */
   --container-site: 1800px;
+
+  /* animation: ワイヤーフレーム（commons/Wireframe.tsx）の組み上げ。
+     頂点はフェードイン、辺は pathLength=1 に正規化した線を引く。
+     開始前も終了後も keyframe の値を保たせたいので fill-mode は both。
+     尺は Wireframe.tsx の VERTEX_MS / EDGE_MS と揃えること */
+  --animate-wf-vertex: wf-vertex 260ms ease-out both;
+  --animate-wf-edge: wf-edge 420ms ease-out both;
+}
+
+@keyframes wf-vertex {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wf-edge {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* featured カード（BREW）のグラデーション面。Home / Works の2箇所で共用 */
@@ -74,6 +99,19 @@
   [data-typewriter-target],
   [data-rise-in] {
     opacity: 1;
+  }
+}
+
+/* ワイヤーフレームは組み上げを待つ間の「伏せた姿」を presentation attribute
+   （stroke-dashoffset="1" / opacity="0"）で持つ。CSS の到着が遅れても完成形が
+   ちらつかないようにするためだが、アニメーションを止める場面では伏せたままに
+   なってしまうので、ここで素の姿に戻す。
+   presentation attribute はどの CSS 宣言よりも弱いので、この上書きが効く */
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  [data-geometry] * {
+    animation: none;
+    opacity: 1;
+    stroke-dashoffset: 0;
   }
 }
 

@@ -116,7 +116,7 @@ npm run test:e2e:report    # 直近の HTML レポートを表示
 
 `playwright.config.ts` の `webServer` は `reuseExistingServer: true`。`make up` が :3000 を
 占有していればそれを再利用し、Docker 未起動時や CI（Linux）では `npm run build && npm run start`
-でフォールバック起動します。spec は `e2e/` 配下（smoke / navigation / motion）。
+でフォールバック起動します。spec は `e2e/` 配下（smoke / navigation / motion / geometry）。
 
 `.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助（Claude Code から使用）。
 リグレッション検知は `@playwright/test` に一任します。
@@ -162,10 +162,12 @@ portfolio-site/
 │   ├── Tag.tsx
 │   ├── TagList.tsx         # Tag を折り返しながら並べる列
 │   ├── Text.tsx            # Text（variant / tone）。サイト内テキストの共通入口
-│   └── Typewriter.tsx      # "use client"（文字を左から打ち込むテキスト）
+│   ├── Typewriter.tsx      # "use client"（文字を左から打ち込むテキスト）
+│   └── Wireframe.tsx       # "use client"（正多面体の線画。自転＋組み上げ演出）
 ├── components/             # このサイト固有のコンポーネント（再利用しない）
 │   ├── ContactForm.tsx     # "use client"（お問い合わせフォーム。Turnstile / Honeypot）
 │   ├── FormField.tsx       # ラベル + 必須／任意の注記 + 入力コントロール + エラー表示の行
+│   ├── HeroGeometry.tsx    # 背景に固定する正多面体（ページ→図形・配置の対応表）
 │   ├── PageHeader.tsx      # 一覧系ページ共通の header ラッパー + PageHeading
 │   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文（hero / list / detail）
 │   ├── SiteNav.tsx         # "use client"（usePathname で active 判定＋スクロール連動の出し入れ）
@@ -176,10 +178,11 @@ portfolio-site/
 │   ├── cases.ts            # 実績データ（BREW・匿名化ケーススタディ・その他案件）
 │   ├── cn.ts               # clsx + tailwind-merge のクラス結合（衝突は後勝ち）
 │   ├── home.ts             # Home ヒーローの文言とタイピング演出のスケジュール
+│   ├── polyhedra.ts        # 正多面体5種の頂点・辺データ（辺は最小距離から導出）
 │   ├── useRiseIn.ts        # 浮き上がり表示を当てるフック（RiseIn / GlassCard が共用）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
-├── e2e/                    # Playwright E2E テスト（smoke / navigation / motion）
+├── e2e/                    # Playwright E2E テスト（smoke / navigation / motion / geometry）
 ├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）
 ├── .env.example            # お問い合わせフォームの環境変数の雛形（.env.local にコピーして使う）
@@ -252,8 +255,8 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 ## Client / Server の切り分け
 
 - `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・
-  `RiseIn`（浮き上がり）・`SiteNav`（`usePathname` とスクロール連動）・`ContactForm`（フォーム状態と
-  Turnstile）の5ファイルが `"use client"`。
+  `RiseIn`（浮き上がり）・`Wireframe`（正多面体の自転）・`SiteNav`（`usePathname` とスクロール連動）・
+  `ContactForm`（フォーム状態と Turnstile）の6ファイルが `"use client"`。
 - ページ本体・その他のコンポーネントは Server Component で、全ページが静的生成（SSG）されます。
   唯一の動的ルートが `app/api/contact/route.ts`（お問い合わせの送信先）です。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡します
@@ -278,6 +281,42 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 - **ヒーローのボタン列** — `RiseIn` に `lib/home.ts` の `heroActionsDelay` を渡し、打ち終わりの直後に続けます。
 - **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の
   `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻します。
+
+## 背景の正多面体
+
+各ページの背景に、正多面体のワイヤーフレームを1つ置いています（`components/HeroGeometry.tsx`）。
+**ビューポートに固定**（`fixed inset-0`）するのでスクロールしても位置が変わらず、カードやテキストが
+その上を流れていきます（フロスト面のカードには裏から透けて見えます）。図形は元素の対応で割り当て、
+いずれもビューポート右端で切れるように配置します。**`/contact` には置きません。**
+
+| ページ | 図形 | 頂点 / 辺 | 元素 |
+| --- | --- | --- | --- |
+| `/` | 正二十面体 | 12 / 30 | 水 |
+| `/works` | 正八面体 | 6 / 12 | 空気 |
+| `/works/brew` | 正六面体 | 8 / 12 | 土 |
+| `/skills` | 正四面体 | 4 / 6 | 火 |
+| `/about` | 正十二面体 | 20 / 30 | 宇宙 |
+
+- **座標** — `lib/polyhedra.ts` が5種の頂点を単位球上に持ち、**辺は「頂点間の最小距離にあるペア」から
+  導出**します（正多面体では最短距離＝辺）。3D ライブラリは使いません。
+- **自転** — `commons/Wireframe.tsx` が `requestAnimationFrame` で回転行列＋透視投影を計算し、
+  SVG の `x1/y1/x2/y2` `cx/cy` を直接書き換えます（React の再レンダリングは通しません）。
+  手前の頂点ほど大きく・濃く描いて奥行きを出します。描き直しは 30fps に間引いています。
+- **線幅** — 辺は図形の大きさに関わらず 1px のヘアラインにします。`vector-effect: non-scaling-stroke`
+  は使えない（dash の単位が画面ピクセルになり、下記の線引きが効かなくなる）ため、
+  ResizeObserver で SVG の実サイズを測って `stroke-width` を user unit で逆算しています。
+- **組み上げ** — 頂点のフェードインと辺の線引き（`stroke-dashoffset`）は CSS アニメーション
+  （`animate-wf-vertex` / `animate-wf-edge`）で、遅延だけをインライン style で振ります。
+  Home は `lib/home.ts` の `heroGeometryBuild`（＝h1 の打ち終わり）に完成を合わせ、他ページは 0.7 秒程度の
+  軽い出現に留めます。**マウントするまで `animation-play-state: paused`** にして、hydration 後に始まる
+  タイピングと起点を揃えます。
+- **JS 無効 / reduced motion** — SVG は SSR 時点で完成しているので、`app/globals.css` が組み上げを
+  無効化して素の姿で表示します。`prefers-reduced-motion: reduce` では自転もしません（閲覧中に
+  OS 設定を切り替えても止まるよう、変更を購読しています）。
+- **見えていないときは回さない** — md 未満では図形を `display:none` にしていますが、それだけでは
+  rAF が回り続けるため、実幅が 0 のあいだは自転を止めています。
+- **クロップ** — 枠は `fixed inset-0` なので、`overflow-hidden` が画面端で図形を切ります。
+  狭い画面（md 未満）では本文と重なるため図形を出しません。
 
 ## コンテンツ方針
 

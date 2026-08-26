@@ -7,6 +7,21 @@ const featuredCard = (page: Page) =>
 const scrollTo = (page: Page, y: number) => page.evaluate((to) => window.scrollTo(0, to), y);
 
 /**
+ * ナビを隠すまで下スクロールをやり直す。
+ *
+ * 出し入れは hydration 後に付くスクロールリスナーが行うため、goto 直後に1回スクロールする
+ * だけだと、リスナーが付く前にスクロールが終わってしまうことがある（その後は scroll が
+ * 飛ばないので、あとから補正もされない）。反応するまで上下を繰り返して待つ。
+ */
+const scrollUntilHidden = async (page: Page) => {
+    await expect(async () => {
+        await scrollTo(page, 0);
+        await scrollTo(page, 1200);
+        await expect(page.locator("nav")).toHaveClass(/-translate-y-full/, { timeout: 500 });
+    }).toPass({ timeout: 10_000 });
+};
+
+/**
  * モーション:
  * - SiteNav のスクロール方向による出し入れ（-translate-y-full のトグル）
  * - Home のカードの scroll reveal（一度表示したら戻さない）
@@ -20,8 +35,7 @@ test.describe("SiteNav の出し入れ", () => {
         const nav = page.locator("nav");
         await expect(nav).not.toHaveClass(/-translate-y-full/);
 
-        await scrollTo(page, 1200);
-        await expect(nav).toHaveClass(/-translate-y-full/);
+        await scrollUntilHidden(page);
 
         await scrollTo(page, 600);
         await expect(nav).not.toHaveClass(/-translate-y-full/);

@@ -109,6 +109,7 @@ export default function Skill() {
             <BackLink href="/">home に戻る</BackLink>
 
             <PageHeader
+                geometry="skills"
                 size="list"
                 eyebrow="skills"
                 title="スキル"

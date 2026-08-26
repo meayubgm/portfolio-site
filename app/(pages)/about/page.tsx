@@ -26,7 +26,13 @@ export default function About() {
         <div>
             <BackLink href="/">home に戻る</BackLink>
 
-            <PageHeader size="list" eyebrow="about" title="私自身について" lead={introGreeting}>
+            <PageHeader
+                geometry="about"
+                size="list"
+                eyebrow="about"
+                title="私自身について"
+                lead={introGreeting}
+            >
                 <Text variant="lead" className="mt-4">
                     {withLineBreaks(introBody)}
                 </Text>

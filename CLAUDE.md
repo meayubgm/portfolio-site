@@ -42,6 +42,9 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 **Playwright**（`@playwright/test`）。開発コンテナ（`node:24-alpine`）は Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、`compose.yaml` が公開する `http://localhost:3000` を叩く（`make up` → `make test-e2e`）。spec は `e2e/`（Chromium / WebKit の2プロジェクト）で、`e2e` と `playwright.config.ts` は `tsconfig.json` の `exclude` に入れて `next build` の型チェックから外している。`.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助で、リグレッション検知は `@playwright/test` に一任する。セットアップ手順は `README.md`。
 
+- **`goto` 直後に1回だけスクロールするテストは hydration とレースする**。SiteNav の出し入れは hydration 後に付くリスナーが行うため、リスナーが付く前にスクロールが終わるとその後 `scroll` が飛ばず、いつまでも隠れないまま落ちる。`e2e/motion.spec.ts` の `scrollUntilHidden` のように反応するまでやり直す。
+- **`test.use({ reducedMotion: "reduce" })` はこの構成では反映されない**。`page.emulateMedia({ reducedMotion: "reduce" })` を `goto` の前に呼ぶ（`e2e/geometry.spec.ts`）。
+
 ## アーキテクチャ
 
 ### ディレクトリと依存の向き
@@ -49,8 +52,8 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 依存は **`app/` → `components/` → `commons/` の一方向**。**`commons/` から `components/` を import しない**。import には `@/` エイリアスを使う（`tsconfig.json` の `paths` でリポジトリルートに解決）。
 
 - `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ・フッター）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめる**。括弧付きのディレクトリ名は URL セグメントにならないため `app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。`app/api/contact/route.ts`（POST 専用・`runtime = "nodejs"`）はページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は持たない（レイアウトは API 以外の全ページで共通）。
-- `commons/` — **ドメイン非依存の DS プリミティブ**（18種）。どのページ・どのコンポーネントからでも使う。
-- `components/` — **このサイト固有のコンポーネント**（7種）。特定のデータ・特定のページに結びつくため再利用しない。
+- `commons/` — **ドメイン非依存の DS プリミティブ**（19種）。どのページ・どのコンポーネントからでも使う。
+- `components/` — **このサイト固有のコンポーネント**（8種）。特定のデータ・特定のページに結びつくため再利用しない。
 - `lib/` — データとユーティリティ（後述）。
 
 各コンポーネントの役割一覧は `README.md` のディレクトリ構成を参照。
@@ -69,7 +72,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 ### Client / Server の切り分け
 
 - ページ本体（`app/(pages)/**/page.tsx`）とほとんどのコンポーネントは Server Component。
-- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`commons/RiseIn.tsx`**（時間指定の浮き上がり）・**`components/SiteNav.tsx`**（`usePathname` での active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の5つだけ。
+- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`commons/RiseIn.tsx`**（時間指定の浮き上がり）・**`commons/Wireframe.tsx`**（正多面体の自転）・**`components/SiteNav.tsx`**（`usePathname` での active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の6つだけ。
 - カード全体をリンクにするときは、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` のネストは不可。
 - `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため `col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
@@ -81,6 +84,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - `lib/home.ts` — Home ヒーローの文言（`heroCopy`）とタイピングの遅延・速度（`heroTyping`）。**遅延は文字数から静的に算出する**（実行時のコールバック連鎖を持たない）ので、文言を書き換えればスケジュールも自動で追従する。
 - `lib/contactSchema.ts` — お問い合わせフォームの**検証ルールの単一ソース**（Zod）。
 - `lib/useRiseIn.ts` — 浮き上がり表示を要素に当てるフック（`RiseIn` と `GlassCard` が共用）。
+- `lib/polyhedra.ts` — ヒーローの正多面体5種の頂点データ。**辺は持たず「頂点間の最小距離にあるペア」から導出する**（正多面体では最短距離＝辺なので、30本の辺リストを手で書き下すより取り違えが起きない）。頂点は単位球上に正規化してあるので、どの図形も同じ viewBox で同じ大きさに収まる。
 - `public/works/brew/` — BREW ケーススタディの画像。**元 PNG は表示幅に合わせて縮小済み**（hero 3枚は 1200x2037）。`next/image` には**必ず `sizes` を指定する**（未指定だと Next が `100vw` 扱いで `w=3840` の最適化を要求し、dev サーバーの image optimizer が詰まって画像が表示されなくなることがある）。
 
 ## お問い合わせフォーム（/contact）
@@ -103,6 +107,24 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - **カードの scroll reveal** — `GlassCard` の `reveal`（既定 OFF）。`/`・`/works`・`/skills`・`/about` の一覧系カードが渡し、ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のまま。`IntersectionObserver` で初回の交差を拾ったら `disconnect()` するので、**一度出たら上に戻しても消えない**。**カードごとの時間差は付けない**（隣り合うカードは同時に出る）。**`GlassCard` にラッパー div を被せてはいけない**（`e2e/navigation.spec.ts` が `page.locator("div.group")` で GlassCard のルートを直接掴んでいる）。
 - **ヒーローのボタン列** — `commons/RiseIn.tsx`。スクロールではなく時間で始める版で、`lib/home.ts` の `heroActionsDelay`（打ち終わり + 150ms）を渡す。
 - **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻す。reveal するカードは `GlassCard` が root に `data-rise-in` を出すので、この保険が効く。
+
+## 背景の正多面体
+
+各ページの背景に正多面体のワイヤーフレームを1つ置く（`/` 正二十面体・`/works` 正八面体・`/works/brew` 正六面体・`/skills` 正四面体・`/about` 正十二面体。**`/contact` には置かない**）。どのページにどの図形をどこへ置くかは `components/HeroGeometry.tsx` の `PLACEMENTS` に集約してあり、描画は `commons/Wireframe.tsx` が担う。3D ライブラリは入れない。
+
+**枠は `fixed inset-0`**。スクロールしても図形は動かず、カードやテキストがその上を流れる（フロスト面のカードには裏から透ける）。`overflow-hidden` が画面端で図形を切る。ビューポートと同じ大きさなので横スクロールは出ない（以前は `w-screen` で突き抜けさせており、100vw がスクロールバー幅を含むぶんの横スクロールを別途止める必要があった）。狭い画面（md 未満）では本文と重なるので出さない。`fixed` なので**置く側に `relative` は要らない**。
+
+- **組み上げは CSS、自転は JS**と役割を分ける。触るプロパティが重ならないので競合しない。頂点の `opacity` と辺の `stroke-dashoffset` は `@theme` の `--animate-wf-vertex` / `--animate-wf-edge`。自転は `requestAnimationFrame` が SVG の `x1/y1/x2/y2` `cx/cy` を直接書き換える（React の再レンダリングは通さない）。**描き直しは 30fps に間引く**（ゆっくりした回転なので見た目は変わらず、描画回数が半分になる）。
+- **組み上げはマウントするまで `animation-play-state: paused`**。CSS アニメーションを放っておくと「最初のペイント」から数え始めるが、Typewriter は hydration 後に動き出す。そのままだと**図形だけ 0.5 秒ほど先行して組み上がり、h1 を打ち終わる頃には完成して見える**（dev サーバーでの実測値。hydration が遅い環境ほど開く）。マウント時に `running` へ切り替えて起点を揃える。
+- **「組み上げを待つ間の伏せた姿」は presentation attribute で持つ**（`<line stroke-dashoffset="1">` / 頂点 `<circle opacity="0">`）。CSS の到着が遅れると SSR 済みの SVG が素の姿＝完成形で一瞬描かれてしまうため、伏せた側を初期値にしてある。`animation-fill-mode` は前後とも keyframe を保つ `both`。**この結果、アニメーションを止める場面（`prefers-reduced-motion: reduce` / `scripting: none`）では伏せたままになるので、`globals.css` の `@media` で `animation` / `opacity` / `stroke-dashoffset` を素に戻している**。presentation attribute はどの CSS 宣言よりも弱いのでこの上書きが効く（逆に、伏せた姿をインライン style で持たせるとこの上書きが効かなくなる）。
+- **キーフレームの尺（260ms / 420ms）は `globals.css` と `Wireframe.tsx` の `VERTEX_MS` / `EDGE_MS` の2箇所にある**。片方だけ変えると最後の辺が duration の終わりで引き終わらなくなる。
+- **辺には `pathLength="1"` を置く**。長さを 1 に正規化しておかないと、自転で辺の実長が毎フレーム変わるたびに `stroke-dashoffset` の線引きが破綻する。
+- **`vector-effect="non-scaling-stroke"` は使わない**。ヘアラインを保つには手軽だが、**dash の単位まで画面ピクセルになり `pathLength` の正規化が無視される**。`stroke-dasharray="1"` が「1px の破線」に化けて線引きが一切効かなくなり、**図形が最初から出来上がって見える**（実際にこれを踏んだ。破線状に見える辺があったら疑う）。代わりに `commons/Wireframe.tsx` が ResizeObserver で SVG の実サイズを測り、`stroke-width` を `VIEW_BOX / 実幅` の user unit で置いて 1px を保つ。`e2e/geometry.spec.ts` が「線引きの設定」と「実測 1px」の両方を見張っている。
+- **投影結果は小数4桁に丸める**（`Wireframe.tsx` の `round()`）。`Math.cos` / `Math.sin` は同じ引数でもエンジンによって最下位ビットが食い違うため、丸めないと Node が書いた SSR の属性値と WebKit が計算した値が一致せず **hydration mismatch になる**（Next の dev エラーオーバーレイが出て、`page.locator("nav")` を使う e2e が strict mode 違反で落ちる）。
+- Home の組み上げは `lib/home.ts` の `heroGeometryBuild`（＝`titleEnd` ＝ h1 の打ち終わり）に合わせる。他ページは 0.7 秒程度の軽い出現に留める。
+- 枠は `-z-1` なので、`relative z-2` の中央コンテナが作る stacking context の中で本文・カードより後ろ、body の格子とアンビエントグローより手前に入る。
+- **`hidden md:block` は CSS で隠すだけなので、それだけでは client component の rAF が回り続ける**。`Wireframe` は ResizeObserver で測った実幅が 0（＝`display:none`）のあいだ自転を止める。依存に入れるのは**幅そのものではなく真偽値**（幅を入れるとリサイズのたびに effect が張り直り、回転が初期角度へ戻る）。
+- **自転は `prefers-reduced-motion` の変更を購読する**（`matchMedia` の `change`）。組み上げは CSS の `@media` なので設定変更に即追従するが、自転は JS なのでマウント時に一度読むだけだと閲覧中に設定を変えても止まらず、CSS 側とも食い違う。`useRiseIn` / `Typewriter` が一度きりの判定で足りているのは、どちらも**一度で終わる登場演出**だから（止め続ける対象がない）。
 
 ## コンテンツ方針（デザインシステム由来）
 
