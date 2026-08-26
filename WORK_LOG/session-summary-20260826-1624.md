@@ -9,8 +9,6 @@ Home のヒーローが `h-screen` の中にテキストだけを置いた構成
 「余白が多くて物足りない」印象だった。`docs/hero-geometry-implementation-memo.md` の方針に沿って
 正多面体の線画ワイヤーフレームを各ページに配置し、動きで印象付ける。
 
-参考は https://bd.techplay.jp/tp-conference（細線＋頂点ドットの強弱、ビューポート端でのクロップ）。
-
 ## 実施内容
 
 ### 0. 調査と計画（Plan モード）
