@@ -111,9 +111,7 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
 
 export default function Skill() {
     return (
-        <div>
-            <BackLink href="/">home に戻る</BackLink>
-
+        <div className="pt-24">
             <PageHeader
                 geometry="skills"
                 size="list"
@@ -127,6 +125,8 @@ export default function Skill() {
                     <SkillGroupCard key={group.heading} group={group} />
                 ))}
             </CardGrid>
+
+            <BackLink href="/">back to home</BackLink>
         </div>
     );
 }

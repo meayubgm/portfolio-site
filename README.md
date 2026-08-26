@@ -145,7 +145,7 @@ portfolio-site/
 ├── public/                 # 静的アセット
 │   └── works/brew/         # BREW ケーススタディの画像（iPhone モック・UI キャプチャ）
 ├── commons/                # ドメイン非依存の DS プリミティブ（どこからでも使える）
-│   ├── BackLink.tsx        # ページ左上の戻りリンク（← home に戻る 等）
+│   ├── BackLink.tsx        # ページ末尾の戻りリンク（← back to home 等）
 │   ├── BulletList.tsx      # 中黒付きの箇条書き（list-disc + インデント）
 │   ├── Button.tsx
 │   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
@@ -273,6 +273,10 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 
 - **SiteNav** — 下スクロールで `-translate-y-full`、上スクロールで復帰（最上部 80px 以内では隠さない）。
   隠れている状態でリンクにフォーカスが入った場合は出し直します。
+  現在地は `text-indigo-600`、それ以外は `text-slate-600`。ホバーすると `text-indigo-600` になり、
+  `GlassCard` 右上と同じ「+」がリンクの先頭に絶対配置でフェードインします（ラベルは動きません）。
+  ページ末尾の `BackLink` は既定が indigo なので色は変えず、末尾に「+」が出るだけです。
+  ロゴはホバーで Y 軸に1回転します。
 - **Home ヒーロー** — `Typewriter` が eyebrow / h1 / mono行 / リード文を左から打ち込みます。
   遅延と速度は `lib/home.ts` が文字数から静的に算出（h1 は eyebrow に少し重ねて開始し、
   両方が終わってから mono行とリード文が同時に始まる）。

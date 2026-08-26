@@ -48,6 +48,39 @@ test.describe("SiteNav の出し入れ", () => {
     });
 });
 
+test.describe("SiteNav のホバー", () => {
+    test("リンクのホバーで先頭に「+」が現れる", async ({ page }) => {
+        await page.goto("/");
+        const link = page.getByRole("link", { name: "works", exact: true });
+        const cue = link.locator("span[aria-hidden='true']");
+        await expect(cue).toHaveCSS("opacity", "0");
+        await link.hover();
+        await expect(cue).toHaveCSS("opacity", "1");
+    });
+
+    test("「+」はアクセシブルネームに混ざらない", async ({ page }) => {
+        await page.goto("/");
+        // ロール・名前に依存せず（＝ aria-hidden が外れても引ける形で）ホバーしてから名前を見る。
+        // getByRole(name, exact) でホバーすると、退行時は 0 件解決のタイムアウトとして出てしまう
+        await page.locator("nav a", { hasText: "works" }).hover();
+        // aria-hidden が外れると名前が「+ works」になる
+        await expect(page.getByRole("link", { name: "works", exact: true })).toHaveCount(1);
+        await expect(page.getByRole("link", { name: "+ works" })).toHaveCount(0);
+    });
+});
+
+test.describe("戻りリンク", () => {
+    test("ホバーで末尾に「+」が現れる", async ({ page }) => {
+        await page.goto("/works");
+        const link = page.getByRole("link", { name: "← back to home" });
+        const cue = link.locator("span[aria-hidden='true']");
+        await link.scrollIntoViewIfNeeded();
+        await expect(cue).toHaveCSS("opacity", "0");
+        await link.hover();
+        await expect(cue).toHaveCSS("opacity", "1");
+    });
+});
+
 test.describe("Home のカード", () => {
     test("スクロールで浮き上がり、戻しても表示されたまま", async ({ page }) => {
         await page.goto("/");

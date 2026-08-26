@@ -22,9 +22,7 @@ const heroShots = [
 
 export default function BrewCaseStudy() {
     return (
-        <div>
-            <BackLink href="/works">works に戻る</BackLink>
-
+        <div className="pt-24">
             <div className="px-9">
                 <header className="border-b border-dashed border-indigo-600/15 py-10">
                     <HeroGeometry page="brew" />
@@ -196,6 +194,8 @@ export default function BrewCaseStudy() {
                     </section>
                 </div>
             </div>
+
+            <BackLink href="/works">back to works</BackLink>
         </div>
     );
 }

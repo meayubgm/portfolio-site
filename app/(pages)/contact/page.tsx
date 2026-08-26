@@ -11,9 +11,7 @@ export const metadata: Metadata = {
 
 export default function Contact() {
     return (
-        <div>
-            <BackLink href="/">home に戻る</BackLink>
-
+        <div className="pt-24">
             {/* カードと同じ 6 カラムグリッドに乗せ、文の開始位置をカード左端に揃える */}
             <div className="grid grid-cols-6 gap-4">
                 <PageHeader
@@ -31,6 +29,8 @@ export default function Contact() {
                     <ContactForm />
                 </GlassCard>
             </CardGrid>
+
+            <BackLink href="/">back to home</BackLink>
         </div>
     );
 }

@@ -7,6 +7,7 @@ const featuredCard = (page: Page) =>
 /**
  * ナビゲーション挙動:
  * - SiteNav のリンク遷移と active 判定（usePathname 由来の text-indigo-600 / text-slate-600 切り替え）
+ *   ※ ホバー用の hover:text-indigo-600 も class 文字列に含まれるため、正規表現は前後の空白まで見る
  * - GlassCard の href によるカード全体クリック遷移（useRouter().push）
  */
 
@@ -21,10 +22,10 @@ test.describe("SiteNav", () => {
     test("Home では home が active（text-indigo-600）", async ({ page }) => {
         await page.goto("/");
         await expect(page.getByRole("link", { name: "home", exact: true })).toHaveClass(
-            /text-indigo-600/,
+            /(?:^|\s)text-indigo-600(?:\s|$)/,
         );
         await expect(page.getByRole("link", { name: "works", exact: true })).toHaveClass(
-            /text-slate-600/,
+            /(?:^|\s)text-slate-600(?:\s|$)/,
         );
     });
 
@@ -34,7 +35,7 @@ test.describe("SiteNav", () => {
         await expect(page).toHaveURL("/skills");
         await expect(page.getByRole("heading", { level: 1, name: "スキル" })).toBeVisible();
         await expect(page.getByRole("link", { name: "skills", exact: true })).toHaveClass(
-            /text-indigo-600/,
+            /(?:^|\s)text-indigo-600(?:\s|$)/,
         );
     });
 
@@ -44,17 +45,17 @@ test.describe("SiteNav", () => {
         await expect(page).toHaveURL("/about");
         await expect(page.getByRole("heading", { level: 1, name: "私自身について" })).toBeVisible();
         await expect(page.getByRole("link", { name: "about", exact: true })).toHaveClass(
-            /text-indigo-600/,
+            /(?:^|\s)text-indigo-600(?:\s|$)/,
         );
     });
 
     test("Works では works が active（text-indigo-600）", async ({ page }) => {
         await page.goto("/works");
         await expect(page.getByRole("link", { name: "works", exact: true })).toHaveClass(
-            /text-indigo-600/,
+            /(?:^|\s)text-indigo-600(?:\s|$)/,
         );
         await expect(page.getByRole("link", { name: "home", exact: true })).toHaveClass(
-            /text-slate-600/,
+            /(?:^|\s)text-slate-600(?:\s|$)/,
         );
     });
 });
@@ -137,13 +138,22 @@ test.describe("GlassCard カード全体クリック遷移", () => {
 
     test("Works から home に戻れる", async ({ page }) => {
         await page.goto("/works");
-        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await page.getByRole("link", { name: "← back to home" }).click();
         await expect(page).toHaveURL("/");
+    });
+
+    test("戻りリンクはページ末尾（最後のカードより下）にある", async ({ page }) => {
+        await page.goto("/works");
+        const lastCard = page.locator("div.group").last();
+        await lastCard.scrollIntoViewIfNeeded();
+        const cardBox = await lastCard.boundingBox();
+        const linkBox = await page.getByRole("link", { name: "← back to home" }).boundingBox();
+        expect(linkBox?.y ?? 0).toBeGreaterThan((cardBox?.y ?? 0) + (cardBox?.height ?? 0));
     });
 
     test("Skills から home に戻れる", async ({ page }) => {
         await page.goto("/skills");
-        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await page.getByRole("link", { name: "← back to home" }).click();
         await expect(page).toHaveURL("/");
     });
 
@@ -155,14 +165,14 @@ test.describe("GlassCard カード全体クリック遷移", () => {
 
     test("About から home に戻れる", async ({ page }) => {
         await page.goto("/about");
-        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await page.getByRole("link", { name: "← back to home" }).click();
         await expect(page).toHaveURL("/");
     });
 
     test("BREW から works に戻れる", async ({ page }) => {
         // 画像点数が多く load（全画像の読み込み完了）待ちは不安定なため、DOM の構築完了で先へ進める
         await page.goto("/works/brew", { waitUntil: "domcontentloaded" });
-        await page.getByRole("link", { name: "← works に戻る" }).click();
+        await page.getByRole("link", { name: "← back to works" }).click();
         await expect(page).toHaveURL("/works");
     });
 });
@@ -174,7 +184,7 @@ test.describe("Contact 導線", () => {
         await expect(page).toHaveURL("/contact");
         await expect(page.getByRole("heading", { level: 1, name: "お問い合わせ" })).toBeVisible();
         await expect(page.getByRole("link", { name: "contact", exact: true })).toHaveClass(
-            /text-indigo-600/,
+            /(?:^|\s)text-indigo-600(?:\s|$)/,
         );
     });
 
@@ -192,7 +202,7 @@ test.describe("Contact 導線", () => {
 
     test("Contact から home に戻れる", async ({ page }) => {
         await page.goto("/contact");
-        await page.getByRole("link", { name: "← home に戻る" }).click();
+        await page.getByRole("link", { name: "← back to home" }).click();
         await expect(page).toHaveURL("/");
     });
 });

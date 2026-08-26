@@ -23,9 +23,7 @@ export const metadata: Metadata = {
 
 export default function About() {
     return (
-        <div>
-            <BackLink href="/">home に戻る</BackLink>
-
+        <div className="pt-24">
             <PageHeader
                 geometry="about"
                 size="list"
@@ -110,6 +108,8 @@ export default function About() {
                     </div>
                 </GlassCard>
             </CardGrid>
+
+            <BackLink href="/">back to home</BackLink>
         </div>
     );
 }

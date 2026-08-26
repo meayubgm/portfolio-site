@@ -54,8 +54,15 @@ export function SiteNav() {
                 hidden && "-translate-y-full",
             )}
         >
-            <Link href="/">
-                <Image src={icon} alt="icon" width="40" height="40" />
+            {/* perspective は親に置く（子だけで回すと奥行きが出ず平面的に潰れる） */}
+            <Link href="/" className="group perspective-midrange">
+                <Image
+                    src={icon}
+                    alt="icon"
+                    width="40"
+                    height="40"
+                    className="transform-3d transition-transform duration-500 ease-out group-hover:rotate-y-360 motion-reduce:transition-none"
+                />
             </Link>
             <div className={cn("flex gap-9", textStyles.monoMd)}>
                 {links.map((l) => (
@@ -63,10 +70,18 @@ export function SiteNav() {
                         key={l.href}
                         href={l.href}
                         className={cn(
-                            "transition-colors hover:text-sky-700",
+                            "group relative transition-colors hover:text-indigo-600",
                             isActive(l.href) ? "text-indigo-600" : "text-slate-600",
                         )}
                     >
+                        {/* GlassCard 右上の「+」と同じ導線サイン。絶対配置でラベルを動かさない。
+                            aria-hidden が無いとアクセシブルネームが「+ home」になる */}
+                        <span
+                            aria-hidden
+                            className="pointer-events-none absolute -left-3.5 text-indigo-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
+                        >
+                            +
+                        </span>
                         {l.label}
                     </Link>
                 ))}
