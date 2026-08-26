@@ -21,6 +21,8 @@ export type SkillSection = {
 };
 
 export type SkillGroup = {
+    /** /skills でカードに付けるアンカー用の slug（Home からのハッシュ遷移先） */
+    id: string;
     /** CardLabel に表示する小文字ラベル */
     label: string;
     /** カード見出し */
@@ -44,6 +46,7 @@ export type HomeSkillGroup = Omit<SkillGroup, "sections" | "layout"> & {
 
 export const skillGroups: SkillGroup[] = [
     {
+        id: "development",
         label: "skills",
         heading: "Development",
         note: "実務/個人開発での使用経験月数を基準にした相対値",
@@ -150,6 +153,7 @@ export const skillGroups: SkillGroup[] = [
         ],
     },
     {
+        id: "design",
         label: "skills",
         heading: "Design",
         note: "デザインカンプ・アイコン制作で実務使用",
@@ -189,6 +193,7 @@ export const skillGroups: SkillGroup[] = [
         ],
     },
     {
+        id: "tools",
         label: "skills",
         heading: "Tools",
         note: "開発を支えるツール・インフラ",

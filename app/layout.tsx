@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ScrollToTarget } from "@/commons/ScrollToTarget";
 import { Text } from "@/commons/Text";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     aria-hidden
                     className="pointer-events-none fixed left-1/2 -top-1/4 z-0 h-175 w-275 -translate-x-1/2 bg-ambient-glow blur-md"
                 />
+                <ScrollToTarget />
                 <SiteNav />
                 <div className="relative z-2 mx-auto max-w-site px-8 pb-15">{children}</div>
                 <footer className="relative z-2 py-8 text-center">

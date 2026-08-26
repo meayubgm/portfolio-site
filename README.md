@@ -130,7 +130,7 @@ import には `@/` エイリアスを使います（`tsconfig.json` の `paths` 
 ```
 portfolio-site/
 ├── app/                    # App Router
-│   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ＋フッター）
+│   ├── layout.tsx          # 共通レイアウト（ナビ＋アンビエントグロー＋最大幅コンテナ＋フッター＋ScrollToTarget）
 │   ├── globals.css         # Tailwind v4 @theme にデザイントークンを統合
 │   ├── icon.svg / icon.png / apple-icon.png  # metadata ファイル（favicon・アプリアイコン）
 │   ├── api/contact/route.ts # お問い合わせ送信（POST。Honeypot → Turnstile → Resend）
@@ -158,6 +158,7 @@ portfolio-site/
 │   ├── LinkRow.tsx
 │   ├── MonoHeading.tsx     # mono / indigo のセクション見出し
 │   ├── RiseIn.tsx          # "use client"（指定時間後に浮き上がって現れるブロック）
+│   ├── ScrollToTarget.tsx  # "use client"（遷移先で指定された要素へスムーススクロール）
 │   ├── StatBlock.tsx
 │   ├── Tag.tsx
 │   ├── TagList.tsx         # Tag を折り返しながら並べる列
@@ -179,6 +180,7 @@ portfolio-site/
 │   ├── cn.ts               # clsx + tailwind-merge のクラス結合（衝突は後勝ち）
 │   ├── home.ts             # Home ヒーローの文言とタイピング演出のスケジュール
 │   ├── polyhedra.ts        # 正多面体5種の頂点・辺データ（辺は最小距離から導出）
+│   ├── scrollTarget.ts     # 遷移をまたいで着地後にスクロールする要素の id を受け渡す
 │   ├── useRiseIn.ts        # 浮き上がり表示を当てるフック（RiseIn / GlassCard が共用）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
@@ -204,6 +206,7 @@ portfolio-site/
 - `lib/cases.ts` — featured の `brewCase` は Home / `/works` / `/works/brew` の3ページから参照する単一ソース。
   ほかに匿名化ケーススタディの `cases` と `otherWorks`。
 - `lib/skills.ts` — Home のスキルカードと `/skills` の単一ソース。各グループ（Development / Design / Tools）は
+  `id`（`/skills` でカードに付けるアンカー。Home の Design カードからのスクロール先）と
   `sections`（職能ベースの分類。`heading` を省略すると見出し無しの単一セクション＝Design / Tools）と
   `layout`（`/skills` でのカード幅 `span` とセクションの列数 `columns`）を持ちます。
   Development は span 6 / 2列（左＝フロントエンド、右＝バックエンド + AI活用。どちらの列に置くかは各 section の
@@ -255,8 +258,9 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 ## Client / Server の切り分け
 
 - `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・
-  `RiseIn`（浮き上がり）・`Wireframe`（正多面体の自転）・`SiteNav`（`usePathname` とスクロール連動）・
-  `ContactForm`（フォーム状態と Turnstile）の6ファイルが `"use client"`。
+  `RiseIn`（浮き上がり）・`Wireframe`（正多面体の自転）・`ScrollToTarget`（遷移先の要素へのスムーススクロール）・
+  `SiteNav`（`usePathname` とスクロール連動）・`ContactForm`（フォーム状態と Turnstile）の
+  7ファイルが `"use client"`。
 - ページ本体・その他のコンポーネントは Server Component で、全ページが静的生成（SSG）されます。
   唯一の動的ルートが `app/api/contact/route.ts`（お問い合わせの送信先）です。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡します
@@ -279,6 +283,13 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
   一度出たら戻りません（カードごとの時間差は付けていません）。`/`・`/works`・`/skills`・`/about` が対象で、
   ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示です。
 - **ヒーローのボタン列** — `RiseIn` に `lib/home.ts` の `heroActionsDelay` を渡し、打ち終わりの直後に続けます。
+- **遷移先の要素へのスクロール** — Home の Design カードは `/skills` の Design カードまで
+  滑らかにスクロールして着地します。`GlassCard` の `href` に `#id` を付けるとクリック時に
+  `lib/scrollTarget.ts` へ id を預け、Next の自動スクロールを切って遷移し、着地側の
+  `ScrollToTarget` が `scrollIntoView({ behavior: "smooth" })` を呼びます（URL にハッシュは残しません。
+  App Router がルートごとにハッシュ付きの URL を保持していて、以後の普通の遷移でも復活するため）。
+  オフセットは着地側の `scroll-mt-28` が持ちます。`ScrollToTarget` はルートレイアウトに1つだけ置き、
+  遷移のたびに動きます（ページ側に置くと、着く前に別ページへ逸れた指定が残ってしまうため）。
 - **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の
   `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻します。
 

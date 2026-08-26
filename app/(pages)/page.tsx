@@ -75,7 +75,7 @@ export default function Home() {
                     <GlassCard
                         key={g.heading}
                         span={2}
-                        href="/skills"
+                        href={g.id === "design" ? `/skills#${g.id}` : "/skills"}
                         className="flex flex-col"
                         reveal
                     >

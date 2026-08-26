@@ -51,8 +51,8 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 依存は **`app/` → `components/` → `commons/` の一方向**。**`commons/` から `components/` を import しない**。import には `@/` エイリアスを使う（`tsconfig.json` の `paths` でリポジトリルートに解決）。
 
-- `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ・フッター）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめる**。括弧付きのディレクトリ名は URL セグメントにならないため `app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。`app/api/contact/route.ts`（POST 専用・`runtime = "nodejs"`）はページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は持たない（レイアウトは API 以外の全ページで共通）。
-- `commons/` — **ドメイン非依存の DS プリミティブ**（19種）。どのページ・どのコンポーネントからでも使う。
+- `app/` — App Router。直下には `layout.tsx`（共通レイアウト＝ナビ・アンビエントグロー・最大幅コンテナ・フッター・`ScrollToTarget`）・`globals.css`・`api/`・metadata ファイル（`icon.svg` / `icon.png` / `apple-icon.png`）だけを置く。**ページはすべて Route Group `app/(pages)/` 配下にまとめる**。括弧付きのディレクトリ名は URL セグメントにならないため `app/(pages)/about/page.tsx` が `/about` になる。**素の `app/pages/` にすると `/pages/about` になってしまうので括弧は外さないこと**。ルートは `/`, `/works`, `/works/brew`, `/skills`, `/about`, `/contact`。`app/api/contact/route.ts`（POST 専用・`runtime = "nodejs"`）はページではないので `(pages)` の外に置く。`(pages)` 専用の `layout.tsx` は持たない（レイアウトは API 以外の全ページで共通）。
+- `commons/` — **ドメイン非依存の DS プリミティブ**（20種）。どのページ・どのコンポーネントからでも使う。
 - `components/` — **このサイト固有のコンポーネント**（8種）。特定のデータ・特定のページに結びつくため再利用しない。
 - `lib/` — データとユーティリティ（後述）。
 
@@ -72,7 +72,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 ### Client / Server の切り分け
 
 - ページ本体（`app/(pages)/**/page.tsx`）とほとんどのコンポーネントは Server Component。
-- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`commons/RiseIn.tsx`**（時間指定の浮き上がり）・**`commons/Wireframe.tsx`**（正多面体の自転）・**`components/SiteNav.tsx`**（`usePathname` での active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の6つだけ。
+- `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`commons/RiseIn.tsx`**（時間指定の浮き上がり）・**`commons/Wireframe.tsx`**（正多面体の自転）・**`commons/ScrollToTarget.tsx`**（遷移先の要素へのスムーススクロール）・**`components/SiteNav.tsx`**（`usePathname` での active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の7つだけ。
 - カード全体をリンクにするときは、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` のネストは不可。
 - `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため `col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
@@ -84,6 +84,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - `lib/home.ts` — Home ヒーローの文言（`heroCopy`）とタイピングの遅延・速度（`heroTyping`）。**遅延は文字数から静的に算出する**（実行時のコールバック連鎖を持たない）ので、文言を書き換えればスケジュールも自動で追従する。
 - `lib/contactSchema.ts` — お問い合わせフォームの**検証ルールの単一ソース**（Zod）。
 - `lib/useRiseIn.ts` — 浮き上がり表示を要素に当てるフック（`RiseIn` と `GlassCard` が共用）。
+- `lib/scrollTarget.ts` — 遷移をまたいで「着地後にスクロールしたい要素の id」を1件だけ受け渡す（`sessionStorage`）。
 - `lib/polyhedra.ts` — ヒーローの正多面体5種の頂点データ。**辺は持たず「頂点間の最小距離にあるペア」から導出する**（正多面体では最短距離＝辺なので、30本の辺リストを手で書き下すより取り違えが起きない）。頂点は単位球上に正規化してあるので、どの図形も同じ viewBox で同じ大きさに収まる。
 - `public/works/brew/` — BREW ケーススタディの画像。**元 PNG は表示幅に合わせて縮小済み**（hero 3枚は 1200x2037）。`next/image` には**必ず `sizes` を指定する**（未指定だと Next が `100vw` 扱いで `w=3840` の最適化を要求し、dev サーバーの image optimizer が詰まって画像が表示されなくなることがある）。
 
@@ -106,6 +107,10 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - **浮き上がり** — `lib/useRiseIn.ts` に集約。`opacity-0 translate-y-4` → `opacity-100 translate-y-0` を `transition-[translate,opacity] duration-500` で動かす（**フェードと移動は同時**。16px / 0.5秒）。終わったら **`transitionend`（`propertyName === "translate"`）でクラスを外す**（付けっぱなしだと `duration-500` がホバーの浮き上がりにも効き続けるため）。ただし**開始前のホバー**でも `hover:-translate-y-0.5` が同じイベントを飛ばすので `started` で弾いている（弾かないと、表示前のカードをホバーしただけで reveal が打ち切られて一瞬で出てしまう）。なお `GlassCard` の transition 対象は `transform` ではなく **`translate`**（Tailwind v4 の `translate-y-*` は `transform` ではなく `translate` プロパティを使うため）。
 - **カードの scroll reveal** — `GlassCard` の `reveal`（既定 OFF）。`/`・`/works`・`/skills`・`/about` の一覧系カードが渡し、ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のまま。`IntersectionObserver` で初回の交差を拾ったら `disconnect()` するので、**一度出たら上に戻しても消えない**。**カードごとの時間差は付けない**（隣り合うカードは同時に出る）。**`GlassCard` にラッパー div を被せてはいけない**（`e2e/navigation.spec.ts` が `page.locator("div.group")` で GlassCard のルートを直接掴んでいる）。
 - **ヒーローのボタン列** — `commons/RiseIn.tsx`。スクロールではなく時間で始める版で、`lib/home.ts` の `heroActionsDelay`（打ち終わり + 150ms）を渡す。
+- **遷移先の要素へのスムーススクロール** — Home の Design カードだけが `/skills` の Design カードまでスクロールする。`GlassCard` の `href` に `"/skills#design"` のように `#id` を付けると、クリック時に `lib/scrollTarget.ts` へ id を預けて `router.push(path, { scroll: false })`（Next の「先頭へ即ジャンプ」を切る）し、着地側の `commons/ScrollToTarget.tsx` が受け取って `scrollIntoView({ behavior: "smooth" })` を呼ぶ。**URL にハッシュは残さない**。id は `lib/skills.ts` の `SkillGroup.id`、着地点は `GlassCard` の `id` で受ける。
+    - **受け渡しに `window.location.hash` を使ってはいけない**。App Router はルートごとに正規 URL をハッシュ込みで保持しており、**一度ハッシュ付きで遷移すると、その後 SiteNav の skills などから普通に同じルートへ遷移してもマウント時点の `location.hash` にそれが復活する**（`history.replaceState` で URL から消しても復活する）。結果、意図しないスクロールが毎回起きる。受け渡しは `sessionStorage` の一度きりの読み捨てで行う。
+    - **`ScrollToTarget` はルートレイアウト（`app/layout.tsx`）に1つだけ置き、`usePathname` を依存にして遷移のたびに動かす**。ページ側に置くと、指定した遷移が着く前に別ページへ逸れたときに指定が残り続け、次にそのページを普通に開いたときに勝手に飛ばされる。対象が見つからなかったときは `window.scrollTo(0, 0)`（`scroll: false` で切った Next の先頭ジャンプを自前で埋める）。
+    - **ナビに隠れないためのオフセットは着地側の `scroll-mt-28`** が持つ（`scrollIntoView` は `scroll-margin-top` を尊重する。`reveal` の `translate-y-4` のぶん 16px 手前で止まるので、SiteNav の約 72px に対して 24 では窮屈になる）。`prefers-reduced-motion: reduce` では即時ジャンプ。一度きりの演出なので `matchMedia` の `change` は購読しない。
 - **JS 無効時の保険** — 表示待ちの要素は `opacity-0` で伏せているため、`app/globals.css` の `@media (scripting: none)` が `[data-typewriter-target]` / `[data-rise-in]` を元に戻す。reveal するカードは `GlassCard` が root に `data-rise-in` を出すので、この保険が効く。
 
 ## 背景の正多面体

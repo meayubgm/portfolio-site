@@ -89,6 +89,52 @@ test.describe("GlassCard カード全体クリック遷移", () => {
         await expect(page).toHaveURL("/skills");
     });
 
+    test("Home の Design カードから /skills の Design カードへスクロールする", async ({ page }) => {
+        await page.goto("/");
+        await page.getByRole("heading", { level: 3, name: "Design" }).click();
+        await expect(page).toHaveURL("/skills");
+
+        const cardTop = () =>
+            page.evaluate(() => {
+                const card = document.getElementById("design");
+                return card ? Math.round(card.getBoundingClientRect().top) : -1;
+            });
+        const navHeight = await page.evaluate(() => {
+            const nav = document.querySelector("nav");
+            return nav ? Math.round(nav.getBoundingClientRect().height) : -1;
+        });
+
+        // カードの上端が画面上端付近まで寄ったら着地とみなす（縦に長いカードなので、
+        // 画面と接しているかだけを見る toBeInViewport では緩すぎる）。完了待ちは poll のリトライ
+        await expect.poll(cardTop).toBeLessThan(200);
+        // SiteNav に隠れていない ＝ scroll-mt-* が効いている
+        expect(await cardTop()).toBeGreaterThan(navHeight);
+        expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    });
+
+    test("Design カードで飛んだ後、SiteNav から /skills へ来ても先頭に着地する", async ({
+        page,
+    }) => {
+        await page.goto("/");
+        await page.getByRole("heading", { level: 3, name: "Design" }).click();
+        await expect(page.locator("#design")).toBeInViewport();
+
+        // 下スクロール後は SiteNav が隠れているので、最上部（80px 以内なら隠さない）まで戻す
+        await expect(async () => {
+            await page.mouse.wheel(0, -600);
+            expect(await page.evaluate(() => window.scrollY)).toBe(0);
+        }).toPass();
+
+        await page.getByRole("link", { name: "home", exact: true }).click();
+        await expect(page).toHaveURL("/");
+        await page.getByRole("link", { name: "skills", exact: true }).click();
+        await expect(page).toHaveURL("/skills");
+
+        // スクロールが起きないことの確認なので、少し待ってから見る
+        await page.waitForTimeout(1000);
+        expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+
     test("Works から home に戻れる", async ({ page }) => {
         await page.goto("/works");
         await page.getByRole("link", { name: "← home に戻る" }).click();

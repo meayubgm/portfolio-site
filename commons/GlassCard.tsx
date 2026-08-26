@@ -4,9 +4,12 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { requestScrollTo } from "@/lib/scrollTarget";
 import { useRiseIn } from "@/lib/useRiseIn";
 
 type GlassCardProps = {
+    /** アンカー用の id。ハッシュ遷移の着地点にするときだけ指定する */
+    id?: string;
     span?: number;
     /** 開始カラム（1 起点）。単独のカードをグリッド内で寄せたいときに指定する */
     start?: number;
@@ -28,6 +31,7 @@ type GlassCardProps = {
 };
 
 export function GlassCard({
+    id,
     span = 2,
     start,
     padding = "default",
@@ -38,6 +42,21 @@ export function GlassCard({
     reveal = false,
 }: GlassCardProps) {
     const router = useRouter();
+
+    /**
+     * href が "#id" を含む場合は、着地先の要素を ScrollToTarget に預けて、
+     * Next の自動スクロール（先頭へ即ジャンプ）を切る。それ以外は素の遷移。
+     */
+    function navigate(to: string) {
+        const [path, targetId] = to.split("#");
+        if (!targetId) {
+            router.push(to);
+            return;
+        }
+        requestScrollTo(targetId);
+        router.push(path, { scroll: false });
+    }
+
     // グローの表示・非表示は group-hover に任せ、state は追従させる座標だけ持つ
     const [mx, setMx] = useState("50%");
     const [my, setMy] = useState("20%");
@@ -74,11 +93,12 @@ export function GlassCard({
         // biome-ignore lint/a11y/noStaticElementInteractions: カード全体クリック遷移は意図的な UI（<a> ネスト回避のため div + useRouter）
         // biome-ignore lint/a11y/useKeyWithClickEvents: 同上。プロトタイプ再現を優先し現状はキーボード操作非対応（a11y 改善は別課題）
         <div
+            id={id}
             ref={rootRef}
             // globals.css の @media (scripting: none) がこの属性で伏せた要素を戻す
             data-rise-in={reveal || undefined}
             onTransitionEnd={onTransitionEnd}
-            onClick={href ? () => router.push(href) : undefined}
+            onClick={href ? () => navigate(href) : undefined}
             onMouseMove={
                 hoverEffects
                     ? (e) => {
