@@ -13,7 +13,7 @@ type Placement = {
     shape: PolyhedronName;
     /** ビューポートを基準にした位置と大きさ（枠は fixed inset-0） */
     figure: string;
-    /** md 未満での位置と大きさの上書き（vw 基準のままだと小さくなりすぎるページ用） */
+    /** 狭い画面での位置と大きさの上書き（`max-sm:` / `max-md:` 付きのクラスで渡す） */
     mobileFigure?: string;
     tilt: { x: number; y: number };
     speed: number;
@@ -30,6 +30,8 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
     home: {
         shape: "icosahedron",
         figure: "top-1/2 right-[-16vw] w-[62vw] max-w-[990px] -translate-y-1/2 xl:right-[-12vw] xl:w-[66vw]",
+        // sm 未満だけ 1.5 倍。狭い画面では 62vw だと図形が小さくまとまりすぎるため
+        mobileFigure: "max-sm:right-[-24vw] max-sm:w-[93vw]",
         tilt: { x: -0.3, y: 0.5 },
         speed: 0.15,
         build: heroGeometryBuild,

@@ -39,12 +39,12 @@ export default function Works() {
                         {brewCase.period}
                     </Text>
                     <Text variant="body">{brewCase.summary}</Text>
-                    <div className="my-5 mb-1 flex gap-5.5 border-y border-dashed border-indigo-600/15 py-3.5">
+                    <div className="my-5 mb-1 grid grid-cols-1 gap-3 border-y border-dashed border-indigo-600/15 py-3.5 sm:grid-cols-3 sm:gap-5.5">
                         <StatBlock number="企画〜実装" label="担当範囲（全工程）" />
                         <StatBlock number="4種" label="抽出メソッド対応" />
                         <StatBlock number="実機検証済" label="Android / Expo Go" />
                     </div>
-                    <div className="mt-3.5 flex items-center justify-between">
+                    <div className="mt-3.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <TagList tags={brewCase.tags} />
                         <LearnMoreCue inline />
                     </div>

@@ -52,12 +52,33 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 切り替え点は **`sm`（640px）と `lg`（1024px）の2つだけ**。中間の `md`（768px）は背景の正多面体の見せ方にだけ使う。
 
-| 幅 | ナビ | カード |
-| --- | --- | --- |
-| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム |
-| `sm 〜 lg`（640〜1023px） | 横並びのリンク列（スクロール連動の出し入れあり） | 1 カラム |
-| `>= lg`（1024px〜） | 同上 | 6 カラムグリッド |
+| 幅 | ナビ | カード | 左右余白 / カード padding |
+| --- | --- | --- | --- |
+| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム | `px-5.5`(22px) / `p-4`・`p-5` |
+| `sm 〜 lg`（640〜1023px） | 横並びのリンク列（スクロール連動の出し入れあり） | 1 カラム | `px-8`(32px) / `p-7`・`p-9` |
+| `>= lg`（1024px〜） | 同上 | 6 カラムグリッド | 同上 |
 
+- **Home ヒーローの高さは `h-svh`（`h-screen` ではない）**。iOS Safari / Chrome Android の `100vh` は
+  URL バーが隠れたときの高さなので、`h-screen` だと実機の初期表示でヒーロー下部（CTA 列）が
+  バーの下に潜る。`svh` はバーが出ているときの高さで、バーの出入りで値が変わらないため
+  レイアウトも跳ねない。**Playwright のエミュレーションでは `innerHeight` が `100vh` と一致するので
+  この不具合は e2e で検知できない**（`h-dvh` に戻さないこと）。
+- **本文の左右余白 22px は SiteNav と連動している**。`app/layout.tsx` の中央コンテナ `px-5.5 sm:px-8` の
+  22px は、`SiteNav` の `max-sm:px-5.5` と、メニューパネルのオフセット（`inset-x-2.75` + 枠線 1px +
+  `p-2.5` = 22px）に揃えてある。狭い画面でロゴ・ハンバーガー・カード左端が一直線に並ぶので、
+  **どれか1つだけを動かさないこと**。
+- **`GlassCard` の既定 padding（`p-4 sm:p-7` / `padding="lg"` は `p-5 sm:p-9`）はメニューパネルに波及しない**。
+  パネルは `SiteNav` 側が `className` で `p-2.5 sm:p-7` に上書きしているため。逆に、パネル側の
+  `p-2.5` を変えるとロゴの位置がずれるので上のオフセット計算をやり直すこと。
+- **セクション下の余白は `pb-12 sm:pb-16`**（`CardGrid` と `/works/brew` の本文）。
+  以前の `--spacing-section`（90px）は狭い画面に過大だったので**トークンごと廃止した**。
+- **横並びを解除している箇所** — `/about` の来歴（期間ラベル + 本文）は全幅で縦積み（固定幅ラベルは持たない）。
+  `/works` の featured カードの `StatBlock` 3連（`grid-cols-1 sm:grid-cols-3`）と、その下の
+  タグ列 + learn more（`flex-col sm:flex-row`）は sm で横並びに戻す。**縦積みでも learn more は右端**
+  （`LearnMoreCue` の `inline` が `self-end sm:self-auto` を持つ。sm 以上は親の `justify-between` に任せる）。
+- **`/works/brew` は sm 未満で内側の左右 padding を持たない**（`sm:px-4 lg:px-9`）。中央コンテナの
+  `px-5.5` だけで他ページと左端が揃う。**padding を変えたら `next/image` の `sizes` も直すこと**
+  （現在は hero モックが `calc(100vw - 94px)`、ワイド画像が `calc(100vw - 46px)`）。
 - **1 カラム化は `CardGrid`（`grid-cols-1 lg:grid-cols-6`）と `GlassCard` の `lg:col-span-*` が担う**。グリッドに直接乗せるマークアップ（`/contact` の見出しラッパー）や、カード内の 2 列組み（`/skills` の Development、`/works/brew` の実装済み/今後）も同じ `lg:` で揃える。
 - **`/works/brew` の画像だけは `sm` で切り替える**（iPhone モック 3 枚は 640px あれば横に並ぶ）。`next/image` の `sizes` も一緒に直すこと。
 
@@ -109,7 +130,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - クライアント側の検証は **React Hook Form + Zod**（`zodResolver`）。スキーマは `lib/contactSchema.ts` で、Route Handler は Honeypot と Turnstile トークンを足した `contactPayloadSchema` を使う。検証は送信ボタン押下時（`mode: "onSubmit"`）に走り、一度エラーが出た項目は以降の入力で再検証される（`reValidateMode: "onChange"`）。
 - **`<form>` には `noValidate` が必須**（付けないとブラウザ標準の検証 UI が先に出て Zod のメッセージまで到達しない）。`required` / `type="email"` 属性は支援技術向けに残す。Honeypot と Turnstile のトークンは RHF の管理外なので `useState` で保持して送信時に足す。
 - 環境変数が未設定でも**モジュールトップで throw しない**（`next build` を壊さないため）。ハンドラ内で検出して 500 を返す。サイトキー未設定時は、フォームが Turnstile ウィジェットの代わりに注記を表示する。
-- **Turnstile のサイズは置き場の実幅で決める**。`normal` は 300px 固定幅で、狭い画面ではカード（`overflow-hidden`）に切られて操作できなくなる。`renderWidget` が `fitSize()` で `widgetRef.current.clientWidth` を測り、`TURNSTILE_NORMAL_WIDTH`（300）未満なら `compact`（150px）を渡す。**サイズは `render` 時にしか渡せない**ので、`ResizeObserver` で幅が閾値をまたいだときだけ `remove()` → 再 `render` する（画面の回転で横 → 縦に戻したときに 300px のまま切られるのを防ぐ。トークンは作り直しになる）。
+- **Turnstile は常に `normal`（300px）で出し、置き場の実幅まで `scale` で縮める**。ウィジェットは iframe なので幅を CSS で伸縮できず、渡せるサイズも `normal`(300px) / `compact`(150px) の2択しかない。狭いカードでは `compact` でも余白が余って小さく見えるため、**外側に「置き場」の div（`slotRef`）、内側に 300px 固定のマウント先（`widgetRef`）**を置き、`ResizeObserver` が測った `slot.clientWidth / 300` を内側の `scale` に入れる（`origin-top-left`）。**倍率の上限は 1**（拡大するとぼやけるため、lg 以上では 300px のまま左寄せで残る）。`transform` はレイアウトに影響しないので、**外側の div に `scale` 後の高さを持たせる**（ウィジェットの高さも `ResizeObserver` で測る）。サイズは `render` 時にしか渡せないが、`scale` なら描き直さずに追従できるので**画面の回転でトークンを作り直さずに済む**。
 - **ボット対策は Honeypot + Turnstile の2段**。`ContactForm` の `#contact-website` は人間には見えない Honeypot 欄で、`display:none` を検出するボットを避けるため画面外に置いている（`aria-hidden` + `tabIndex={-1}`）。**この欄は削除も改名もしないこと**。Honeypot に該当した送信は、検知を悟らせないため `200 { ok: true }` を返してメール送信のみスキップする。
 - **「送信までの経過時間が短すぎたら弾く」判定は入れない**。経過時間はクライアントが自由に値を作れるためフォームを介さない POST には無力な一方、オートフィル + 貼り付けで素早く送信した実在の訪問者のメールを、成功表示のまま黙って捨ててしまうため。
 
@@ -122,8 +143,8 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - **メニューパネルの伸縮（sm 未満）** — 開くと上端を起点に下へ伸び、閉じると上へ畳まれる。**`grid-template-rows: 0fr → 1fr` + 子の `overflow-hidden`** で動かす（`max-height` の決め打ちが要らず、`scale-y` のように中身が歪まない）。**畳むアニメーションを見せるためパネルは常時マウントしたままにし、`visibility` で出し入れする**（`open && <Panel/>` だと閉じた瞬間に DOM から消えて再生されない）。`visibility` は離散プロパティなので開くときは始点・閉じるときは終点で切り替わり、閉じている間は accessibility tree からも外れる（＝`getByRole("link", { name: "home" })` が二重解決しない）。
     - **閉じる契機は `pathname` の effect と、パネル内リンクの `onClick` の2つ**。effect だけだと**現在地のリンクを踏んだときに `pathname` が変わらず閉じない**（`/works` で `works` をタップするとパネルが開いたまま残る）。`onClick` だけだとブラウザバックで閉じない。両方要る。
     - **パネルの z は nav（`z-50`）より下**（`z-40`）。nav は `position: fixed` + `z-index` で stacking context を作るため、**閉じるボタンにいくら z を積んでも外側のパネルより手前には出せない**。逆に、sm 未満の nav は背景を持たない透明な帯なので、そのままだとパネル上端のリンクを遮る。`max-sm:pointer-events-none` を nav に当て、ロゴとハンバーガーにだけ `pointer-events-auto` を戻している。
-    - パネルにもロゴを置くので、開いている間は nav 側のロゴを `max-sm:invisible` で伏せて二重に見せない。**閉じた状態と開いた状態でロゴが同じ位置に来る**ようパネルのオフセットを決めてある（`inset-x-[11px] top-[15px]` ＋ 枠線 1px ＋ `p-2.5` の 10px ＝ nav の `max-sm:px-5.5` / `max-sm:pt-6`。nav は `items-center` なのでロゴが 2px 下がるぶんも織り込み済み）。**GlassCard の padding を変えたらここも直す**。
-    - パネルの枠線は `border-indigo-600`、padding は `className` で `p-2.5 sm:p-7` に上書きする（`GlassCard` の既定 `p-5 sm:p-7` のままだとロゴが nav と揃わない）。
+    - パネルにもロゴを置くので、開いている間は nav 側のロゴを `max-sm:invisible` で伏せて二重に見せない。**閉じた状態と開いた状態でロゴが同じ位置に来る**ようパネルのオフセットを決めてある（`inset-x-2.75`(11px) / `top-3.75`(15px) ＋ 枠線 1px ＋ `p-2.5` の 10px ＝ nav の `max-sm:px-5.5` / `max-sm:pt-6`。nav は `items-center` なのでロゴが 2px 下がるぶんも織り込み済み）。**GlassCard の padding を変えたらここも直す**。
+    - パネルの枠線は `border-indigo-600`、padding は `className` で `p-2.5 sm:p-7` に上書きする（`GlassCard` の既定 `p-4 sm:p-7` のままだとロゴが nav と揃わない）。
     - リンク群はカード側の **`justify-between`** でロゴと左右に振り分ける（グリッドに `flex-1` は持たせない）。列幅は `grid-cols-[max-content_max-content]` で中身なり、各リンクは左揃え。
     - **グリッドの `pr-*`（現在は `pr-24`）は消さないこと**。右上に重なる × は線が `w-10`（40px）でボタン枠より外へはみ出し、右端がカードの内側右端に接する。**40px を下回ると1行目のリンクが × と重なる**（残りはリンク群の横位置の調整幅）。
     - **現在地のリンクだけ先頭に「+」を出す**（nav のホバーと同じ絶対配置 ＋ `aria-hidden`。付けないとアクセシブルネームが「+works」になって名前で引く e2e が落ちる）。左オフセットは `-left-2.5`。**ラベル左側の空き（右列は `gap-x`、左列はロゴとの間隔）より内側に収める**（はみ出すと隣のラベルに重なって「home+ works」と読めてしまう）。
@@ -151,6 +172,11 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - **辺には `pathLength="1"` を置く**。長さを 1 に正規化しておかないと、自転で辺の実長が毎フレーム変わるたびに `stroke-dashoffset` の線引きが破綻する。
 - **`vector-effect="non-scaling-stroke"` は使わない**。ヘアラインを保つには手軽だが、**dash の単位まで画面ピクセルになり `pathLength` の正規化が無視される**。`stroke-dasharray="1"` が「1px の破線」に化けて線引きが一切効かなくなり、**図形が最初から出来上がって見える**（実際にこれを踏んだ。破線状に見える辺があったら疑う）。代わりに `commons/Wireframe.tsx` が ResizeObserver で SVG の実サイズを測り、`stroke-width` を `VIEW_BOX / 実幅` の user unit で置いて 1px を保つ。`e2e/geometry.spec.ts` が「線引きの設定」と「実測 1px」の両方を見張っている。
 - **投影結果は小数4桁に丸める**（`Wireframe.tsx` の `round()`）。`Math.cos` / `Math.sin` は同じ引数でもエンジンによって最下位ビットが食い違うため、丸めないと Node が書いた SSR の属性値と WebKit が計算した値が一致せず **hydration mismatch になる**（Next の dev エラーオーバーレイが出て、`page.locator("nav")` を使う e2e が strict mode 違反で落ちる）。
+- **Home の図形は sm 未満だけ 1.5 倍にする**（`mobileFigure` の `max-sm:w-[93vw] max-sm:right-[-24vw]`。
+  sm 以上は `w-[62vw] max-w-[990px] right-[-16vw]`）。狭い画面では 62vw だと図形が小さくまとまって
+  背景として効かないため。**幅とはみ出し量は比率で連動している**ので、変えるときは両方揃えること。
+  1.5 倍にすると図形がビューポートより大きくなるが、枠が `fixed inset-0 overflow-hidden` なので
+  **横スクロールは出ない**。
 - Home の組み上げは `lib/home.ts` の `heroGeometryBuild`（＝`titleEnd` ＝ h1 の打ち終わり）に合わせる。他ページは 0.7 秒程度の軽い出現に留める。
 - 枠は `-z-1` なので、`relative z-2` の中央コンテナが作る stacking context の中で本文・カードより後ろ、body の格子とアンビエントグローより手前に入る。
 - **CSS で `display:none` にしても client component の rAF は回り続ける**。`Wireframe` は ResizeObserver で測った実幅が 0 のあいだ自転を止める。依存に入れるのは**幅そのものではなく真偽値**（幅を入れるとリサイズのたびに effect が張り直り、回転が初期角度へ戻る）。

@@ -228,7 +228,7 @@ portfolio-site/
 
 ## デザイントークンの扱い
 
-DS 固有トークン（フォント・角丸・影・余白・字間・h1 のサイズ段・コンテナ幅）を CSS 変数として
+DS 固有トークン（フォント・角丸・影・字間・h1 のサイズ段・コンテナ幅）を CSS 変数として
 Tailwind テーマに統合しています（`app/globals.css` の `@theme`）。命名規則は Tailwind v4 の慣習どおりで、
 変数を足せばそのままユーティリティが生成されます。
 
@@ -237,7 +237,6 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 | `--font-display` / `--font-body` / `--font-mono` | `font-display` / `font-body` / `font-mono` |
 | `--radius-card` | `rounded-card` |
 | `--shadow-card-hover` | `shadow-card-hover` |
-| `--spacing-section` | `pb-section` 等（セクション下余白） |
 | `--tracking-heading` | `tracking-heading`（h1 共通字間） |
 | `--tracking-label` | `tracking-label`（mono ラベル共通字間 0.06em） |
 | `--text-hero` / `--text-page` / `--text-detail` | `text-hero` / `text-page` / `text-detail`（h1 の3サイズ。`--text-*--line-height` を対で置いているので行間もこれ1つで決まる） |
@@ -264,11 +263,11 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 
 切り替え点は **`sm`（640px）と `lg`（1024px）の2つ**です。`md`（768px）は背景の正多面体の見せ方にだけ使います。
 
-| 幅 | ナビ | カード |
-| --- | --- | --- |
-| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム |
-| `sm 〜 lg`（640〜1023px） | 横並びのリンク列 | 1 カラム |
-| `>= lg`（1024px〜） | 横並びのリンク列 | 6 カラムグリッド |
+| 幅 | ナビ | カード | 左右余白 / カード padding |
+| --- | --- | --- | --- |
+| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム | `px-5.5`(22px) / `p-4`・`p-5` |
+| `sm 〜 lg`（640〜1023px） | 横並びのリンク列 | 1 カラム | `px-8`(32px) / `p-7`・`p-9` |
+| `>= lg`（1024px〜） | 横並びのリンク列 | 6 カラムグリッド | 同上 |
 
 - **段組み** — `CardGrid` が `grid-cols-1 lg:grid-cols-6`、`GlassCard` が `lg:col-span-*` /
   `lg:col-start-*` を持ちます（値は 1〜6 の `GridColumn` 型。クラス名は `spanClasses` /
@@ -278,10 +277,27 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
   パネル（枠線は indigo）が上から下へ伸びて出ます。パネル内はロゴ + home〜contact の 2 列で、
   ロゴとリンク群を `justify-between` で左右に振り分けています。現在地の先頭には「+」が付きます。
   遷移すると自動で閉じます。ロゴは開閉のどちらでも同じ位置に出ます。
-- **`/works/brew` の画像** — iPhone モック 3 枚は `sm` で横並びに戻します（`next/image` の `sizes` も対応）。
-- **Turnstile** — `normal`（300px 固定幅）が入らない狭い画面では `compact`（150px）で描画します。
-  サイズは `render` 時にしか渡せないため、画面の回転などで置き場の幅が閾値をまたいだときは
-  `ResizeObserver` が拾って引き直します。
+- **Home ヒーローの高さ** — `h-svh`（`h-screen` = `100vh` ではありません）。iOS Safari / Chrome Android の
+  `100vh` は URL バーが隠れたときの高さなので、`h-screen` だと実機の初期表示で CTA 列がバーの下に潜ります。
+  `svh` はバーの出入りで値が変わらないためレイアウトも跳ねません。**Playwright のエミュレーションでは
+  `innerHeight` が `100vh` と一致するので、この不具合は e2e で検知できません**。
+- **左右余白** — `app/layout.tsx` の中央コンテナが `px-5.5 sm:px-8`。sm 未満の 22px は
+  `SiteNav` の `max-sm:px-5.5` とメニューパネルのオフセット（`inset-x-2.75` + 枠線 1px + `p-2.5`）に
+  揃えてあり、ロゴ・ハンバーガー・カード左端が一直線に並びます。**片方だけ動かさないこと**。
+- **カードの padding** — `GlassCard` が `p-4 sm:p-7`（`padding="lg"` は `p-5 sm:p-9`）。
+  メニューパネルは `SiteNav` 側が `className` で `p-2.5 sm:p-7` に上書きするため、この既定値の
+  変更は波及しません。
+- **横並びの解除** — `/about` の来歴（期間ラベル + 本文）は全幅で縦積み、`/works` の featured カードの
+  `StatBlock` 3連と、その下のタグ列 + learn more は `sm` で横並びに戻します。
+- **セクション下の余白** — `CardGrid` と `/works/brew` の本文が `pb-12 sm:pb-16`。
+  以前の `--spacing-section`（90px）は狭い画面に過大だったため、トークンごと廃止しています。
+- **`/works/brew`** — 内側の左右 padding は `sm:px-4 lg:px-9` で、sm 未満は中央コンテナの `px-5.5` だけに
+  なり他ページと左端が揃います。iPhone モック 3 枚は `sm` で横並びに戻します
+  （`next/image` の `sizes` も padding に合わせてあります）。
+- **Turnstile** — 常に `normal`（300px）で描画し、置き場の実幅まで `scale` で縮めて**カード内の
+  入力欄と幅を揃えます**（375px では 289px）。倍率の上限は 1 なので、lg 以上では 300px のままです。
+  `ResizeObserver` が置き場の幅とウィジェットの高さを見張って追従するため、画面を回転しても
+  トークンを作り直しません。
 
 ## Client / Server の切り分け
 

@@ -10,15 +10,15 @@ import { cn } from "@/lib/cn";
 import { CONTACT_LIMITS, type ContactInput, contactSchema } from "@/lib/contactSchema";
 import { errorId, FormField, formControlClass } from "./FormField";
 
-/** Turnstile の normal サイズの固定幅（px） */
+/**
+ * Turnstile の normal サイズの固定幅（px）。
+ *
+ * ウィジェットは iframe なので幅を CSS で伸縮できず、渡せるサイズも normal(300px) /
+ * compact(150px) の2択しかない。狭いカードでは compact でも余白が余って小さく見えるため、
+ * **常に normal を出して置き場の実幅ぴったりまで transform: scale で縮める**。
+ * transform はレイアウトに影響しないので、外側の箱に scale 後の高さを持たせる。
+ */
 const TURNSTILE_NORMAL_WIDTH = 300;
-
-type TurnstileSize = "normal" | "compact";
-
-/** 置き場の実幅に収まるサイズ。normal が入らなければ compact（150px）に落とす */
-function fitSize(el: HTMLElement): TurnstileSize {
-    return el.clientWidth < TURNSTILE_NORMAL_WIDTH ? "compact" : "normal";
-}
 
 declare global {
     interface Window {
@@ -27,8 +27,6 @@ declare global {
                 el: HTMLElement,
                 options: {
                     sitekey: string;
-                    /** normal は 300px 固定幅。狭い画面では compact（150px）へ落とす */
-                    size?: TurnstileSize;
                     callback: (token: string) => void;
                     "expired-callback"?: () => void;
                     "error-callback"?: () => void;
@@ -64,23 +62,23 @@ export function ContactForm() {
         defaultValues: initialValues,
     });
 
+    /** 置き場（カード内の実幅を持つ箱）。ここを測って倍率を決める */
+    const slotRef = useRef<HTMLDivElement | null>(null);
+    /** ウィジェット本体のマウント先。常に 300px 幅で、scale だけが変わる */
     const widgetRef = useRef<HTMLDivElement | null>(null);
     const widgetId = useRef<string | null>(null);
 
-    /** 描画中のウィジェットのサイズ。置き場の幅が閾値をまたいだかの判定に使う */
-    const widgetSize = useRef<TurnstileSize | null>(null);
+    /** 置き場の実幅 / 300。1 を超えても伸ばさない（拡大するとぼやけるため） */
+    const [scale, setScale] = useState(1);
+    /** scale 前のウィジェットの高さ。外側の箱に scale 後の高さを持たせるために測る */
+    const [widgetHeight, setWidgetHeight] = useState(0);
 
     const renderWidget = useCallback(() => {
         if (!widgetRef.current || !window.turnstile || widgetId.current !== null || !siteKey) {
             return;
         }
-        // normal は 300px 固定幅で、狭い画面ではカード（overflow-hidden）に切られる。
-        // 置き場が足りなければ compact（150px）に落とす
-        const size = fitSize(widgetRef.current);
-        widgetSize.current = size;
         widgetId.current = window.turnstile.render(widgetRef.current, {
             sitekey: siteKey,
-            size,
             callback: (t) => setToken(t),
             "expired-callback": () => setToken(""),
             "error-callback": () => setToken(""),
@@ -88,33 +86,30 @@ export function ContactForm() {
     }, []);
 
     /**
-     * 画面の回転などで置き場の幅が変わったら、サイズを選び直して引き直す。
+     * 置き場の幅とウィジェットの高さを見張って倍率と高さを追従させる。
      *
-     * サイズは render 時にしか渡せないので、横向きで normal を出したあと縦に戻すと
-     * 300px のまま カード（overflow-hidden）に切られてしまう。閾値をまたいだときだけ
-     * remove → 再 render する（トークンは作り直しになるが、切れて操作できないよりは良い）。
+     * サイズは render 時にしか渡せないが、scale なら描き直さずに追従できるので、
+     * 画面の回転で幅が変わってもトークンを作り直さずに済む。
      */
     useEffect(() => {
-        const el = widgetRef.current;
-        if (!el || !siteKey) {
+        const slot = slotRef.current;
+        const widget = widgetRef.current;
+        if (!slot || !widget || !siteKey) {
             return;
         }
-        const observer = new ResizeObserver(() => {
-            if (!window.turnstile || widgetId.current === null) {
-                return;
-            }
-            const next = fitSize(el);
-            if (next === widgetSize.current) {
-                return;
-            }
-            window.turnstile.remove(widgetId.current);
-            widgetId.current = null;
-            setToken("");
-            renderWidget();
+        const slotObserver = new ResizeObserver(() => {
+            setScale(Math.min(1, slot.clientWidth / TURNSTILE_NORMAL_WIDTH));
         });
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, [renderWidget]);
+        const widgetObserver = new ResizeObserver(() => {
+            setWidgetHeight(widget.offsetHeight);
+        });
+        slotObserver.observe(slot);
+        widgetObserver.observe(widget);
+        return () => {
+            slotObserver.disconnect();
+            widgetObserver.disconnect();
+        };
+    }, []);
 
     // トークンは一度きりなので、送信に失敗したらウィジェットを引き直す
     const resetWidget = useCallback(() => {
@@ -184,7 +179,16 @@ export function ContactForm() {
         </Text>
     );
     if (siteKey) {
-        turnstileArea = <div ref={widgetRef} className="mt-5" />;
+        turnstileArea = (
+            // 外側 = 置き場（実幅を測る／scale 後の高さを持つ）、内側 = 300px 固定のウィジェット
+            <div ref={slotRef} className="mt-5" style={{ height: widgetHeight * scale }}>
+                <div
+                    ref={widgetRef}
+                    className="w-[300px] origin-top-left"
+                    style={{ scale: `${scale}` }}
+                />
+            </div>
+        );
     }
 
     return (

@@ -127,3 +127,59 @@ test.describe("レイアウト（lg 未満）", () => {
         expect(second?.y ?? 0).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0) - 1);
     });
 });
+
+test.describe("Home ヒーロー（sm 未満）", () => {
+    test("ヒーローが1画面に収まり、ボタン列が折り返さない", async ({ page }) => {
+        await page.goto("/");
+
+        const viewportHeight = await page.evaluate(() => window.innerHeight);
+        const header = await page.locator("header").first().boundingBox();
+        expect(header?.height ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(viewportHeight);
+
+        // 打ち終わりを待ってからボタン列を測る（RiseIn は heroActionsDelay ≒ 4.3 秒後に始まり、
+        // そこから 500ms かけて opacity 0→1 / translate 16px→0 と動く）。
+        // toBeVisible() は opacity:0 を「見えている」と判定するので待機条件にならない。
+        // 伏せたまま測ると 16px 下の座標を拾ってしまい、遷移の途中だと2つの y も食い違う。
+        const actions = page.locator("header [data-rise-in]");
+        await expect(actions).toHaveCSS("opacity", "1", { timeout: 15_000 });
+        await expect(actions).toHaveCSS("translate", "none");
+
+        const works = page.getByRole("link", { name: "Works を見る" });
+        const contact = page.getByRole("link", { name: "連絡する" });
+
+        const worksBox = await works.boundingBox();
+        const contactBox = await contact.boundingBox();
+
+        // 同じ行に並ぶ ＝ 折り返していない
+        expect(worksBox?.y).toBeCloseTo(contactBox?.y ?? -1, 0);
+        // 下端も画面内に収まる
+        expect((contactBox?.y ?? 0) + (contactBox?.height ?? 0)).toBeLessThanOrEqual(
+            viewportHeight,
+        );
+    });
+});
+
+test.describe("横並びの解除（sm 未満）", () => {
+    test("/about の来歴は期間ラベルが本文の上に積まれる", async ({ page }) => {
+        await page.goto("/about");
+        // 最後の CardGrid（// story）の1行目
+        const row = page.locator("section.grid").last().locator("div.group > div > div").first();
+        const period = await row.locator("p").first().boundingBox();
+        const body = await row.locator("p").nth(1).boundingBox();
+
+        expect(period?.x).toBeCloseTo(body?.x ?? -1, 0);
+        expect((period?.y ?? 0) + (period?.height ?? 0)).toBeLessThanOrEqual((body?.y ?? 0) + 1);
+    });
+
+    test("/works の StatBlock 3連が縦に積まれる", async ({ page }) => {
+        await page.goto("/works");
+        const stats = page.locator("section.grid div.group").first().locator("div.grid > div");
+        await expect(stats).toHaveCount(3);
+
+        const first = await stats.nth(0).boundingBox();
+        const second = await stats.nth(1).boundingBox();
+
+        expect(first?.x).toBeCloseTo(second?.x ?? -1, 0);
+        expect(second?.y ?? 0).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0) - 1);
+    });
+});

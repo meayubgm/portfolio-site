@@ -144,7 +144,7 @@ export function GlassCard({
                 reveal && riseClass,
                 hoverEffects &&
                     "hover:border-indigo-600 hover:-translate-y-0.5 hover:shadow-card-hover",
-                padding === "lg" ? "p-6 sm:p-9" : "p-5 sm:p-7",
+                padding === "lg" ? "p-5 sm:p-9" : "p-4 sm:p-7",
                 href ? "cursor-pointer" : "cursor-default",
                 className,
             )}

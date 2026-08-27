@@ -12,7 +12,7 @@ type ButtonProps = {
 };
 
 const base =
-    "inline-flex items-center gap-2 rounded-lg font-body text-sm font-medium px-6 py-3.5 cursor-pointer transition-all duration-250 ease-in-out";
+    "inline-flex items-center gap-2 whitespace-nowrap rounded-lg font-body text-sm font-medium px-6 py-3.5 cursor-pointer transition-all duration-250 ease-in-out";
 
 const styles = {
     primary: "bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-px",

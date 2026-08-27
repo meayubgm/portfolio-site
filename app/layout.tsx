@@ -24,7 +24,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 />
                 <ScrollToTarget />
                 <SiteNav />
-                <div className="relative z-2 mx-auto max-w-site px-8 pb-15">{children}</div>
+                <div className="relative z-2 mx-auto max-w-site px-5.5 sm:px-8 pb-15">
+                    {children}
+                </div>
                 <footer className="relative z-2 py-8 text-center">
                     <Text as="small" variant="monoSm" tone="muted">
                         &copy; 2026 Megumi Ayuha

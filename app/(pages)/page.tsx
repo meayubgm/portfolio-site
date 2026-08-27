@@ -19,7 +19,7 @@ import { homeSkillGroups } from "@/lib/skills";
 export default function Home() {
     return (
         <div>
-            <header className="pt-35 pb-20 h-screen flex flex-col justify-between">
+            <header className="h-svh pt-20 pb-10 sm:pt-35 sm:pb-20 flex flex-col justify-between">
                 <HeroGeometry page="home" />
                 <div>
                     <PageHeading
@@ -32,10 +32,10 @@ export default function Home() {
                     <Text variant="monoLg" tone="muted" className="pb-4.5">
                         <Typewriter lines={heroCopy.mono} {...heroTyping.mono} />
                     </Text>
-                    <Text variant="lead" className="pb-12">
+                    <Text variant="lead" className="pb-6 sm:pb-12">
                         <Typewriter lines={heroCopy.lead} {...heroTyping.lead} />
                     </Text>
-                    <RiseIn delay={heroActionsDelay} className="flex gap-3.5">
+                    <RiseIn delay={heroActionsDelay} className="flex flex-nowrap gap-3.5">
                         <Button variant="primary" href="/works">
                             Works を見る
                         </Button>

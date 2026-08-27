@@ -91,15 +91,11 @@ export default function About() {
                             <div
                                 key={e.period}
                                 className={cn(
-                                    "flex gap-6 py-3.5",
+                                    "flex flex-col gap-1 py-3.5",
                                     i > 0 && "border-t border-dashed border-indigo-600/15",
                                 )}
                             >
-                                <Text
-                                    variant="monoSm"
-                                    tone="accent"
-                                    className="w-20 shrink-0 leading-6"
-                                >
+                                <Text variant="monoSm" tone="accent" className="leading-6">
                                     {e.period}
                                 </Text>
                                 <Text variant="body">{e.body}</Text>
