@@ -31,8 +31,9 @@ export type SkillGroup = {
     note: string;
     /** /skills でだけ使う補足文。カードごとの守備範囲を明示したいときに指定する */
     skillsNote?: string;
-    /** /skills でのカード幅（CardGrid は 6 カラム）とセクションの列数 */
-    layout: { span: number; columns: 1 | 2 };
+    /** /skills でのカード幅（lg 以上の CardGrid は 6 カラム）とセクションの列数。
+        span は GlassCard の GridColumn と同じレンジ（lib は commons を import しないので値で持つ） */
+    layout: { span: 1 | 2 | 3 | 4 | 5 | 6; columns: 1 | 2 };
     sections: SkillSection[];
 };
 

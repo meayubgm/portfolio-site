@@ -109,14 +109,18 @@ npx playwright install chromium webkit
 
 # 実行
 make up            # Docker でアプリ起動（:3000）
-make test-e2e      # = npx playwright test（Chromium / WebKit）
+make test-e2e      # = npx playwright test（Chromium / WebKit + モバイル2種）
 npm run test:e2e:ui        # UI モードで実行
 npm run test:e2e:report    # 直近の HTML レポートを表示
 ```
 
 `playwright.config.ts` の `webServer` は `reuseExistingServer: true`。`make up` が :3000 を
 占有していればそれを再利用し、Docker 未起動時や CI（Linux）では `npm run build && npm run start`
-でフォールバック起動します。spec は `e2e/` 配下（smoke / navigation / motion / geometry）。
+でフォールバック起動します。spec は `e2e/` 配下（smoke / navigation / motion / geometry / responsive）。
+
+プロジェクトは4つ。`chromium` / `webkit`（いずれも 1280px）はデスクトップ幅の期待値で書かれた
+spec を走らせ、`testIgnore` で `responsive.spec.ts` を外します。`mobile-chrome`（Pixel 5）と
+`mobile-safari`（iPhone 13）は逆に `testMatch` で `responsive.spec.ts` だけを拾います。
 
 `.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助（Claude Code から使用）。
 リグレッション検知は `@playwright/test` に一任します。
@@ -148,7 +152,7 @@ portfolio-site/
 │   ├── BackLink.tsx        # ページ末尾の戻りリンク（← back to home 等）
 │   ├── BulletList.tsx      # 中黒付きの箇条書き（list-disc + インデント）
 │   ├── Button.tsx
-│   ├── CardGrid.tsx        # 6 カラムのセクショングリッド
+│   ├── CardGrid.tsx        # セクショングリッド（lg 以上で 6 カラム、それ未満は 1 カラム）
 │   ├── CardLabel.tsx       # カード左上の mono ラベル（meta で右端に通し番号を添えられる）
 │   ├── EyebrowLabel.tsx
 │   ├── GlassCard.tsx       # "use client"（マウス追従グロー＋クリック遷移＋scroll reveal）
@@ -171,7 +175,7 @@ portfolio-site/
 │   ├── HeroGeometry.tsx    # 背景に固定する正多面体（ページ→図形・配置の対応表）
 │   ├── PageHeader.tsx      # 一覧系ページ共通の header ラッパー + PageHeading
 │   ├── PageHeading.tsx     # ページ共通の eyebrow + h1 + リード文（hero / list / detail）
-│   ├── SiteNav.tsx         # "use client"（usePathname で active 判定＋スクロール連動の出し入れ）
+│   ├── SiteNav.tsx         # "use client"（active 判定＋出し入れ＋sm 未満のハンバーガーメニュー）
 │   ├── SkillBar.tsx        # Home のスキルバー（percent 必須）
 │   └── SkillName.tsx       # /skills のスキル名（バー無し・mono / indigo）
 ├── lib/
@@ -184,8 +188,8 @@ portfolio-site/
 │   ├── useRiseIn.ts        # 浮き上がり表示を当てるフック（RiseIn / GlassCard が共用）
 │   ├── contactSchema.ts    # お問い合わせフォームの検証ルール（Zod。クライアント／API で共用）
 │   └── skills.ts           # スキルデータ（Development / Design / Tools。Home のカードと /skills で共用）
-├── e2e/                    # Playwright E2E テスト（smoke / navigation / motion / geometry）
-├── playwright.config.ts    # Playwright 設定（Chromium / WebKit）
+├── e2e/                    # Playwright E2E テスト（smoke / navigation / motion / geometry / responsive）
+├── playwright.config.ts    # Playwright 設定（Chromium / WebKit + モバイル2種）
 ├── .mcp.json               # Playwright MCP（探索的確認の補助）
 ├── .env.example            # お問い合わせフォームの環境変数の雛形（.env.local にコピーして使う）
 ├── Dockerfile              # Node 24 Alpine / dev サーバー
@@ -210,7 +214,8 @@ portfolio-site/
   `sections`（職能ベースの分類。`heading` を省略すると見出し無しの単一セクション＝Design / Tools）と
   `layout`（`/skills` でのカード幅 `span` とセクションの列数 `columns`）を持ちます。
   Development は span 6 / 2列（左＝フロントエンド、右＝バックエンド + AI活用。どちらの列に置くかは各 section の
-  `column`）、Design と Tools は span 3 / 1列で横並びになります。`note` は Home のカード用で、`/skills` では
+  `column`）、Design と Tools は span 3 / 1列です（`span` が効くのは lg 以上で、それ未満は 1 カラムに畳まれます）。
+  `note` は Home のカード用で、`/skills` では
   `skillsNote`（あれば）を優先表示、`description` は `/skills` でのみ表示します。
   `percent` は optional で、**Home に載せるかどうかの分岐を兼ねます**（値はバーの長さ）。Home は `percent` を
   持つ項目だけを残した派生配列 `homeSkillGroups` を使い、並べ替えはしません。`homeName` を持つ項目は
@@ -255,6 +260,29 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 背景のブループリント格子は `--grid-cell` と `body` への直接適用で描画し、淡い indigo は
 `color-mix` で Tailwind パレット変数（`--color-indigo-600`）から生成しています。
 
+## レスポンシブ
+
+切り替え点は **`sm`（640px）と `lg`（1024px）の2つ**です。`md`（768px）は背景の正多面体の見せ方にだけ使います。
+
+| 幅 | ナビ | カード |
+| --- | --- | --- |
+| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム |
+| `sm 〜 lg`（640〜1023px） | 横並びのリンク列 | 1 カラム |
+| `>= lg`（1024px〜） | 横並びのリンク列 | 6 カラムグリッド |
+
+- **段組み** — `CardGrid` が `grid-cols-1 lg:grid-cols-6`、`GlassCard` が `lg:col-span-*` /
+  `lg:col-start-*` を持ちます（値は 1〜6 の `GridColumn` 型。クラス名は `spanClasses` /
+  `startClasses` の表に書き下してあり、テンプレートリテラルでは組み立てません）。
+  カード内の 2 列組み（`/skills` の Development、`/works/brew` の実装済み/今後）も同じ `lg:` で揃えます。
+- **ハンバーガーメニュー** — 右上の 3 本線（indigo）を押すと × に変わり、画面上部に `GlassCard` の
+  パネル（枠線は indigo）が上から下へ伸びて出ます。パネル内はロゴ + home〜contact の 2 列で、
+  ロゴとリンク群を `justify-between` で左右に振り分けています。現在地の先頭には「+」が付きます。
+  遷移すると自動で閉じます。ロゴは開閉のどちらでも同じ位置に出ます。
+- **`/works/brew` の画像** — iPhone モック 3 枚は `sm` で横並びに戻します（`next/image` の `sizes` も対応）。
+- **Turnstile** — `normal`（300px 固定幅）が入らない狭い画面では `compact`（150px）で描画します。
+  サイズは `render` 時にしか渡せないため、画面の回転などで置き場の幅が閾値をまたいだときは
+  `ResizeObserver` が拾って引き直します。
+
 ## Client / Server の切り分け
 
 - `GlassCard`（マウス追従グロー＋クリック遷移＋scroll reveal）・`Typewriter`（タイピング演出）・
@@ -271,7 +299,11 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 アニメーションライブラリは使わず、CSS transition と IntersectionObserver で実装しています。
 いずれも `prefers-reduced-motion: reduce` で即時表示に切り替わります。
 
-- **SiteNav** — 下スクロールで `-translate-y-full`、上スクロールで復帰（最上部 80px 以内では隠さない）。
+- **メニューパネル（sm 未満）** — `grid-template-rows: 0fr → 1fr` と子の `overflow-hidden` で上から下へ
+  伸ばします。畳むアニメーションを見せるためパネルは常時マウントし、`visibility` で出し入れします
+  （閉じている間は accessibility tree からも外れます）。
+- **SiteNav** — 下スクロールで `-translate-y-full`、上スクロールで復帰（最上部 80px 以内では隠さない。
+  sm 未満では出し入れせず常に上部に留まります）。
   隠れている状態でリンクにフォーカスが入った場合は出し直します。
   現在地は `text-indigo-600`、それ以外は `text-slate-600`。ホバーすると `text-indigo-600` になり、
   `GlassCard` 右上と同じ「+」がリンクの先頭に絶対配置でフェードインします（ラベルは動きません）。
@@ -328,10 +360,11 @@ Tailwind テーマに統合しています（`app/globals.css` の `@theme`）�
 - **JS 無効 / reduced motion** — SVG は SSR 時点で完成しているので、`app/globals.css` が組み上げを
   無効化して素の姿で表示します。`prefers-reduced-motion: reduce` では自転もしません（閲覧中に
   OS 設定を切り替えても止まるよう、変更を購読しています）。
-- **見えていないときは回さない** — md 未満では図形を `display:none` にしていますが、それだけでは
-  rAF が回り続けるため、実幅が 0 のあいだは自転を止めています。
+- **見えていないときは回さない** — CSS で `display:none` にしても rAF は回り続けるため、
+  実幅が 0 のあいだは自転を止めています。
 - **クロップ** — 枠は `fixed inset-0` なので、`overflow-hidden` が画面端で図形を切ります。
-  狭い画面（md 未満）では本文と重なるため図形を出しません。
+- **狭い画面** — md 未満では本文と重なるため、消さずに `opacity-45` で薄くします。位置と大きさは
+  `PLACEMENTS` の `mobileFigure`（`max-md:` クラス）で上書きします。
 
 ## コンテンツ方針
 

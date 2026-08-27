@@ -2,13 +2,23 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Script from "next/script";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/commons/Button";
 import { Text } from "@/commons/Text";
 import { cn } from "@/lib/cn";
 import { CONTACT_LIMITS, type ContactInput, contactSchema } from "@/lib/contactSchema";
 import { errorId, FormField, formControlClass } from "./FormField";
+
+/** Turnstile の normal サイズの固定幅（px） */
+const TURNSTILE_NORMAL_WIDTH = 300;
+
+type TurnstileSize = "normal" | "compact";
+
+/** 置き場の実幅に収まるサイズ。normal が入らなければ compact（150px）に落とす */
+function fitSize(el: HTMLElement): TurnstileSize {
+    return el.clientWidth < TURNSTILE_NORMAL_WIDTH ? "compact" : "normal";
+}
 
 declare global {
     interface Window {
@@ -17,12 +27,15 @@ declare global {
                 el: HTMLElement,
                 options: {
                     sitekey: string;
+                    /** normal は 300px 固定幅。狭い画面では compact（150px）へ落とす */
+                    size?: TurnstileSize;
                     callback: (token: string) => void;
                     "expired-callback"?: () => void;
                     "error-callback"?: () => void;
                 },
             ) => string;
             reset: (widgetId?: string) => void;
+            remove: (widgetId: string) => void;
         };
     }
 }
@@ -54,17 +67,54 @@ export function ContactForm() {
     const widgetRef = useRef<HTMLDivElement | null>(null);
     const widgetId = useRef<string | null>(null);
 
+    /** 描画中のウィジェットのサイズ。置き場の幅が閾値をまたいだかの判定に使う */
+    const widgetSize = useRef<TurnstileSize | null>(null);
+
     const renderWidget = useCallback(() => {
         if (!widgetRef.current || !window.turnstile || widgetId.current !== null || !siteKey) {
             return;
         }
+        // normal は 300px 固定幅で、狭い画面ではカード（overflow-hidden）に切られる。
+        // 置き場が足りなければ compact（150px）に落とす
+        const size = fitSize(widgetRef.current);
+        widgetSize.current = size;
         widgetId.current = window.turnstile.render(widgetRef.current, {
             sitekey: siteKey,
+            size,
             callback: (t) => setToken(t),
             "expired-callback": () => setToken(""),
             "error-callback": () => setToken(""),
         });
     }, []);
+
+    /**
+     * 画面の回転などで置き場の幅が変わったら、サイズを選び直して引き直す。
+     *
+     * サイズは render 時にしか渡せないので、横向きで normal を出したあと縦に戻すと
+     * 300px のまま カード（overflow-hidden）に切られてしまう。閾値をまたいだときだけ
+     * remove → 再 render する（トークンは作り直しになるが、切れて操作できないよりは良い）。
+     */
+    useEffect(() => {
+        const el = widgetRef.current;
+        if (!el || !siteKey) {
+            return;
+        }
+        const observer = new ResizeObserver(() => {
+            if (!window.turnstile || widgetId.current === null) {
+                return;
+            }
+            const next = fitSize(el);
+            if (next === widgetSize.current) {
+                return;
+            }
+            window.turnstile.remove(widgetId.current);
+            widgetId.current = null;
+            setToken("");
+            renderWidget();
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [renderWidget]);
 
     // トークンは一度きりなので、送信に失敗したらウィジェットを引き直す
     const resetWidget = useCallback(() => {

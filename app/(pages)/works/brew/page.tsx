@@ -23,7 +23,7 @@ const heroShots = [
 export default function BrewCaseStudy() {
     return (
         <div className="pt-24">
-            <div className="px-9">
+            <div className="px-4 lg:px-9">
                 <header className="border-b border-dashed border-indigo-600/15 py-10">
                     <HeroGeometry page="brew" />
                     <PageHeading
@@ -43,7 +43,7 @@ export default function BrewCaseStudy() {
                 </header>
                 <div className="flex flex-col gap-12 pb-section pt-12">
                     <div className="rounded-card border border-dashed border-indigo-600/15 bg-white/55 p-6">
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             {heroShots.map((shot) => (
                                 <figure key={shot.src}>
                                     <Text
@@ -59,7 +59,7 @@ export default function BrewCaseStudy() {
                                         alt={shot.caption}
                                         width={1200}
                                         height={2037}
-                                        sizes="(max-width: 1800px) 30vw, 528px"
+                                        sizes="(max-width: 640px) calc(100vw - 144px), (max-width: 1800px) 30vw, 528px"
                                         className="h-auto w-full"
                                     />
                                 </figure>
@@ -109,7 +109,7 @@ export default function BrewCaseStudy() {
                                 alt="テラコッタUIのライト/ダークテーマ画面一覧"
                                 width={2560}
                                 height={2040}
-                                sizes="(max-width: 1800px) calc(100vw - 136px), 1664px"
+                                sizes="(max-width: 640px) calc(100vw - 96px), (max-width: 1800px) calc(100vw - 136px), 1664px"
                                 className="h-auto w-full rounded-card"
                             />
                         </div>
@@ -146,7 +146,7 @@ export default function BrewCaseStudy() {
                     </section>
                     <section>
                         <MonoHeading>{"// 実装済み ／ 今後の実装予定"}</MonoHeading>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <Text variant="labelStrong" tone="strong" className="mb-2">
                                     実装済み

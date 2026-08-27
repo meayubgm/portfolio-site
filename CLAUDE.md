@@ -40,12 +40,26 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 ## E2E テスト
 
-**Playwright**（`@playwright/test`）。開発コンテナ（`node:24-alpine`）は Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、`compose.yaml` が公開する `http://localhost:3000` を叩く（`make up` → `make test-e2e`）。spec は `e2e/`（Chromium / WebKit の2プロジェクト）で、`e2e` と `playwright.config.ts` は `tsconfig.json` の `exclude` に入れて `next build` の型チェックから外している。`.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助で、リグレッション検知は `@playwright/test` に一任する。セットアップ手順は `README.md`。
+**Playwright**（`@playwright/test`）。開発コンテナ（`node:24-alpine`）は Playwright のブラウザ非対応のため、**テストはホスト（macOS）で実行**し、`compose.yaml` が公開する `http://localhost:3000` を叩く（`make up` → `make test-e2e`）。spec は `e2e/`（Chromium / WebKit の2プロジェクト。加えて `e2e/responsive.spec.ts` だけを走らせる mobile-chrome / mobile-safari の2プロジェクト）で、`e2e` と `playwright.config.ts` は `tsconfig.json` の `exclude` に入れて `next build` の型チェックから外している。`.mcp.json` の Playwright MCP は探索的なブラウザ確認の補助で、リグレッション検知は `@playwright/test` に一任する。セットアップ手順は `README.md`。
 
 - **`goto` 直後に1回だけスクロールするテストは hydration とレースする**。SiteNav の出し入れは hydration 後に付くリスナーが行うため、リスナーが付く前にスクロールが終わるとその後 `scroll` が飛ばず、いつまでも隠れないまま落ちる。`e2e/motion.spec.ts` の `scrollUntilHidden` のように反応するまでやり直す。
 - **`test.use({ reducedMotion: "reduce" })` はこの構成では反映されない**。`page.emulateMedia({ reducedMotion: "reduce" })` を `goto` の前に呼ぶ（`e2e/geometry.spec.ts`）。
+- **モバイル向けの spec は `e2e/responsive.spec.ts` に閉じる**。デスクトップの2プロジェクトは `testIgnore` でこれを外し、モバイルの2プロジェクトは `testMatch` でこれだけを拾う。既存 spec は 1280px 前提（6カラムグリッド・横並びナビ）の期待値で書かれているため、モバイル幅で走らせない。
 
 ## アーキテクチャ
+
+### ブレークポイント方針
+
+切り替え点は **`sm`（640px）と `lg`（1024px）の2つだけ**。中間の `md`（768px）は背景の正多面体の見せ方にだけ使う。
+
+| 幅 | ナビ | カード |
+| --- | --- | --- |
+| `< sm`（〜639px） | ハンバーガーメニュー。SiteNav は透明・常時表示 | 1 カラム |
+| `sm 〜 lg`（640〜1023px） | 横並びのリンク列（スクロール連動の出し入れあり） | 1 カラム |
+| `>= lg`（1024px〜） | 同上 | 6 カラムグリッド |
+
+- **1 カラム化は `CardGrid`（`grid-cols-1 lg:grid-cols-6`）と `GlassCard` の `lg:col-span-*` が担う**。グリッドに直接乗せるマークアップ（`/contact` の見出しラッパー）や、カード内の 2 列組み（`/skills` の Development、`/works/brew` の実装済み/今後）も同じ `lg:` で揃える。
+- **`/works/brew` の画像だけは `sm` で切り替える**（iPhone モック 3 枚は 640px あれば横に並ぶ）。`next/image` の `sizes` も一緒に直すこと。
 
 ### ディレクトリと依存の向き
 
@@ -74,7 +88,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - ページ本体（`app/(pages)/**/page.tsx`）とほとんどのコンポーネントは Server Component。
 - `"use client"` は **`commons/GlassCard.tsx`**（マウス追従グロー＋クリック遷移＋scroll reveal）・**`commons/Typewriter.tsx`**（タイピング演出）・**`commons/RiseIn.tsx`**（時間指定の浮き上がり）・**`commons/Wireframe.tsx`**（正多面体の自転）・**`commons/ScrollToTarget.tsx`**（遷移先の要素へのスムーススクロール）・**`components/SiteNav.tsx`**（`usePathname` での active 判定＋スクロール連動の出し入れ）・**`components/ContactForm.tsx`**（フォーム状態と Turnstile 操作）の7つだけ。
 - カード全体をリンクにするときは、ページを Server のまま保つため `GlassCard` に `href` を渡す（内部で `useRouter().push`）。カード内に `<a>`（`LinkRow` 等）が入るため `<a>` のネストは不可。
-- `GlassCard` の `span` は占有カラム数、`start` は開始カラム（`grid-column` をインライン style で組み立てるため `col-start-*` クラスでは上書きできない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
+- `GlassCard` の `span` は占有カラム数、`start` は開始カラム。どちらも `lg:col-span-*` / `lg:col-start-*` のクラスで当てるので **lg 以上でだけ効き、lg 未満は `col-span-full` の1カラム**になる。値は 1〜6（`GridColumn` 型）で、**クラス名はテンプレートリテラルで組まず `spanClasses` / `startClasses` の表に書き下す**（Tailwind はソースを文字列として走査するため、組み立てるとクラスが生成されない）。`hoverEffects={false}` で枠線の indigo 化・右上の「+」・カーソル追従グローを止める（`/contact` のフォームカードのように遷移しないカードで使う）。
 
 ### データは lib/ に集約する
 
@@ -95,6 +109,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - クライアント側の検証は **React Hook Form + Zod**（`zodResolver`）。スキーマは `lib/contactSchema.ts` で、Route Handler は Honeypot と Turnstile トークンを足した `contactPayloadSchema` を使う。検証は送信ボタン押下時（`mode: "onSubmit"`）に走り、一度エラーが出た項目は以降の入力で再検証される（`reValidateMode: "onChange"`）。
 - **`<form>` には `noValidate` が必須**（付けないとブラウザ標準の検証 UI が先に出て Zod のメッセージまで到達しない）。`required` / `type="email"` 属性は支援技術向けに残す。Honeypot と Turnstile のトークンは RHF の管理外なので `useState` で保持して送信時に足す。
 - 環境変数が未設定でも**モジュールトップで throw しない**（`next build` を壊さないため）。ハンドラ内で検出して 500 を返す。サイトキー未設定時は、フォームが Turnstile ウィジェットの代わりに注記を表示する。
+- **Turnstile のサイズは置き場の実幅で決める**。`normal` は 300px 固定幅で、狭い画面ではカード（`overflow-hidden`）に切られて操作できなくなる。`renderWidget` が `fitSize()` で `widgetRef.current.clientWidth` を測り、`TURNSTILE_NORMAL_WIDTH`（300）未満なら `compact`（150px）を渡す。**サイズは `render` 時にしか渡せない**ので、`ResizeObserver` で幅が閾値をまたいだときだけ `remove()` → 再 `render` する（画面の回転で横 → 縦に戻したときに 300px のまま切られるのを防ぐ。トークンは作り直しになる）。
 - **ボット対策は Honeypot + Turnstile の2段**。`ContactForm` の `#contact-website` は人間には見えない Honeypot 欄で、`display:none` を検出するボットを避けるため画面外に置いている（`aria-hidden` + `tabIndex={-1}`）。**この欄は削除も改名もしないこと**。Honeypot に該当した送信は、検知を悟らせないため `200 { ok: true }` を返してメール送信のみスキップする。
 - **「送信までの経過時間が短すぎたら弾く」判定は入れない**。経過時間はクライアントが自由に値を作れるためフォームを介さない POST には無力な一方、オートフィル + 貼り付けで素早く送信した実在の訪問者のメールを、成功表示のまま黙って捨ててしまうため。
 
@@ -102,8 +117,17 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 アニメーションライブラリは入れない。**CSS transition + IntersectionObserver + 小さな client コンポーネント**で実装する。いずれも `prefers-reduced-motion: reduce` で即時表示に切り替わる（`window.matchMedia` での分岐、および `motion-reduce:transition-none`）。`useRiseIn` の `prefers-reduced-motion` 判定は hydration 不一致を避けるため `useEffect` 内で行う。
 
-- **SiteNav の出し入れ** — `scroll` を購読し、下スクロールで `-translate-y-full`、上スクロールで復帰。8px 未満の差分は無視（トラックパッドの微振動対策）、`scrollY` が 80px 以内なら隠さない。隠れている状態でナビのリンクにフォーカスが入ったら `onFocus` で出し直す。
+- **SiteNav の出し入れ** — `scroll` を購読し、下スクロールで `-translate-y-full`、上スクロールで復帰。8px 未満の差分は無視（トラックパッドの微振動対策）、`scrollY` が 80px 以内なら隠さない。隠れている状態でナビのリンクにフォーカスが入ったら `onFocus` で出し直す。**sm 未満では出し入れしない**（常に画面上部に留める）。無効化は `hidden && "sm:-translate-y-full"` のように **CSS の variant で行う**（JS で `matchMedia` を見て分岐すると hydration 不一致になる）。面（`backdrop-blur` + `shadow`）も `sm:` を付けて、狭い画面では透明にしてある。
 - **SiteNav・戻りリンクのホバー** — `GlassCard` 右上のバッジと同じ「+」を出す（色・`duration-300` はバッジに揃える）。SiteNav はリンクの先頭に出し、あわせて文字色も `text-indigo-600` にする（現在地は最初から `text-indigo-600`、非現在地は `text-slate-600`）。`commons/BackLink.tsx` は既定が indigo なので**色は変えず**、末尾に「+」を出すだけ。**「+」は絶対配置＋ `aria-hidden` で置く**。絶対配置にしないとホバーのたびにラベルがずれ、`aria-hidden` が無いとアクセシブルネームが「+ home」になって `getByRole("link", { name: "home", exact: true })` で引く e2e が全滅する。ロゴは親の `perspective-midrange` + `group-hover:rotate-y-360` で回す（`perspective` を親に置かないと平面的に潰れる）。
+- **メニューパネルの伸縮（sm 未満）** — 開くと上端を起点に下へ伸び、閉じると上へ畳まれる。**`grid-template-rows: 0fr → 1fr` + 子の `overflow-hidden`** で動かす（`max-height` の決め打ちが要らず、`scale-y` のように中身が歪まない）。**畳むアニメーションを見せるためパネルは常時マウントしたままにし、`visibility` で出し入れする**（`open && <Panel/>` だと閉じた瞬間に DOM から消えて再生されない）。`visibility` は離散プロパティなので開くときは始点・閉じるときは終点で切り替わり、閉じている間は accessibility tree からも外れる（＝`getByRole("link", { name: "home" })` が二重解決しない）。
+    - **閉じる契機は `pathname` の effect と、パネル内リンクの `onClick` の2つ**。effect だけだと**現在地のリンクを踏んだときに `pathname` が変わらず閉じない**（`/works` で `works` をタップするとパネルが開いたまま残る）。`onClick` だけだとブラウザバックで閉じない。両方要る。
+    - **パネルの z は nav（`z-50`）より下**（`z-40`）。nav は `position: fixed` + `z-index` で stacking context を作るため、**閉じるボタンにいくら z を積んでも外側のパネルより手前には出せない**。逆に、sm 未満の nav は背景を持たない透明な帯なので、そのままだとパネル上端のリンクを遮る。`max-sm:pointer-events-none` を nav に当て、ロゴとハンバーガーにだけ `pointer-events-auto` を戻している。
+    - パネルにもロゴを置くので、開いている間は nav 側のロゴを `max-sm:invisible` で伏せて二重に見せない。**閉じた状態と開いた状態でロゴが同じ位置に来る**ようパネルのオフセットを決めてある（`inset-x-[11px] top-[15px]` ＋ 枠線 1px ＋ `p-2.5` の 10px ＝ nav の `max-sm:px-5.5` / `max-sm:pt-6`。nav は `items-center` なのでロゴが 2px 下がるぶんも織り込み済み）。**GlassCard の padding を変えたらここも直す**。
+    - パネルの枠線は `border-indigo-600`、padding は `className` で `p-2.5 sm:p-7` に上書きする（`GlassCard` の既定 `p-5 sm:p-7` のままだとロゴが nav と揃わない）。
+    - リンク群はカード側の **`justify-between`** でロゴと左右に振り分ける（グリッドに `flex-1` は持たせない）。列幅は `grid-cols-[max-content_max-content]` で中身なり、各リンクは左揃え。
+    - **グリッドの `pr-*`（現在は `pr-24`）は消さないこと**。右上に重なる × は線が `w-10`（40px）でボタン枠より外へはみ出し、右端がカードの内側右端に接する。**40px を下回ると1行目のリンクが × と重なる**（残りはリンク群の横位置の調整幅）。
+    - **現在地のリンクだけ先頭に「+」を出す**（nav のホバーと同じ絶対配置 ＋ `aria-hidden`。付けないとアクセシブルネームが「+works」になって名前で引く e2e が落ちる）。左オフセットは `-left-2.5`。**ラベル左側の空き（右列は `gap-x`、左列はロゴとの間隔）より内側に収める**（はみ出すと隣のラベルに重なって「home+ works」と読めてしまう）。
+    - ハンバーガーの 3 本線は **幅をロゴに揃えて `w-10`（40px）**、`h-px` ＋ `gap-1.75`（中心間 8px）。× にするときの `translate-y-2` がこの 8px と対になっているので、太さや間隔を変えるなら両方を合わせる。
 - **Home ヒーローのタイピング** — `commons/Typewriter.tsx`。**完成テキストを `opacity-0` で敷き、打ち込み中のテキストを `aria-hidden` でグリッド重ねする**。これにより (1) 行数が増えても高さが動かない (2) SSG の HTML とアクセシビリティツリーには最初から完成テキストが載る（SEO と e2e の `toContainText` が壊れない）。打ち終わったら重ねを解いて素の1枚テキストに戻す。
 - **浮き上がり** — `lib/useRiseIn.ts` に集約。`opacity-0 translate-y-4` → `opacity-100 translate-y-0` を `transition-[translate,opacity] duration-500` で動かす（**フェードと移動は同時**。16px / 0.5秒）。終わったら **`transitionend`（`propertyName === "translate"`）でクラスを外す**（付けっぱなしだと `duration-500` がホバーの浮き上がりにも効き続けるため）。ただし**開始前のホバー**でも `hover:-translate-y-0.5` が同じイベントを飛ばすので `started` で弾いている（弾かないと、表示前のカードをホバーしただけで reveal が打ち切られて一瞬で出てしまう）。なお `GlassCard` の transition 対象は `transform` ではなく **`translate`**（Tailwind v4 の `translate-y-*` は `transform` ではなく `translate` プロパティを使うため）。
 - **カードの scroll reveal** — `GlassCard` の `reveal`（既定 OFF）。`/`・`/works`・`/skills`・`/about` の一覧系カードが渡し、ケーススタディ `/works/brew` と `/contact` のフォームカードは即表示のまま。`IntersectionObserver` で初回の交差を拾ったら `disconnect()` するので、**一度出たら上に戻しても消えない**。**カードごとの時間差は付けない**（隣り合うカードは同時に出る）。**`GlassCard` にラッパー div を被せてはいけない**（`e2e/navigation.spec.ts` が `page.locator("div.group")` で GlassCard のルートを直接掴んでいる）。
@@ -118,7 +142,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 
 各ページの背景に正多面体のワイヤーフレームを1つ置く（`/` 正二十面体・`/works` 正八面体・`/works/brew` 正六面体・`/skills` 正四面体・`/about` 正十二面体。**`/contact` には置かない**）。どのページにどの図形をどこへ置くかは `components/HeroGeometry.tsx` の `PLACEMENTS` に集約してあり、描画は `commons/Wireframe.tsx` が担う。3D ライブラリは入れない。
 
-**枠は `fixed inset-0`**。スクロールしても図形は動かず、カードやテキストがその上を流れる（フロスト面のカードには裏から透ける）。`overflow-hidden` が画面端で図形を切る。ビューポートと同じ大きさなので横スクロールは出ない（以前は `w-screen` で突き抜けさせており、100vw がスクロールバー幅を含むぶんの横スクロールを別途止める必要があった）。狭い画面（md 未満）では本文と重なるので出さない。`fixed` なので**置く側に `relative` は要らない**。
+**枠は `fixed inset-0`**。スクロールしても図形は動かず、カードやテキストがその上を流れる（フロスト面のカードには裏から透ける）。`overflow-hidden` が画面端で図形を切る。ビューポートと同じ大きさなので横スクロールは出ない（以前は `w-screen` で突き抜けさせており、100vw がスクロールバー幅を含むぶんの横スクロールを別途止める必要があった）。狭い画面（md 未満）では本文と重なるため、**消さずに `opacity-45` で薄くする**（位置と大きさは `Placement.mobileFigure` の `max-md:` クラスで上書きする）。`fixed` なので**置く側に `relative` は要らない**。
 
 - **組み上げは CSS、自転は JS**と役割を分ける。触るプロパティが重ならないので競合しない。頂点の `opacity` と辺の `stroke-dashoffset` は `@theme` の `--animate-wf-vertex` / `--animate-wf-edge`。自転は `requestAnimationFrame` が SVG の `x1/y1/x2/y2` `cx/cy` を直接書き換える（React の再レンダリングは通さない）。**描き直しは 30fps に間引く**（ゆっくりした回転なので見た目は変わらず、描画回数が半分になる）。
 - **組み上げはマウントするまで `animation-play-state: paused`**。CSS アニメーションを放っておくと「最初のペイント」から数え始めるが、Typewriter は hydration 後に動き出す。そのままだと**図形だけ 0.5 秒ほど先行して組み上がり、h1 を打ち終わる頃には完成して見える**（dev サーバーでの実測値。hydration が遅い環境ほど開く）。マウント時に `running` へ切り替えて起点を揃える。
@@ -129,7 +153,7 @@ Docker を使わない場合は `npm run dev` / `npm run build` / `npm run start
 - **投影結果は小数4桁に丸める**（`Wireframe.tsx` の `round()`）。`Math.cos` / `Math.sin` は同じ引数でもエンジンによって最下位ビットが食い違うため、丸めないと Node が書いた SSR の属性値と WebKit が計算した値が一致せず **hydration mismatch になる**（Next の dev エラーオーバーレイが出て、`page.locator("nav")` を使う e2e が strict mode 違反で落ちる）。
 - Home の組み上げは `lib/home.ts` の `heroGeometryBuild`（＝`titleEnd` ＝ h1 の打ち終わり）に合わせる。他ページは 0.7 秒程度の軽い出現に留める。
 - 枠は `-z-1` なので、`relative z-2` の中央コンテナが作る stacking context の中で本文・カードより後ろ、body の格子とアンビエントグローより手前に入る。
-- **`hidden md:block` は CSS で隠すだけなので、それだけでは client component の rAF が回り続ける**。`Wireframe` は ResizeObserver で測った実幅が 0（＝`display:none`）のあいだ自転を止める。依存に入れるのは**幅そのものではなく真偽値**（幅を入れるとリサイズのたびに effect が張り直り、回転が初期角度へ戻る）。
+- **CSS で `display:none` にしても client component の rAF は回り続ける**。`Wireframe` は ResizeObserver で測った実幅が 0 のあいだ自転を止める。依存に入れるのは**幅そのものではなく真偽値**（幅を入れるとリサイズのたびに effect が張り直り、回転が初期角度へ戻る）。
 - **自転は `prefers-reduced-motion` の変更を購読する**（`matchMedia` の `change`）。組み上げは CSS の `@media` なので設定変更に即追従するが、自転は JS なのでマウント時に一度読むだけだと閲覧中に設定を変えても止まらず、CSS 側とも食い違う。`useRiseIn` / `Typewriter` が一度きりの判定で足りているのは、どちらも**一度で終わる登場演出**だから（止め続ける対象がない）。
 
 ## コンテンツ方針（デザインシステム由来）

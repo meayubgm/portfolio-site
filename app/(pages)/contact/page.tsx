@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 export default function Contact() {
     return (
         <div className="pt-24">
-            {/* カードと同じ 6 カラムグリッドに乗せ、文の開始位置をカード左端に揃える */}
-            <div className="grid grid-cols-6 gap-4">
+            {/* カードと同じグリッド（lg 以上で 6 カラム）に乗せ、文の開始位置をカード左端に揃える */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-6">
                 <PageHeader
-                    className="col-span-4 col-start-2"
+                    className="lg:col-span-4 lg:col-start-2"
                     size="list"
                     eyebrow="contact"
                     title="お問い合わせ"
@@ -24,7 +24,7 @@ export default function Contact() {
             </div>
 
             <CardGrid>
-                {/* 6カラム中4カラム分を 2 列目から。左右に1カラムずつ余白が残り中央に揃う */}
+                {/* lg 以上では 6 カラム中 4 カラム分を 2 列目から。左右に1カラムずつ余白が残り中央に揃う */}
                 <GlassCard span={4} start={2} padding="lg" hoverEffects={false}>
                     <ContactForm />
                 </GlassCard>

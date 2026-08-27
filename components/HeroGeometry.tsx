@@ -13,6 +13,8 @@ type Placement = {
     shape: PolyhedronName;
     /** ビューポートを基準にした位置と大きさ（枠は fixed inset-0） */
     figure: string;
+    /** md 未満での位置と大きさの上書き（vw 基準のままだと小さくなりすぎるページ用） */
+    mobileFigure?: string;
     tilt: { x: number; y: number };
     speed: number;
     build: WireframeBuild;
@@ -36,6 +38,7 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
     works: {
         shape: "octahedron",
         figure: "top-[7rem] right-[-6vw] w-[28vw] max-w-[380px]",
+        mobileFigure: "max-md:top-[4.5rem] max-md:right-[-14vw] max-md:w-[54vw]",
         tilt: { x: -0.42, y: 0.2 },
         speed: 0.19,
         build: SUB_BUILD,
@@ -44,6 +47,7 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
     brew: {
         shape: "hexahedron",
         figure: "top-[7rem] right-[-9vw] w-[27vw] max-w-[370px]",
+        mobileFigure: "max-md:top-[4.5rem] max-md:right-[-16vw] max-md:w-[54vw]",
         tilt: { x: -0.5, y: 0.62 },
         speed: 0.17,
         build: SUB_BUILD,
@@ -52,6 +56,7 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
     skills: {
         shape: "tetrahedron",
         figure: "top-[7rem] right-[-3vw] w-[30vw] max-w-[400px]",
+        mobileFigure: "max-md:top-[4.5rem] max-md:right-[-8vw] max-md:w-[56vw]",
         tilt: { x: 0.6, y: 0.42 },
         speed: 0.21,
         build: SUB_BUILD,
@@ -60,6 +65,7 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
     about: {
         shape: "dodecahedron",
         figure: "top-[6rem] right-[-6vw] w-[30vw] max-w-[420px]",
+        mobileFigure: "max-md:top-[4rem] max-md:right-[-14vw] max-md:w-[56vw]",
         tilt: { x: -0.28, y: 0.35 },
         speed: 0.14,
         build: SUB_BUILD,
@@ -77,7 +83,7 @@ const PLACEMENTS: Record<HeroGeometryPage, Placement> = {
  * ブループリント格子とアンビエントグローより手前に描かれる。
  */
 export function HeroGeometry({ page }: { page: HeroGeometryPage }) {
-    const { shape, figure, tilt, speed, build } = PLACEMENTS[page];
+    const { shape, figure, mobileFigure, tilt, speed, build } = PLACEMENTS[page];
     return (
         <div
             aria-hidden
@@ -85,8 +91,8 @@ export function HeroGeometry({ page }: { page: HeroGeometryPage }) {
             // 上を流れていくカードの裏に透けて見える。overflow-hidden が画面端で図形を切る
             className={cn(
                 "pointer-events-none fixed inset-0 -z-1 overflow-hidden",
-                // 狭い画面では図形の置き場が無く本文と重なるので出さない（md 未満）
-                "hidden md:block",
+                // 狭い画面では本文と重なるため、消さずに薄くして可読性を保つ
+                "opacity-45 md:opacity-100",
             )}
         >
             <Wireframe
@@ -94,7 +100,7 @@ export function HeroGeometry({ page }: { page: HeroGeometryPage }) {
                 tilt={tilt}
                 speed={speed}
                 build={build}
-                className={cn("absolute aspect-square", figure)}
+                className={cn("absolute aspect-square", figure, mobileFigure)}
             />
         </div>
     );

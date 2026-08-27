@@ -7,12 +7,39 @@ import { cn } from "@/lib/cn";
 import { requestScrollTo } from "@/lib/scrollTarget";
 import { useRiseIn } from "@/lib/useRiseIn";
 
+/**
+ * グリッドのカラム指定。lg 未満は 1 カラムに畳むので、lg: を付けたクラスだけを持つ。
+ * Tailwind はソースを文字列として走査するため、`lg:col-span-${n}` のような組み立てでは
+ * クラスが生成されない。1〜6（= CardGrid のカラム数）を表に書き下しておく。
+ */
+const spanClasses = {
+    1: "lg:col-span-1",
+    2: "lg:col-span-2",
+    3: "lg:col-span-3",
+    4: "lg:col-span-4",
+    5: "lg:col-span-5",
+    6: "lg:col-span-6",
+} as const;
+
+const startClasses = {
+    1: "lg:col-start-1",
+    2: "lg:col-start-2",
+    3: "lg:col-start-3",
+    4: "lg:col-start-4",
+    5: "lg:col-start-5",
+    6: "lg:col-start-6",
+} as const;
+
+/** CardGrid のカラム番号（1 起点） */
+export type GridColumn = keyof typeof spanClasses;
+
 type GlassCardProps = {
     /** アンカー用の id。ハッシュ遷移の着地点にするときだけ指定する */
     id?: string;
-    span?: number;
-    /** 開始カラム（1 起点）。単独のカードをグリッド内で寄せたいときに指定する */
-    start?: number;
+    /** 占有カラム数。lg 以上でのみ効く（lg 未満は全幅の 1 カラム） */
+    span?: GridColumn;
+    /** 開始カラム（1 起点）。単独のカードをグリッド内で寄せたいときに指定する。lg 以上でのみ効く */
+    start?: GridColumn;
     padding?: "default" | "lg";
     children: ReactNode;
     className?: string;
@@ -108,13 +135,16 @@ export function GlassCard({
                       }
                     : undefined
             }
-            style={{ gridColumn: start ? `${start} / span ${span}` : `span ${span}` }}
             className={cn(
                 "group relative overflow-hidden bg-white/10 backdrop-blur-xs border border-sky-700/15 rounded-card transition-[border-color,translate,box-shadow] duration-350 ease-out motion-reduce:transition-none",
+                // lg 未満は 1 カラム。span / start は lg 以上でだけ効かせる
+                "col-span-full",
+                spanClasses[span],
+                start && startClasses[start],
                 reveal && riseClass,
                 hoverEffects &&
                     "hover:border-indigo-600 hover:-translate-y-0.5 hover:shadow-card-hover",
-                padding === "lg" ? "p-9" : "p-7",
+                padding === "lg" ? "p-6 sm:p-9" : "p-5 sm:p-7",
                 href ? "cursor-pointer" : "cursor-default",
                 className,
             )}

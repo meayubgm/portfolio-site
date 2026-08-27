@@ -156,9 +156,9 @@ export function Wireframe({
     const tiltX = tilt.x;
     const tiltY = tilt.y;
 
-    // 幅が 0 = display:none（HeroGeometry が md 未満で伏せている）。
-    // 見えていないのに投影計算と setAttribute を回し続けないよう、真偽値で持って
-    // 依存に入れる（幅そのものを依存にすると、リサイズのたびに回転が初期角度へ戻る）
+    // 幅が 0 = display:none。見えていないのに投影計算と setAttribute を回し続けないよう、
+    // 真偽値で持って依存に入れる（幅そのものを依存にすると、リサイズのたびに回転が
+    // 初期角度へ戻る）
     const visible = renderedWidth > 0;
 
     useEffect(() => {

@@ -26,8 +26,29 @@ export default defineConfig({
         navigationTimeout: 15_000,
     },
     projects: [
-        { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-        { name: "webkit", use: { ...devices["Desktop Safari"] } },
+        // responsive.spec.ts はモバイル専用。デスクトップの2プロジェクトからは外す
+        {
+            name: "chromium",
+            use: { ...devices["Desktop Chrome"] },
+            testIgnore: /responsive\.spec\.ts/,
+        },
+        {
+            name: "webkit",
+            use: { ...devices["Desktop Safari"] },
+            testIgnore: /responsive\.spec\.ts/,
+        },
+        // モバイルは responsive.spec.ts だけを走らせる。既存 spec はデスクトップ幅の
+        // 期待値（6 カラムグリッド・横並びナビ）で書かれているため対象にしない
+        {
+            name: "mobile-chrome",
+            use: { ...devices["Pixel 5"] },
+            testMatch: /responsive\.spec\.ts/,
+        },
+        {
+            name: "mobile-safari",
+            use: { ...devices["iPhone 13"] },
+            testMatch: /responsive\.spec\.ts/,
+        },
     ],
     webServer: {
         command: "npm run build && npm run start",

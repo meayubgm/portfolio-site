@@ -98,7 +98,9 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
             </Text>
             <div
                 className={
-                    group.layout.columns === 2 ? "grid grid-cols-2 gap-x-8" : "flex flex-col"
+                    group.layout.columns === 2
+                        ? "grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8"
+                        : "flex flex-col"
                 }
             >
                 {toColumns(group).map((column) => (

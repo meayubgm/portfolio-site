@@ -6,6 +6,7 @@ import { expect, test } from "@playwright/test";
  * - JS 無効でも SSR された図形がそのまま出ること
  * - prefers-reduced-motion では自転せず、組み上げも待たずに表示されること
  * - 画面いっぱいの枠を敷いても横スクロールが出ないこと
+ * - 狭い画面（md 未満）では消さずに薄くして出すこと
  */
 
 /** ページ → 図形（頂点数 / 辺数）。図形の対応は元素（水・火・空気・土・宇宙）に由来する */
@@ -84,16 +85,17 @@ test("自転して頂点の座標が変わり続ける", async ({ page }) => {
 test.describe("狭い画面（md 未満）", () => {
     test.use({ viewport: { width: 375, height: 720 } });
 
-    test("図形を伏せている間は自転を回さない", async ({ page }) => {
+    test("図形は薄くして出し、自転も続ける", async ({ page }) => {
         await page.goto("/");
+        // 本文と重なるため消さずに薄くする（opacity-45 md:opacity-100）
         const frame = page.locator("[data-geometry]").locator("..");
-        await expect(frame).toBeHidden();
+        await expect(frame).toHaveCSS("opacity", "0.45");
 
-        // display:none で見えないのに投影計算と setAttribute を回し続けないこと
         const line = page.locator("[data-geometry] line").first();
         const before = await line.getAttribute("x1");
-        await page.waitForTimeout(600);
-        expect(await line.getAttribute("x1")).toBe(before);
+        await expect(async () => {
+            expect(await line.getAttribute("x1")).not.toBe(before);
+        }).toPass({ timeout: 2_000 });
     });
 });
 
