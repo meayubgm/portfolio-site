@@ -157,7 +157,7 @@ export function SiteNav() {
                     // 左: 11 + 1（枠線）+ 10（GlassCard の p-2.5）= 22 = nav の max-sm:px-5.5
                     // 上: 15 + 1（枠線）+ 10（同上）             = 26 = nav の max-sm:pt-6 + items-center の 2px
                     // GlassCard の padding を変えたらこの2値も直す
-                    "fixed inset-x-[11px] top-[15px] z-40 grid sm:hidden",
+                    "fixed inset-x-2.75 top-3.75 z-40 grid sm:hidden",
                     "transition-[grid-template-rows,visibility] duration-300 ease-out motion-reduce:transition-none",
                     open ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]",
                 )}
