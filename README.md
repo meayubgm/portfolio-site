@@ -6,7 +6,8 @@ Next.js (App Router) + Tailwind CSS v4 で実装しています。
 
 ページは `/`（Home）・`/works`（実績一覧）・`/works/brew`（BREW ケーススタディ）・`/skills`・
 `/about`・`/contact` の6つ。**全ページを静的生成（SSG）**し、唯一の動的ルートが
-お問い合わせ送信の Route Handler `/api/contact` です。
+お問い合わせ送信の Route Handler `/api/contact` です。Vercel でホストしています
+（本番 <https://megumi-ayuha-v2.vercel.app>）。
 
 ## 技術スタック
 
@@ -22,6 +23,7 @@ Next.js (App Router) + Tailwind CSS v4 で実装しています。
 | フォーム | React Hook Form + Zod |
 | メール送信 | Resend + Cloudflare Turnstile |
 | 開発環境 | Docker（`node:24-alpine`）+ Make |
+| ホスティング | Vercel |
 
 ## 動作要件
 
@@ -190,7 +192,8 @@ portfolio-site/
 
 DS 固有トークン（フォント・角丸・影・字間・h1 のサイズ段・コンテナ幅）を CSS 変数として
 Tailwind テーマに統合しています（`app/globals.css` の `@theme`）。変数を足せばそのまま
-ユーティリティが生成されます。`tailwind.config.js` は持ちません（v4 の CSS ファースト設定）。
+ユーティリティが生成されます。設定は Tailwind v4 の CSS ファースト方式で、`tailwind.config.js` は
+持ちません。
 
 | 変数 | 生成されるユーティリティ |
 | --- | --- |
@@ -351,12 +354,8 @@ Route Handler の双方が同じルールを参照します（Route Handler 側�
 足した `contactPayloadSchema`）。検証は送信ボタン押下時に走り、エラーは各項目の直下に表示されます。
 
 ボット対策は **Honeypot + Turnstile の2段**です。Honeypot に該当した送信は、検知を悟らせないため
-`200 { ok: true }` を返してメール送信だけをスキップします。
-
-**レート制限はアプリ側に持ちません。** Serverless では実行インスタンスをまたげず、モジュールスコープの
-カウンタは当てにならないためです。正規のトークンを取った連投は**ホスティング基盤側で止めます**
-（Vercel なら Project → Firewall → Rate Limiting で `/api/contact` にルールを追加。
-「1分あたり N 件を超えたら deny」程度で足ります）。
+`200 { ok: true }` を返してメール送信だけをスキップします。連投の抑止はホスティング基盤側の
+レート制限が担当します（「[セキュリティ](#セキュリティ)」参照）。
 
 > **送信元と宛先**: 独自ドメインを Resend で検証していないため、送信元は共有ドメインの
 > `onboarding@resend.dev` です。この構成では Resend の sandbox 制限により、**宛先は Resend アカウントの
@@ -379,7 +378,7 @@ Route Handler の双方が同じルールを参照します（Route Handler 側�
 サイト URL・名前・説明文・ルート一覧は **`lib/site.ts` が単一ソース**で、metadata / sitemap / robots /
 OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_PRODUCTION_URL`（Vercel が自動で
 入れる本番ホスト名）→ `http://localhost:3000` の順にフォールバックするので、`SITE_URL` を
-設定する前でも本番ドメインを向きます。**いずれもビルド時に評価される**ため、値を変えたら再デプロイが要ります。
+設定しなくても本番ドメインを向きます。**いずれもビルド時に評価される**ため、値を変えたら再デプロイが要ります。
 
 | 出力 | 実装 | 内容 |
 | --- | --- | --- |
@@ -402,9 +401,9 @@ OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_P
 - サイトマップに `lastmod` は入れません（ビルド時刻を入れると無変更のデプロイでも全 URL が
   更新され、当てにならない値としてクローラに無視されます）。
 
-## セキュリティヘッダー
+## セキュリティ
 
-`next.config.mjs` の `headers()` が全レスポンスに次を付けます。
+`next.config.mjs` の `headers()` が全レスポンス（`source: "/:path*"`）に次を付けます。
 
 | ヘッダー | 値 |
 | --- | --- |
@@ -413,8 +412,60 @@ OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_P
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), browsing-topics=()` |
 | `X-Frame-Options` | `DENY` |
 
-**CSP は未設定です。** Turnstile（`challenges.cloudflare.com` の script / frame / connect）と
-Google Fonts、Next のインラインスタイルを許可する必要があり、動作確認とセットで別途入れます。
+**CSP は持ちません。** Turnstile（`challenges.cloudflare.com` の script / frame / connect）と
+Google Fonts、Next のインラインスタイルを許可する設定が要り、導入するなら実挙動の確認とセットで行います。
+
+**レート制限はアプリ側に持ちません。** Serverless では実行インスタンスをまたげず、モジュールスコープの
+カウンタが当てにならないためです。正規の Turnstile トークンを取ったうえでの連投は、ホスティング基盤側
+（Vercel Firewall）の Custom Rule で止めます。ルールの内容は「デプロイ」を参照してください。
+
+## デプロイ
+
+**Vercel** でホストします。GitHub リポジトリと連携しているので、`main` への push がそのまま本番
+デプロイになります。ビルドは `next build`（型チェック込み）で、出力は SSG のページ群 +
+`/api/contact` の Function です。
+
+### 環境変数（Vercel の Environment Variables）
+
+セットアップ節の6つのうち、`SITE_URL` 以外の5つを Production に設定します。`SITE_URL` は
+`VERCEL_PROJECT_PRODUCTION_URL` へのフォールバックが効くため、独自ドメインを当てるときに設定します。
+**`NEXT_PUBLIC_TURNSTILE_SITE_KEY` はビルド時にバンドルへ埋め込まれる**ので、値を追加・変更したら
+再デプロイが必要です。
+
+### Turnstile のホスト名
+
+Cloudflare Turnstile のウィジェット設定に、本番ホスト名（`megumi-ayuha-v2.vercel.app`）を FQDN で
+登録します。プレビューデプロイは兄弟サブドメインになり自動許可の対象外なので、`/contact` の送信まで
+確認するのは本番デプロイで行います。
+
+### レート制限（Vercel Firewall）
+
+Project → Firewall → Custom Rules に `/api/contact` 宛のルールを1つ置きます。
+
+| 項目 | 値 |
+| --- | --- |
+| If | `Request Path` equals `/api/contact` |
+| Then | Rate Limit — 5 requests / 60 seconds |
+| Keyed by | IP Address |
+| 超過時 | Deny（429） |
+
+ルールは **Save のあと Publish** して初めて反映されます。`Challenge` ではなく `Deny` を選ぶのは、
+`fetch` で叩く API にチャレンジ画面を返しても JSON にならないためです。
+
+### 公開後の確認
+
+```bash
+# セキュリティヘッダー
+curl -sSI https://megumi-ayuha-v2.vercel.app/ | grep -iE 'x-content-type-options|referrer-policy|permissions-policy|x-frame-options'
+
+# レート制限（Honeypot 欄を埋めるとメール送信はスキップされる）
+for i in $(seq 1 8); do curl -s -o /dev/null -w "%{http_code}\n" -X POST https://megumi-ayuha-v2.vercel.app/api/contact \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"t","email":"t@example.com","message":"test","website":"bot"}'; done
+```
+
+OGP の見え方は Facebook Sharing Debugger（再取得ができます）や opengraph.xyz で確認します。
+X の Card Validator は提供が終了しているため、投稿画面のプレビューで代用します。
 
 ## E2E テスト
 
@@ -449,7 +500,7 @@ npm run test:e2e:report    # 直近の HTML レポート
 
 **Biome 2**（`biome.json`）と **ESLint**（`eslint.config.mjs`）を役割で分けています。
 **Biome = 汎用 lint + format**、**ESLint = `@next/eslint-plugin-next` の Core Web Vitals ルール +
-プロジェクト独自ルール**。react / a11y は Biome に一任し、整形は Biome 一択です（Prettier は使いません）。
+プロジェクト独自ルール**。react / a11y は Biome に一任し、整形も Biome が行います。
 CSS / SVG / `tsconfig.json` / `.claude` は `biome.json` の `files.includes` で対象外にしています。
 
 チェックは `npm run lint`（= `biome check && eslint . --max-warnings 0`）、自動修正は `npm run lint:fix`。
@@ -464,4 +515,4 @@ CSS / SVG / `tsconfig.json` / `.claude` は `biome.json` の `files.includes` �
 - トーンはプロフェッショナル／技術寄り。
 - 受託案件は契約上キャプチャ不可のため、匿名化テキストのケーススタディとして掲載します。
   BREW ケーススタディのヒーロー（iPhone モック3枚）と「デザイン」の UI キャプチャは実画像です。
-- 日本語見出しフォントは LINE Seed JP が再配布不可のため、代替として IBM Plex Sans JP を使います。
+- 日本語の見出しフォントは再配布可能なライセンスであることを条件に選び、IBM Plex Sans JP を使います。
