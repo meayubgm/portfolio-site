@@ -111,6 +111,33 @@ export function ContactForm() {
         };
     }, []);
 
+    /**
+     * ウィジェットを Turnstile 側からも破棄する。
+     *
+     * 破棄が要る契機は2つある。アンマウント（/contact を出入りするたびに iframe と
+     * コールバックが残る）と、送信成功（下の早期 return でウィジェットの DOM だけが消え、
+     * コンポーネントは残るので unmount の cleanup が走らない）。
+     * widgetId を null に戻すので、再表示時は renderWidget が描き直せる。
+     */
+    const removeWidget = useCallback(() => {
+        if (window.turnstile && widgetId.current !== null) {
+            window.turnstile.remove(widgetId.current);
+        }
+        widgetId.current = null;
+    }, []);
+
+    /**
+     * ウィジェットの寿命をこの effect が持つ。
+     *
+     * `<Script>` の `onReady` はスクリプトを**初めて読み込むとき**にしか間に合わないので、
+     * 読み込み済みの状態でマウントし直したとき（/contact を離れて戻ったとき）は
+     * こちらが描き直す。renderWidget は widgetId で二重描画を弾くため、両方から呼んでよい。
+     */
+    useEffect(() => {
+        renderWidget();
+        return removeWidget;
+    }, [renderWidget, removeWidget]);
+
     // トークンは一度きりなので、送信に失敗したらウィジェットを引き直す
     const resetWidget = useCallback(() => {
         setToken("");
@@ -141,6 +168,8 @@ export function ContactForm() {
                 resetWidget();
                 return;
             }
+            // 成功表示に切り替えるとウィジェットの DOM が消えるので、先に Turnstile 側も破棄する
+            removeWidget();
             setStatus("success");
         } catch {
             setErrorMessage("通信に失敗しました。時間をおいてお試しください。");

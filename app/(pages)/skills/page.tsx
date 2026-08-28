@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
@@ -7,12 +6,16 @@ import { Phrase } from "@/commons/Phrase";
 import { Text } from "@/commons/Text";
 import { PageHeader } from "@/components/PageHeader";
 import { SkillName } from "@/components/SkillName";
+import { pageMetadata } from "@/lib/metadata";
 import type { SkillGroup, SkillItem, SkillSection } from "@/lib/skills";
 import { skillGroups } from "@/lib/skills";
 
-export const metadata: Metadata = {
-    title: "スキル — Megumi Ayuha",
-};
+export const metadata = pageMetadata({
+    path: "/skills",
+    title: "スキル",
+    description:
+        "React / Next.js / TypeScript を中心としたフロントエンド、Laravel などのバックエンド、Figma を使った UI デザイン、AI コーディングツールの活用まで、扱える領域と習熟度をまとめています。",
+});
 
 type SkillColumnData = { key: string; sections: SkillSection[] };
 

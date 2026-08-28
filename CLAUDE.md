@@ -176,11 +176,35 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
   **幅そのものではなく真偽値**（幅だとリサイズのたびに effect が張り直り回転が初期角度へ戻る）。
   自転は `matchMedia` の `change` も購読して reduced motion の変更に追従する。
 
+### SEO / メタデータ
+
+- **サイト URL・名前・ルート一覧は `lib/site.ts` が単一ソース**。`SITE_URL` →
+  `VERCEL_PROJECT_PRODUCTION_URL` → localhost の順にフォールバックし、**ビルド時に評価される**。
+- **ページを増やしたら `lib/site.ts` の `sitePaths` にも足す**（sitemap から漏れる）。
+- ページ別の metadata は `lib/metadata.ts` の `pageMetadata()` を通す。title は
+  **短い側だけ**渡す（`app/layout.tsx` の `title.template` が `| Megumi Ayuha` を足す）。
+- **ページ側の `openGraph` はルートを継承せず丸ごと置き換わる**。`pageMetadata()` が
+  `type` / `locale` / `siteName` / `images` まで全部書き直しているのはこのためで、**減らすと
+  該当のタグだけが5ページから静かに消える**（`e2e/smoke.spec.ts` が見張っている）。
+- **タイトルの区切りは `lib/site.ts` の `fullTitle()` が一手に持つ**。`app/layout.tsx` の
+  `title.template` と `pageMetadata()` の og:title の両方がこれを通るので、`<title>` と
+  og:title が食い違わない。
+- **OGP 画像（`app/opengraph-image.tsx`）に日本語を書かない**。`ImageResponse` は同梱の欧文
+  フォントしか持たず、日本語はフォントファイルを抱えないと豆腐になる。レイアウトエンジンは
+  Flexbox のサブセットなので **Tailwind のクラスは効かず**、inline style で書く
+  （`background-size` も解釈しないので格子は div を並べて描いている）。
+
 ### お問い合わせフォーム
 
 - **`<form>` には `noValidate` が必須**（無いとブラウザ標準の検証 UI が先に出て Zod のメッセージまで
   到達しない）。`required` / `type="email"` は支援技術向けに残す。Honeypot と Turnstile のトークンは
   RHF の管理外なので `useState` で持って送信時に足す。
+- **Turnstile ウィジェットの寿命は effect が持つ**（`renderWidget` を呼び、cleanup で
+  `removeWidget`）。`<Script>` の `onReady` は**初回読み込みのときしか間に合わない**ので、
+  /contact を離れて戻ると effect 側が描き直す。破棄は**アンマウントと送信成功の両方**で要る
+  （成功時は早期 return でウィジェットの DOM だけが消え、コンポーネントは残るため cleanup が走らない）。
+  漏らすと Turnstile が「Cannot find Widget ... consider using turnstile.remove()」を警告する
+  （`e2e/navigation.spec.ts` が見張っている）。
 - **環境変数はモジュールトップで throw しない**（`next build` を壊さないため）。ハンドラ内で 500 を返す。
 - **`#contact-website`（Honeypot 欄）は削除も改名もしない**。`display:none` を検出するボットを避けるため
   画面外に置いてある（`aria-hidden` + `tabIndex={-1}`）。該当した送信は検知を悟らせないため

@@ -3,12 +3,31 @@ import type { ReactNode } from "react";
 import { ScrollToTarget } from "@/commons/ScrollToTarget";
 import { Text } from "@/commons/Text";
 import { SiteNav } from "@/components/SiteNav";
+import { fullTitle, siteDescription, siteName, siteTitle, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Megumi Ayuha — ポートフォリオ",
-    description:
-        "要件のヒアリングから、デザインと実装まで。フロントエンドエンジニア 阿由葉 萌のポートフォリオサイト。",
+    // OGP や canonical の相対 URL を解決する基準。これが無いと絶対 URL にならない
+    metadataBase: new URL(siteUrl),
+    title: {
+        default: siteTitle,
+        // 各ページは短いタイトルだけを持つ。区切り方は fullTitle が一手に持つので、
+        // <title> と og:title（lib/metadata.ts）が食い違わない
+        template: fullTitle("%s"),
+    },
+    description: siteDescription,
+    alternates: { canonical: "/" },
+    openGraph: {
+        type: "website",
+        locale: "ja_JP",
+        siteName,
+        url: siteUrl,
+        title: siteTitle,
+        description: siteDescription,
+    },
+    // og:image（app/opengraph-image.tsx）を大きく出す
+    twitter: { card: "summary_large_image" },
+    robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

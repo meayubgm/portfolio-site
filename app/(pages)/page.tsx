@@ -15,11 +15,32 @@ import { SkillBar } from "@/components/SkillBar";
 import { introBody } from "@/lib/about";
 import { brewCase } from "@/lib/cases";
 import { heroActionsDelay, heroPhrases, heroTyping } from "@/lib/home";
+import { authorJobTitle, authorName, siteDescription, siteName, siteUrl } from "@/lib/site";
 import { homeSkillGroups } from "@/lib/skills";
+
+/**
+ * 検索エンジン向けの構造化データ（Person）。Home にだけ置く。
+ * sameAs は下の contact カードに出している外部プロフィールと同じもの。
+ */
+const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: siteName,
+    alternateName: authorName,
+    jobTitle: authorJobTitle,
+    url: siteUrl,
+    description: siteDescription,
+    sameAs: ["https://github.com/meayubgm", "https://x.com/yu_ha_design"],
+};
 
 export default function Home() {
     return (
         <div>
+            <script
+                type="application/ld+json"
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD は自前の定数を JSON 化したもので、外部入力を含まない
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+            />
             <header className="h-svh pt-20 pb-10 sm:pt-35 sm:pb-20 flex flex-col justify-between">
                 <HeroGeometry page="home" />
                 <div>

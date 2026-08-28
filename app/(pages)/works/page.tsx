@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
@@ -11,10 +10,14 @@ import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
 import { PageHeader } from "@/components/PageHeader";
 import { brewCase, cases, otherWorks } from "@/lib/cases";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-    title: "実績一覧 — Megumi Ayuha",
-};
+export const metadata = pageMetadata({
+    path: "/works",
+    title: "実績一覧",
+    description:
+        "受託開発を中心とした実績の一覧。基幹システム・クラウドストレージ・コーポレートサイトなど、要件定義からデザイン・フロントエンド実装まで担当した案件をまとめています。",
+});
 
 export default function Works() {
     return (

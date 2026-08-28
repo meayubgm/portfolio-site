@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
@@ -17,10 +16,14 @@ import {
     strengths,
 } from "@/lib/about";
 import { cn } from "@/lib/cn";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-    title: "私自身について — Megumi Ayuha",
-};
+export const metadata = pageMetadata({
+    path: "/about",
+    title: "私自身について",
+    description:
+        "フロントエンドエンジニア 阿由葉 萌の自己紹介。仕事で大切にしていること、強み、これまでの来歴、これから取り組みたいことを書いています。",
+});
 
 export default function About() {
     return (

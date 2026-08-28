@@ -12,7 +12,7 @@ Next.js (App Router) + Tailwind CSS v4 で実装しています。
 
 | 領域 | 採用技術 |
 | --- | --- |
-| フレームワーク | Next.js 16（App Router / SSG・Turbopack） |
+| フレームワーク | Next.js 16.3（App Router / SSG・Turbopack） |
 | 言語 | TypeScript 6 / React 19 |
 | スタイリング | Tailwind CSS v4（CSS ファースト設定・`@theme`）+ clsx / tailwind-merge |
 | フォント | Space Grotesk / Inter / JetBrains Mono / IBM Plex Sans JP（Google Fonts） |
@@ -49,10 +49,11 @@ npx playwright install chromium webkit
 使います。ホスト（macOS）は musl 非対応のため、アプリの依存はコンテナ内で解決してください
 （ホスト側の `npm install` は Playwright を動かすためのものです）。
 
-`.env.local` に入れる値は次の5つです。`.env` 系は git 管理外です。
+`.env.local` に入れる値は次の6つです。`.env` 系は git 管理外です。
 
 | 変数 | 用途 |
 | --- | --- |
+| `SITE_URL` | サイトの本番 URL（canonical / OGP / sitemap の基準）。スキームは省略可、未設定でも動きます |
 | `RESEND_API_KEY` | Resend の API キー |
 | `CONTACT_TO_EMAIL` | 送信先（受信したいアドレス） |
 | `CONTACT_FROM_EMAIL` | 送信元。共有ドメインの `onboarding@resend.dev` |
@@ -98,6 +99,8 @@ portfolio-site/
 │   ├── layout.tsx           # 共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ・フッター・ScrollToTarget）
 │   ├── globals.css          # Tailwind v4 の @theme にデザイントークンを統合
 │   ├── icon.svg / icon.png / apple-icon.png   # metadata ファイル
+│   ├── opengraph-image.tsx  # OGP 画像（next/og。全ルートに継承される）
+│   ├── sitemap.ts / robots.ts # サイトマップと robots
 │   ├── api/contact/route.ts # お問い合わせ送信（POST。Honeypot → Turnstile → Resend）
 │   └── (pages)/             # Route Group（括弧付きなので URL に現れない）
 │       ├── page.tsx         # Home（/）
@@ -156,6 +159,8 @@ portfolio-site/
 | `home.ts` | Home ヒーローの文言・文節・タイピングのスケジュール |
 | `phrase.ts` | BudouX のパーサ（**サーバー専用**） |
 | `contactSchema.ts` | お問い合わせフォームの検証ルール（Zod。クライアント / API で共用） |
+| `site.ts` | サイト URL・名前・説明文・ルート一覧（metadata / sitemap / robots / OGP の単一ソース） |
+| `metadata.ts` | ページ別 metadata を組み立てる `pageMetadata()` |
 | `cn.ts` | clsx + tailwind-merge のクラス結合（衝突は後勝ち） |
 | `useRiseIn.ts` / `scrollTarget.ts` | 浮き上がりのフック、遷移をまたぐスクロール指定の受け渡し |
 | `polyhedra.ts` | 正多面体5種の頂点データ（辺は頂点間の最小距離から導出） |
@@ -346,8 +351,12 @@ Route Handler の双方が同じルールを参照します（Route Handler 側�
 足した `contactPayloadSchema`）。検証は送信ボタン押下時に走り、エラーは各項目の直下に表示されます。
 
 ボット対策は **Honeypot + Turnstile の2段**です。Honeypot に該当した送信は、検知を悟らせないため
-`200 { ok: true }` を返してメール送信だけをスキップします。レート制限は入れていません
-（永続ストアが必要なため、この2段で防ぎます）。
+`200 { ok: true }` を返してメール送信だけをスキップします。
+
+**レート制限はアプリ側に持ちません。** Serverless では実行インスタンスをまたげず、モジュールスコープの
+カウンタは当てにならないためです。正規のトークンを取った連投は**ホスティング基盤側で止めます**
+（Vercel なら Project → Firewall → Rate Limiting で `/api/contact` にルールを追加。
+「1分あたり N 件を超えたら deny」程度で足ります）。
 
 > **送信元と宛先**: 独自ドメインを Resend で検証していないため、送信元は共有ドメインの
 > `onboarding@resend.dev` です。この構成では Resend の sandbox 制限により、**宛先は Resend アカウントの
@@ -364,6 +373,48 @@ Route Handler の双方が同じルールを参照します（Route Handler 側�
 > サブドメインだけが自動許可されます。Vercel のプレビューデプロイは
 > `<project>-<hash>-<team>.vercel.app` という**兄弟サブドメイン**になるため、本番ホスト名を
 > 登録してもプレビューでは Turnstile を通過できません。
+
+## SEO とメタデータ
+
+サイト URL・名前・説明文・ルート一覧は **`lib/site.ts` が単一ソース**で、metadata / sitemap / robots /
+OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_PRODUCTION_URL`（Vercel が自動で
+入れる本番ホスト名）→ `http://localhost:3000` の順にフォールバックするので、`SITE_URL` を
+設定する前でも本番ドメインを向きます。**いずれもビルド時に評価される**ため、値を変えたら再デプロイが要ります。
+
+| 出力 | 実装 | 内容 |
+| --- | --- | --- |
+| 共通 metadata | `app/layout.tsx` | `metadataBase`・`title.template`（`%s \| Megumi Ayuha`）・description・OGP・`twitter:card`・`robots` |
+| ページ別 metadata | `lib/metadata.ts` の `pageMetadata()` | title（短い側だけ）・description・canonical・OGP。各ページはこれを呼ぶだけ |
+| OGP 画像 | `app/opengraph-image.tsx` | `next/og` の `ImageResponse` で 1200×630 を静的生成。`app/` 直下なので全ルートに継承される |
+| サイトマップ | `app/sitemap.ts` | `lib/site.ts` の `sitePaths` を map |
+| robots | `app/robots.ts` | 全許可 + `/api/` を除外、sitemap の場所を明示 |
+| 構造化データ | `app/(pages)/page.tsx` | Home にだけ `Person` の JSON-LD |
+
+- **ページを増やしたら `lib/site.ts` の `sitePaths` にも足します**（sitemap から漏れます）。
+- **OGP 画像に日本語は書きません。** `ImageResponse` は同梱の欧文フォントしか持たず、日本語を出すには
+  フォントファイルを抱える必要があるためです。文言は英字のみ、図はサイトと同じブループリント格子 +
+  正六面体のワイヤーフレームです。
+- **ページ側で `openGraph` を持つと、ルートの openGraph は継承されず丸ごと置き換わります。**
+  `pageMetadata()` が `type` / `locale` / `siteName` / og:image まで書き直しているのはこのためで、
+  減らすと該当のタグだけがトップ以外から消えます。
+- タイトルの区切りは `lib/site.ts` の `fullTitle()` が持ちます（`<title>` の `title.template` と
+  og:title の両方がこれを通るため、食い違いません）。
+- サイトマップに `lastmod` は入れません（ビルド時刻を入れると無変更のデプロイでも全 URL が
+  更新され、当てにならない値としてクローラに無視されます）。
+
+## セキュリティヘッダー
+
+`next.config.mjs` の `headers()` が全レスポンスに次を付けます。
+
+| ヘッダー | 値 |
+| --- | --- |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), browsing-topics=()` |
+| `X-Frame-Options` | `DENY` |
+
+**CSP は未設定です。** Turnstile（`challenges.cloudflare.com` の script / frame / connect）と
+Google Fonts、Next のインラインスタイルを許可する必要があり、動作確認とセットで別途入れます。
 
 ## E2E テスト
 
@@ -385,6 +436,9 @@ npm run test:e2e:report    # 直近の HTML レポート
 プロジェクトは4つ。`chromium` / `webkit`（いずれも 1280px）はデスクトップ幅の期待値で書かれた spec を
 走らせ、`testIgnore` で `responsive.spec.ts` を外します。`mobile-chrome`（Pixel 5）と
 `mobile-safari`（iPhone 13）は `testMatch` で `responsive.spec.ts` だけを拾います。
+`smoke.spec.ts` は表示に加えて **canonical / OGP / sitemap / robots / セキュリティヘッダー**も見ます
+（画面に出ないため、抜けても目視では気づけないものです）。
+
 `e2e/` と `playwright.config.ts` は `tsconfig.json` の `exclude` に入れて `next build` の型チェックから
 外しています。
 

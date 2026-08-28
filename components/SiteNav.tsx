@@ -32,7 +32,7 @@ function NavLogo({ className }: { className?: string }) {
         >
             <Image
                 src={icon}
-                alt="icon"
+                alt="Megumi Ayuha"
                 width="40"
                 height="40"
                 className="transform-3d transition-transform duration-500 ease-out group-hover:rotate-y-360 motion-reduce:transition-none"

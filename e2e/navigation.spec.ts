@@ -235,3 +235,36 @@ test.describe("/api/contact", () => {
         expect(await res.json()).toEqual({ ok: true });
     });
 });
+
+/**
+ * Turnstile のウィジェットは `window.turnstile.render()` で作られ、React の管理外に残る。
+ * 破棄していないと /contact を出入りするたびに増え、Turnstile が
+ * 「Cannot find Widget ... consider using turnstile.remove()」を警告する。
+ * （サイトキー未設定の環境ではウィジェットが出ないので、その場合はスキップする）
+ */
+test("/contact を出入りしても Turnstile のウィジェットが増えない", async ({ page }) => {
+    // 「Turnstile を含む出力すべて」だと、サイトキーの許可ホスト名に実行ホストが
+    // 入っていないときの Cloudflare 自身のエラーでも落ちる。破棄漏れの警告だけを見る
+    const leakWarnings: string[] = [];
+    page.on("console", (m) => {
+        if (m.text().includes("Cannot find Widget")) {
+            leakWarnings.push(m.text());
+        }
+    });
+
+    const widgets = page.locator('input[name="cf-turnstile-response"]');
+    await page.goto("/contact");
+    await page.waitForTimeout(2500);
+    test.skip((await widgets.count()) === 0, "NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定");
+
+    for (let i = 0; i < 3; i += 1) {
+        await page.getByRole("link", { name: "about" }).click();
+        await page.waitForURL("**/about");
+        await page.getByRole("link", { name: "contact" }).click();
+        await page.waitForURL("**/contact");
+        await page.waitForTimeout(2500);
+        // 破棄されていれば毎回1つに戻る（漏れていると増える／描き直せず 0 になる）
+        await expect(widgets).toHaveCount(1);
+    }
+    expect(leakWarnings).toEqual([]);
+});

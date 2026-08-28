@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
 import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { GlassCard } from "@/commons/GlassCard";
 import { Phrase } from "@/commons/Phrase";
 import { ContactForm } from "@/components/ContactForm";
 import { PageHeader } from "@/components/PageHeader";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-    title: "お問い合わせ — Megumi Ayuha",
-};
+export const metadata = pageMetadata({
+    path: "/contact",
+    title: "お問い合わせ",
+    description:
+        "お仕事のご相談・ご依頼はこちらのフォームからお送りください。内容を確認のうえ、ご記入いただいたメールアドレス宛にご返信します。",
+});
 
 export default function Contact() {
     return (

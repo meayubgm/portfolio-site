@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { BackLink } from "@/commons/BackLink";
 import { BulletList } from "@/commons/BulletList";
@@ -10,10 +9,14 @@ import { Text } from "@/commons/Text";
 import { HeroGeometry } from "@/components/HeroGeometry";
 import { PageHeading } from "@/components/PageHeading";
 import { brewCase } from "@/lib/cases";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-    title: "Coffee Brew Timer — コーヒー抽出タイマー | Megumi Ayuha",
-};
+export const metadata = pageMetadata({
+    path: "/works/brew",
+    title: "Coffee Brew Timer — コーヒー抽出タイマー",
+    // 案件の説明は lib/cases.ts の単一ソースから引く
+    description: brewCase.summary,
+});
 
 const heroShots = [
     { src: "/works/brew/iPhone_14ProMax_mock_light_top.png", caption: "ホーム画面" },
