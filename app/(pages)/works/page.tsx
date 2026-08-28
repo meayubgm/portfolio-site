@@ -44,7 +44,7 @@ export default function Works() {
                         {brewCase.period}
                     </Text>
                     <Text variant="body">{brewCase.summary}</Text>
-                    <div className="my-5 mb-1 grid grid-cols-1 gap-3 border-y border-dashed border-indigo-600/15 py-3.5 sm:grid-cols-3 sm:gap-5.5">
+                    <div className="my-5 mb-1 flex flex-wrap gap-x-8 gap-y-3 border-y border-dashed border-indigo-600/15 py-3.5">
                         <StatBlock number="企画〜実装" label="担当範囲（全工程）" />
                         <StatBlock number="4種" label="抽出メソッド対応" />
                         <StatBlock number="実機検証済" label="Android / Expo Go" />
@@ -83,7 +83,7 @@ export default function Works() {
                                 key={w.name}
                                 as="div"
                                 variant="body"
-                                className="flex justify-between gap-4 border-t border-sky-700/15 py-3"
+                                className="flex flex-col-reverse gap-1 border-t border-sky-700/15 py-3 sm:flex-row sm:justify-between sm:gap-4"
                             >
                                 <span>{w.name}</span>
                                 <Text as="span" variant="monoSm" tone="muted">

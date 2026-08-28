@@ -19,7 +19,14 @@ const parser = loadDefaultJapaneseParser();
  * **語同士が重なるものは登録しないこと**（後から処理した語が境界を足し直し、
  * 先の語の内部に改行位置が戻る）。
  */
-const NO_BREAK_WORDS = ["水産卸会社向け", "建設業向け", "卸売業向け", "クラウドストレージ"];
+const NO_BREAK_WORDS = [
+    "水産卸会社向け",
+    "建設業向け",
+    "卸売業向け",
+    "クラウドストレージ",
+    "お問い合わせ",
+    "私自身について",
+];
 
 /** 文節の区切り位置（先頭からの文字数）を NO_BREAK_WORDS に合わせて直す */
 function applyNoBreakWords(phrases: string[]): string[] {

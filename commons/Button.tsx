@@ -27,7 +27,8 @@ export function Button({
     disabled = false,
 }: ButtonProps) {
     const className = cn(base, styles[variant]);
-    if (href) {
+    // disabled のときは <Link> ではなく無効化した <button> を返す（href があっても押せてしまわないように）
+    if (href && !disabled) {
         return (
             <Link href={href} className={className}>
                 {children}

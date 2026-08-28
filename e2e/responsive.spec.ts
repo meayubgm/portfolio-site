@@ -171,16 +171,51 @@ test.describe("横並びの解除（sm 未満）", () => {
         expect((period?.y ?? 0) + (period?.height ?? 0)).toBeLessThanOrEqual((body?.y ?? 0) + 1);
     });
 
-    test("/works の StatBlock 3連が縦に積まれる", async ({ page }) => {
+    test("/works の StatBlock 3連が内容幅のまま折り返し、各行が左端に揃う", async ({ page }) => {
         await page.goto("/works");
-        const stats = page.locator("section.grid div.group").first().locator("div.grid > div");
+        const stats = page.locator("section.grid div.group").first().locator("div.flex-wrap > div");
         await expect(stats).toHaveCount(3);
 
-        const first = await stats.nth(0).boundingBox();
-        const second = await stats.nth(1).boundingBox();
+        const boxes = await stats.evaluateAll((els) =>
+            els.map((el) => {
+                const rect = el.getBoundingClientRect();
+                return {
+                    x: Math.round(rect.x),
+                    y: Math.round(rect.y),
+                    width: Math.round(rect.width),
+                };
+            }),
+        );
 
-        expect(first?.x).toBeCloseTo(second?.x ?? -1, 0);
-        expect(second?.y ?? 0).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0) - 1);
+        // 等幅セルに引き伸ばされていない（内容幅なので3つの幅は揃わない）
+        expect(new Set(boxes.map((b) => b.width)).size).toBeGreaterThan(1);
+        // 折り返しは起きている（1行に3つとも並ばない幅）
+        expect(new Set(boxes.map((b) => b.y)).size).toBeGreaterThan(1);
+        // どの行も先頭は左端に揃う
+        const rowHeads = new Map<number, number>();
+        for (const box of boxes) {
+            const head = rowHeads.get(box.y);
+            if (head === undefined || box.x < head) {
+                rowHeads.set(box.y, box.x);
+            }
+        }
+        for (const x of rowHeads.values()) {
+            expect(x).toBeCloseTo(boxes[0].x, 0);
+        }
+    });
+
+    test("/works のその他カードは期間が上・案件名が下の縦並びになる", async ({ page }) => {
+        await page.goto("/works");
+        const row = page
+            .locator("section.grid div.group")
+            .last()
+            .locator("div.flex-col-reverse")
+            .first();
+        const name = await row.locator("span").nth(0).boundingBox();
+        const period = await row.locator("span").nth(1).boundingBox();
+
+        expect(period?.x).toBeCloseTo(name?.x ?? -1, 0);
+        expect((period?.y ?? 0) + (period?.height ?? 0)).toBeLessThanOrEqual((name?.y ?? 0) + 1);
     });
 });
 

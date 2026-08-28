@@ -252,7 +252,11 @@ font-family）と `tone`（文字色）から選びます。h1 だけレスポ�
 - **カードの padding** — `GlassCard` が `p-4 sm:p-7`（`padding="lg"` は `p-5 sm:p-9`）。メニューパネルは
   `SiteNav` 側が `className` で `p-2.5 sm:p-7` に上書きします。
 - **横並びの解除** — `/about` の来歴（期間ラベル + 本文）は全幅で縦積み。`/works` の featured カードの
-  `StatBlock` 3連と、その下のタグ列 + learn more は `sm` で横並びに戻します。
+  タグ列 + learn more は `sm` で横並びに戻します。「その他」カードの行は sm 未満では期間を上・案件名を
+  下にした縦並び（DOM 順は案件名 → 期間のまま `flex-col-reverse` で入れ替え）、`sm` 以上で左右に
+  振り分けます。
+- **featured カードの `StatBlock` 3連** — 等幅の grid ではなく `flex-wrap` で並べます。各ブロックは
+  内容幅のまま左に詰まり、幅が足りなくなったぶんだけ次の行へ折り返します（375px で 2 + 1）。
 - **セクション下の余白** — `CardGrid` と `/works/brew` の本文が `pb-12 sm:pb-16`。
 - **`/works/brew`** — 内側の左右 padding は `sm:px-4 lg:px-9` で、sm 未満は中央コンテナの `px-5.5` だけに
   なり他ページと左端が揃います。iPhone モック 3 枚は `sm` で横並びに戻します
