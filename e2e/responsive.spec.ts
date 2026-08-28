@@ -183,3 +183,137 @@ test.describe("横並びの解除（sm 未満）", () => {
         expect(second?.y ?? 0).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0) - 1);
     });
 });
+
+test.describe("文節改行（BudouX）", () => {
+    /**
+     * wbr で区切られた各文節が行をまたいでいないかを調べる。
+     * 文節ごとに Range を作り、クライアント矩形が1つ ＝ 1行に収まっている。
+     */
+    const inspect = (target: ReturnType<Page["locator"]>) =>
+        target.evaluate((el) => {
+            const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+            const rectCounts: number[] = [];
+            let node = walker.nextNode();
+            while (node) {
+                const range = document.createRange();
+                range.selectNodeContents(node);
+                rectCounts.push(range.getClientRects().length);
+                node = walker.nextNode();
+            }
+            return {
+                wbr: el.querySelectorAll("wbr").length,
+                rectCounts,
+                wordBreak: getComputedStyle(el).wordBreak,
+            };
+        });
+
+    test("/works の見出しとリード文が文節の途中で折り返さない", async ({ page }) => {
+        await page.goto("/works");
+
+        const lead = page.locator("header span.break-keep").last();
+        const { wbr, rectCounts, wordBreak } = await inspect(lead);
+
+        expect(wordBreak).toBe("keep-all");
+        // リード文は複数行に折り返す長さがあり、文節境界が入っている
+        expect(wbr).toBeGreaterThan(3);
+        expect(rectCounts.length).toBe(wbr + 1);
+        expect(new Set(rectCounts)).toEqual(new Set([1]));
+    });
+
+    test("NO_BREAK_WORDS に登録した語は途中で切られない", async ({ page }) => {
+        await page.goto("/works");
+        // BudouX の既定は「水産卸 / 会社向け倉庫管理システム開発」。lib/phrase.ts で直している
+        const title = page.locator("h3", { hasText: "水産卸" }).locator("span.break-keep");
+        await expect(title).toHaveText("水産卸会社向け倉庫管理システム開発");
+        expect(await title.innerHTML()).toBe("水産卸会社向け<wbr>倉庫管理システム開発");
+    });
+
+    test("Home の h1 が文節の途中で折り返さない", async ({ page }) => {
+        await page.goto("/");
+
+        // 打ち終わると重ねが解けて span が1つになる
+        const title = page.locator("h1 span.break-keep");
+        await expect(title).toHaveCount(1, { timeout: 15_000 });
+
+        const { wbr, rectCounts } = await inspect(title);
+        expect(wbr).toBeGreaterThan(0);
+        expect(new Set(rectCounts)).toEqual(new Set([1]));
+    });
+});
+
+test.describe("Home ヒーローの打ち込み（sm 未満）", () => {
+    test("打ち込み中も折り返しが完成形と一致する", async ({ page }) => {
+        // 打ち込み中の層は未入力ぶんの場所も確保しているので、そこまでに打った文字の
+        // 行の並びは完成テキストの層と常に一致する（＝行末の文節が伸びて次の行へ飛ばない）。
+        // 打ち込みは goto 直後に始まるので waitUntil: "commit" で先回りする
+        await page.goto("/", { waitUntil: "commit" });
+
+        const result = await page.evaluate(async () => {
+            /** 先頭から index 文字目の位置（テキストノードとオフセット） */
+            const pointAt = (root: Element, index: number): [Node, number] | null => {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+                let seen = 0;
+                let node = walker.nextNode();
+                while (node) {
+                    const length = node.textContent?.length ?? 0;
+                    if (index <= seen + length) {
+                        return [node, index - seen];
+                    }
+                    seen += length;
+                    node = walker.nextNode();
+                }
+                return null;
+            };
+
+            /** 先頭から len 文字までが占める各行の上端 */
+            const lineTops = (root: Element, len: number) => {
+                const start = pointAt(root, 0);
+                const end = pointAt(root, len);
+                if (!start || !end) {
+                    return null;
+                }
+                const range = document.createRange();
+                range.setStart(start[0], start[1]);
+                range.setEnd(end[0], end[1]);
+                return [...range.getClientRects()].map((rect) => Math.round(rect.top));
+            };
+
+            const mismatches: string[] = [];
+            let samples = 0;
+            const started = performance.now();
+            while (performance.now() - started < 5000) {
+                for (const layered of document.querySelectorAll("header span.grid")) {
+                    const done = layered.querySelector("[data-typewriter-target]");
+                    const typing = layered.querySelector("[aria-hidden]");
+                    // CSS 到着前は grid にならず2層が縦に並ぶので、その間は測らない
+                    if (!done || !typing || getComputedStyle(layered).display !== "grid") {
+                        continue;
+                    }
+                    const pending = [...typing.querySelectorAll(".invisible")].reduce(
+                        (total, el) => total + (el.textContent?.length ?? 0),
+                        0,
+                    );
+                    const visible = (typing.textContent?.length ?? 0) - pending;
+                    if (visible < 1) {
+                        continue;
+                    }
+                    samples += 1;
+                    // cn() が break-keep を落としていないか（tailwind-merge の衝突グループ）
+                    if (getComputedStyle(typing).wordBreak !== "keep-all") {
+                        mismatches.push(`word-break: ${getComputedStyle(typing).wordBreak}`);
+                    }
+                    const typingTops = lineTops(typing, visible);
+                    const doneTops = lineTops(done, visible);
+                    if (JSON.stringify(typingTops) !== JSON.stringify(doneTops)) {
+                        mismatches.push(typing.textContent?.slice(0, visible).slice(-14) ?? "");
+                    }
+                }
+                await new Promise((resolve) => setTimeout(resolve, 15));
+            }
+            return { samples, mismatches: mismatches.slice(0, 3) };
+        });
+
+        expect(result.samples).toBeGreaterThan(0);
+        expect(result.mismatches).toEqual([]);
+    });
+});

@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { withLineBreaks } from "@/commons/Text";
+import { phraseWrap, withPhraseBreaks } from "@/commons/Text";
+import { cn } from "@/lib/cn";
 
 type TypewriterProps = {
-    /** 打ち込む文言。配列の要素は <br /> 区切りの1行 */
-    lines: readonly string[];
+    /** 打ち込む文言。外側の要素が <br /> 区切りの1行、内側が文節（lib/phrase.ts でパース済み） */
+    lines: readonly (readonly string[])[];
     /** 打ち始めるまでの待ち時間（ms） */
     delay: number;
     /** 1文字あたりの間隔（ms） */
     speed: number;
 };
 
-/** 改行を含めて1本の文字列として扱い、slice で打ち込み途中を作る */
+/** 改行も1文字として打つので、総文字数はこれで連結して数える */
 const LINE_SEPARATOR = "\n";
 
 /**
@@ -21,10 +22,13 @@ const LINE_SEPARATOR = "\n";
  * 完成テキストと打ち込み中のテキストをグリッドで重ね、完成テキスト側で高さを確保する。
  * これにより行数が増えても後続がガタつかず、SSG の HTML とアクセシビリティツリーには
  * 最初から完成テキストが載る（打ち込み中の層は aria-hidden）。
+ * どちらの層も文節改行（phraseWrap + <wbr>）にする。片方だけだと折り返し位置が食い違い、
+ * 打ち込み中に文字が跳ねる。打ち込み中の層は未入力ぶんの場所も確保する（withPhraseBreaks の
+ * typedCount）ので、折り返しは最初から完成形と同じになる。
  * prefers-reduced-motion: reduce のときは打ち込まず即座に完成状態にする。
  */
 export function Typewriter({ lines, delay, speed }: TypewriterProps) {
-    const full = lines.join(LINE_SEPARATOR);
+    const full = lines.map((phrases) => phrases.join("")).join(LINE_SEPARATOR);
     const [typedCount, setTypedCount] = useState(0);
     const [done, setDone] = useState(false);
 
@@ -48,16 +52,22 @@ export function Typewriter({ lines, delay, speed }: TypewriterProps) {
 
     // 打ち終わったら重ねを解いて素のテキストに戻す（テキスト選択を通常どおりにするため）
     if (done) {
-        return withLineBreaks([...lines]);
+        return <span className={phraseWrap}>{withPhraseBreaks(lines)}</span>;
     }
 
     return (
         <span className="grid">
-            <span data-typewriter-target className="col-start-1 row-start-1 opacity-0">
-                {withLineBreaks([...lines])}
+            <span
+                data-typewriter-target
+                className={cn("col-start-1 row-start-1 opacity-0", phraseWrap)}
+            >
+                {withPhraseBreaks(lines)}
             </span>
-            <span aria-hidden className="col-start-1 row-start-1">
-                {withLineBreaks(full.slice(0, typedCount).split(LINE_SEPARATOR))}
+            <span aria-hidden className={cn("col-start-1 row-start-1", phraseWrap)}>
+                {/* 1文字も打っていない間（＝SSG が出す HTML）は空にする。未入力ぶんを
+                    visibility:hidden で持たせたままだと、完成テキストの層と合わせて
+                    静的 HTML に全文が2回入り、h1 の textContent が二重になる */}
+                {typedCount > 0 && withPhraseBreaks(lines, typedCount)}
             </span>
         </span>
     );

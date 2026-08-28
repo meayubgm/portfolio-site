@@ -120,4 +120,14 @@ test.describe("ヒーローのタイピング", () => {
         });
         await expect(heading).toHaveCSS("opacity", "1");
     });
+
+    test("SSG の HTML に完成テキストが二重に入らない", async ({ page }) => {
+        // 打ち込み中の層は未入力ぶんを visibility:hidden で持つが、1文字も打つ前
+        // （＝静的 HTML）は空にしてある。持たせたままだと h1 のテキストが2回入る
+        const html = await (await page.request.get("/")).text();
+        const h1 = html.match(/<h1[^>]*>[\s\S]*?<\/h1>/)?.[0] ?? "";
+
+        expect(h1).toContain("意図を");
+        expect(h1.match(/かたちに/g)?.length).toBe(1);
+    });
 });

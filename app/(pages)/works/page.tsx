@@ -5,6 +5,7 @@ import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { LabeledField } from "@/commons/LabeledField";
 import { LearnMoreCue } from "@/commons/LearnMoreCue";
+import { Phrase } from "@/commons/Phrase";
 import { StatBlock } from "@/commons/StatBlock";
 import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
@@ -22,8 +23,12 @@ export default function Works() {
                 geometry="works"
                 size="list"
                 eyebrow="works"
-                title="実績一覧"
-                lead="受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。"
+                title={<Phrase>実績一覧</Phrase>}
+                lead={
+                    <Phrase>
+                        受託案件は契約上、画面キャプチャを掲載できないため、業務内容を匿名化したテキストベースのケーススタディとして掲載しています。
+                    </Phrase>
+                }
             />
 
             <CardGrid>
@@ -33,7 +38,7 @@ export default function Works() {
                         個人開発 — code / design 全プロセス公開
                     </CardLabel>
                     <Text as="h3" variant="featureTitle" tone="strong" className="mb-2.5 mt-1.5">
-                        {`${brewCase.titleEn} — ${brewCase.titleJa}`}
+                        <Phrase>{`${brewCase.titleEn} — ${brewCase.titleJa}`}</Phrase>
                     </Text>
                     <Text variant="monoSm" tone="muted" className="mb-3">
                         {brewCase.period}
@@ -55,7 +60,7 @@ export default function Works() {
                     <GlassCard key={c.no} span={3} className="flex flex-col" reveal>
                         <CardLabel meta={c.no}>受託開発案件 — 業務内容は匿名化して掲載</CardLabel>
                         <Text as="h3" variant="cardTitle" tone="strong" className="mb-1 mt-1.5">
-                            {c.title}
+                            <Phrase>{c.title}</Phrase>
                         </Text>
                         <Text variant="monoSm" tone="muted" className="mb-3">
                             {c.period}

@@ -93,3 +93,57 @@ export function withLineBreaks(lines: string[]) {
         </>
     );
 }
+
+/**
+ * 文節改行の面。日本語は既定でどこでも折り返せるので、まず keep-all で任意改行を止め、
+ * <wbr>（withPhraseBreaks が文節境界に置く）の位置だけ改行を許す。
+ * wrap-break-word（overflow-wrap: break-word）は1文節が行幅を超えたときの保険。
+ * overflow-wrap: anywhere は min-content 幅にも効いてグリッドの列幅を変えるので使わない。
+ *
+ * **overflow-wrap 側に旧名の break-words を使わないこと**。tailwind-merge は
+ * break-normal / break-words / break-all / break-keep を1つの衝突グループとして扱うため、
+ * cn() を通すと "break-keep break-words" から break-keep が落ちて word-break: normal になる
+ * （＝任意位置で折り返す）。v4.1 以降の wrap-break-word なら別グループなので共存できる。
+ */
+export const phraseWrap = "break-keep wrap-break-word";
+
+/**
+ * 「行 × 文節」を <br />（行間）と <wbr />（文節間）区切りの ReactNode にする。
+ * <wbr> はテキストを持たないので textContent もアクセシブルネームも変わらない。
+ * 文節への分割は commons/Phrase.tsx（サーバー）が行う。ここは描画だけの純粋関数で、
+ * クライアントコンポーネント（Typewriter）からも使うため BudouX を import しない。
+ *
+ * typedCount を渡すと、そこから先を visibility:hidden で場所だけ確保して描く（Typewriter 用）。
+ * **打ち込み途中のテキストを素直に切り出すと、行末の文節が「1〜2文字ぶんは前の行に収まる →
+ * 伸びて入りきらなくなった瞬間に次の行へ飛ぶ」という跳ね方をする**。未入力ぶんの場所を先に
+ * 確保しておけば折り返しは常に完成形と同じで、文字はその位置に現れるだけになる。
+ */
+export function withPhraseBreaks(lines: readonly (readonly string[])[], typedCount?: number) {
+    // 改行も1文字として消費する（Typewriter が打ち込み位置を数えるときと桁を合わせる）
+    let left = typedCount ?? Number.POSITIVE_INFINITY;
+    return lines.map((phrases, lineIndex) => {
+        if (lineIndex > 0) {
+            left -= 1;
+        }
+        return (
+            // biome-ignore lint/suspicious/noArrayIndexKey: 行の並びは固定で並べ替えない
+            <Fragment key={lineIndex}>
+                {lineIndex > 0 && <br />}
+                {phrases.map((phrase, phraseIndex) => {
+                    const typed = Math.min(phrase.length, Math.max(0, left));
+                    left -= phrase.length;
+                    const shown = phrase.slice(0, typed);
+                    const pending = phrase.slice(typed);
+                    return (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: 文節の並びは固定で並べ替えない
+                        <Fragment key={phraseIndex}>
+                            {phraseIndex > 0 && <wbr />}
+                            {shown}
+                            {pending && <span className="invisible">{pending}</span>}
+                        </Fragment>
+                    );
+                })}
+            </Fragment>
+        );
+    });
+}

@@ -47,7 +47,7 @@ export function PageHeading({ size, eyebrow, title, period, lead }: PageHeadingP
                 </Text>
             )}
             {lead && (
-                <Text variant="lead" className={leadSpacing[size]}>
+                <Text variant="lead" className={cn("text-left", leadSpacing[size])}>
                     {lead}
                 </Text>
             )}

@@ -4,7 +4,8 @@ import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { MonoHeading } from "@/commons/MonoHeading";
-import { Text, withLineBreaks } from "@/commons/Text";
+import { Phrase } from "@/commons/Phrase";
+import { Text } from "@/commons/Text";
 import { PageHeader } from "@/components/PageHeader";
 import {
     favorites,
@@ -28,11 +29,11 @@ export default function About() {
                 geometry="about"
                 size="list"
                 eyebrow="about"
-                title="私自身について"
-                lead={introGreeting}
+                title={<Phrase>私自身について</Phrase>}
+                lead={<Phrase>{introGreeting}</Phrase>}
             >
-                <Text variant="lead" className="mt-4">
-                    {withLineBreaks(introBody)}
+                <Text variant="lead" className="mt-4 text-left">
+                    <Phrase>{introBody}</Phrase>
                 </Text>
             </PageHeader>
 
@@ -42,7 +43,7 @@ export default function About() {
                     <GlassCard key={s.no} span={3} reveal>
                         <CardLabel>{`strength ${s.no}`}</CardLabel>
                         <Text as="h2" variant="cardTitle" tone="strong" className="mb-2.5">
-                            {s.title}
+                            <Phrase>{s.title}</Phrase>
                         </Text>
                         <Text variant="body">{s.body}</Text>
                     </GlassCard>
@@ -64,7 +65,7 @@ export default function About() {
                 {favorites.map((f) => (
                     <GlassCard key={f.name} span={3} reveal>
                         <Text as="h3" variant="subTitle" tone="strong" className="mb-1.5">
-                            {f.name}
+                            <Phrase>{f.name}</Phrase>
                         </Text>
                         <Text variant="body" tone="muted">
                             {f.note}

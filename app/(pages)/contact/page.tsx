@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { GlassCard } from "@/commons/GlassCard";
+import { Phrase } from "@/commons/Phrase";
 import { ContactForm } from "@/components/ContactForm";
 import { PageHeader } from "@/components/PageHeader";
 
@@ -18,8 +19,8 @@ export default function Contact() {
                     className="lg:col-span-4 lg:col-start-2"
                     size="list"
                     eyebrow="contact"
-                    title="お問い合わせ"
-                    lead="お仕事のご相談・ご質問など、お気軽にご連絡ください。"
+                    title={<Phrase>お問い合わせ</Phrase>}
+                    lead={<Phrase>お仕事のご相談・ご質問など、お気軽にご連絡ください。</Phrase>}
                 />
             </div>
 

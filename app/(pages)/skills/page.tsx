@@ -3,6 +3,7 @@ import { BackLink } from "@/commons/BackLink";
 import { CardGrid } from "@/commons/CardGrid";
 import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
+import { Phrase } from "@/commons/Phrase";
 import { Text } from "@/commons/Text";
 import { PageHeader } from "@/components/PageHeader";
 import { SkillName } from "@/components/SkillName";
@@ -118,8 +119,12 @@ export default function Skill() {
                 geometry="skills"
                 size="list"
                 eyebrow="skills"
-                title="スキル"
-                lead="実務および個人開発で使用してきた技術を、実際の関わり方とあわせて記載しています。"
+                title={<Phrase>スキル</Phrase>}
+                lead={
+                    <Phrase>
+                        実務および個人開発で使用してきた技術を、実際の関わり方とあわせて記載しています。
+                    </Phrase>
+                }
             />
 
             <CardGrid>

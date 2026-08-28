@@ -1,5 +1,7 @@
 /** Home（/）ヒーローのテキストと、タイピング演出のスケジュール */
 
+import { parseLines } from "@/lib/phrase";
+
 /** 各ブロックの文言。配列の要素は <br /> 区切りの1行 */
 export const heroCopy = {
     eyebrow: ["design × development"],
@@ -10,6 +12,18 @@ export const heroCopy = {
         "デザイン理解を強みにしたフロントエンド実装、常にユーザビリティを意識したUI改善を大切にして開発に向き合っています。",
         "指示を受けた要件をそのまま実装するのではなく、指示の意図を汲み取ってより使いやすいUIを提案します。",
     ],
+} as const;
+
+/**
+ * Typewriter に渡す「行 × 文節」。BudouX でビルド時にパースする。
+ * client の Typewriter に BudouX を持ち込まないよう、パースはここ（サーバー側）で済ませる。
+ * **この module を import できるのはサーバーコンポーネントだけ**。
+ */
+export const heroPhrases = {
+    eyebrow: parseLines(heroCopy.eyebrow),
+    title: parseLines(heroCopy.title),
+    mono: parseLines(heroCopy.mono),
+    lead: parseLines(heroCopy.lead),
 } as const;
 
 /** 1文字あたりの間隔（ms）。長い本文ほど速くして待たせない */

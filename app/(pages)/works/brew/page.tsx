@@ -4,6 +4,7 @@ import { BackLink } from "@/commons/BackLink";
 import { BulletList } from "@/commons/BulletList";
 import { LinkRow } from "@/commons/LinkRow";
 import { MonoHeading } from "@/commons/MonoHeading";
+import { Phrase } from "@/commons/Phrase";
 import { TagList } from "@/commons/TagList";
 import { Text } from "@/commons/Text";
 import { HeroGeometry } from "@/components/HeroGeometry";
@@ -33,11 +34,11 @@ export default function BrewCaseStudy() {
                             <>
                                 {brewCase.titleEn}
                                 <br />
-                                {brewCase.titleJa}
+                                <Phrase>{brewCase.titleJa}</Phrase>
                             </>
                         }
                         period={brewCase.period}
-                        lead={brewCase.summary}
+                        lead={<Phrase>{brewCase.summary}</Phrase>}
                     />
                     <TagList tags={brewCase.tags} />
                 </header>

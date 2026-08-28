@@ -4,6 +4,7 @@ import { CardLabel } from "@/commons/CardLabel";
 import { GlassCard } from "@/commons/GlassCard";
 import { LearnMoreCue } from "@/commons/LearnMoreCue";
 import { LinkRow } from "@/commons/LinkRow";
+import { Phrase } from "@/commons/Phrase";
 import { RiseIn } from "@/commons/RiseIn";
 import { TagList } from "@/commons/TagList";
 import { Text, withLineBreaks } from "@/commons/Text";
@@ -13,7 +14,7 @@ import { PageHeading } from "@/components/PageHeading";
 import { SkillBar } from "@/components/SkillBar";
 import { introBody } from "@/lib/about";
 import { brewCase } from "@/lib/cases";
-import { heroActionsDelay, heroCopy, heroTyping } from "@/lib/home";
+import { heroActionsDelay, heroPhrases, heroTyping } from "@/lib/home";
 import { homeSkillGroups } from "@/lib/skills";
 
 export default function Home() {
@@ -24,16 +25,16 @@ export default function Home() {
                 <div>
                     <PageHeading
                         size="hero"
-                        eyebrow={<Typewriter lines={heroCopy.eyebrow} {...heroTyping.eyebrow} />}
-                        title={<Typewriter lines={heroCopy.title} {...heroTyping.title} />}
+                        eyebrow={<Typewriter lines={heroPhrases.eyebrow} {...heroTyping.eyebrow} />}
+                        title={<Typewriter lines={heroPhrases.title} {...heroTyping.title} />}
                     />
                 </div>
                 <div>
                     <Text variant="monoLg" tone="muted" className="pb-4.5">
-                        <Typewriter lines={heroCopy.mono} {...heroTyping.mono} />
+                        <Typewriter lines={heroPhrases.mono} {...heroTyping.mono} />
                     </Text>
-                    <Text variant="lead" className="pb-6 sm:pb-12">
-                        <Typewriter lines={heroCopy.lead} {...heroTyping.lead} />
+                    <Text variant="lead" className="pb-6 text-left sm:pb-12">
+                        <Typewriter lines={heroPhrases.lead} {...heroTyping.lead} />
                     </Text>
                     <RiseIn delay={heroActionsDelay} className="flex flex-nowrap gap-3.5">
                         <Button variant="primary" href="/works">
@@ -50,10 +51,16 @@ export default function Home() {
                 <GlassCard span={4} padding="lg" href="/about" className="flex flex-col" reveal>
                     <CardLabel>about</CardLabel>
                     <Text variant="cardLead" tone="strong" className="mt-1.5">
-                        「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」
+                        <Phrase>
+                            「デザインの意図を汲んだ実装」と「実装を前提にしたデザイン」
+                        </Phrase>
                         <br />
-                        <b className="font-semibold text-sky-700">その両方の立場で会話できる</b>
-                        のが強みです
+                        <b className="font-semibold text-sky-700">
+                            <Phrase>その両方の立場で会話できる</Phrase>
+                        </b>
+                        {/* Phrase をまたぐと文節境界が失われるので、この継ぎ目にだけ手で置く */}
+                        <wbr />
+                        <Phrase>のが強みです</Phrase>
                     </Text>
                     <Text variant="body" className="mt-5.5">
                         {withLineBreaks(introBody)}
@@ -64,7 +71,7 @@ export default function Home() {
                 <GlassCard span={2} href="/works/brew" className="flex flex-col bg-featured" reveal>
                     <CardLabel>featured work — 個人開発</CardLabel>
                     <Text as="h3" variant="cardTitle" tone="strong" className="mb-2.5">
-                        コーヒー抽出タイマーアプリ「{brewCase.titleEn}」
+                        <Phrase>{`コーヒー抽出タイマーアプリ「${brewCase.titleEn}」`}</Phrase>
                     </Text>
                     <Text variant="body">企画・要件定義・UIデザイン・実装まで一人で担当。</Text>
                     <TagList tags={brewCase.tags} className="mt-4" />
