@@ -383,7 +383,7 @@ OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_P
 
 | 出力 | 実装 | 内容 |
 | --- | --- | --- |
-| 共通 metadata | `app/layout.tsx` | `metadataBase`・`title.template`（`%s \| Megumi Ayuha`）・description・OGP・`twitter:card`・`robots` |
+| 共通 metadata | `app/layout.tsx` | `metadataBase`・`title.template`（`fullTitle("%s")`）・description・OGP・`twitter:card`・`robots` |
 | ページ別 metadata | `lib/metadata.ts` の `pageMetadata()` | title（短い側だけ）・description・canonical・OGP。各ページはこれを呼ぶだけ |
 | OGP 画像 | `app/opengraph-image.tsx` | `next/og` の `ImageResponse` で 1200×630 を静的生成。`app/` 直下なので全ルートに継承される |
 | サイトマップ | `app/sitemap.ts` | `lib/site.ts` の `sitePaths` を map |
