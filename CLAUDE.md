@@ -204,8 +204,14 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
 
 ## 触らない領域
 
-- `ds-bundle/` / `.ds-sync/` / `.design-sync/compiled-styles.css` — claude.ai/design 連携の生成物
-  （gitignore 済み）。`.design-sync/` の入力（`config.json` / `entry.ts` / `stubs/` / `previews/`）は追跡対象。
+- `ds-bundle/` / `.ds-sync/` / `.design-sync/compiled-styles.css` / `.design-sync/.cache/` —
+  claude.ai/design 連携の生成物（gitignore 済み）。`.design-sync/` の入力は追跡対象で、
+  `config.json`（同期の設定）/ `entry.ts`（バンドルのエントリ）/ `sync-tsconfig.json`（next の
+  stub への paths）/ `compile-css.mjs`（Tailwind を静的 CSS へ）/ `conventions.md`（生成 README の
+  ヘッダー。**デザインエージェントのシステムプロンプトに入る**）/ `NOTES.md`（再同期時の注意）/
+  `stubs/` / `previews/` の8つ。**`componentSrcMap`（config.json）・`entry.ts`・`compile-css.mjs` の
+  `@source` はディレクトリ構成に連動する**ので、コンポーネントを別ディレクトリへ動かしたら3つとも直す
+  （`@source` の漏れはビルドも検証も通るのに CSS だけが欠ける）。
 - `WORK_LOG/` — 作業セッションのサマリー。過去分は書き換えない。
 - `.next/` / `node_modules/` / `test-results/` / `playwright-report/` / `docs/` — 生成物とローカル資料。
 

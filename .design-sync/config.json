@@ -7,22 +7,26 @@
     "tsconfig": ".design-sync/sync-tsconfig.json",
     "cssEntry": ".design-sync/compiled-styles.css",
     "readmeHeader": ".design-sync/conventions.md",
+    "guidelinesGlob": [],
     "componentSrcMap": {
-        "Button": "components/Button.tsx",
-        "CardGrid": "components/CardGrid.tsx",
-        "CardLabel": "components/CardLabel.tsx",
-        "EyebrowLabel": "components/EyebrowLabel.tsx",
-        "GlassCard": "components/GlassCard.tsx",
-        "LabeledField": "components/LabeledField.tsx",
-        "LinkRow": "components/LinkRow.tsx",
-        "MonoHeading": "components/MonoHeading.tsx",
+        "Button": "commons/Button.tsx",
+        "CardGrid": "commons/CardGrid.tsx",
+        "CardLabel": "commons/CardLabel.tsx",
+        "EyebrowLabel": "commons/EyebrowLabel.tsx",
+        "GlassCard": "commons/GlassCard.tsx",
+        "LabeledField": "commons/LabeledField.tsx",
+        "LinkRow": "commons/LinkRow.tsx",
+        "MonoHeading": "commons/MonoHeading.tsx",
         "PageHeading": "components/PageHeading.tsx",
         "SiteNav": "components/SiteNav.tsx",
         "SkillBar": "components/SkillBar.tsx",
-        "StatBlock": "components/StatBlock.tsx",
-        "Tag": "components/Tag.tsx"
+        "StatBlock": "commons/StatBlock.tsx",
+        "Tag": "commons/Tag.tsx"
     },
     "overrides": {
-        "SiteNav": { "cardMode": "single", "viewport": "1000x120" }
+        "SiteNav": {
+            "cardMode": "single",
+            "viewport": "1000x120"
+        }
     }
 }

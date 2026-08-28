@@ -1,5 +1,11 @@
 # design-sync NOTES（portfolio-site → Frost & Blueprint Design System）
 
+> 2026-08-29 再同期: DS プリミティブ10件が `commons/` へ移っていたのに `componentSrcMap` /
+> `entry.ts` / `compile-css.mjs` が `components/` を指したままだったのを修正。副作用として
+> **グループが `commons`(10) と `general`(3) の2つに分かれた**（この形で確定）。
+> 書込 73 / 削除 42（旧 `components/general/` の10件ぶん40 + `guidelines/` 2）。
+> 検証は 12 が verified-by-upload でスキップ、`LabeledField` のみ再採点（good）。
+
 > 2026-07-23 再同期: リファクタリングで追加された 4 コンポーネント
 > （PageHeading / CardGrid / LabeledField / MonoHeading）を追加し **13 コンポーネント構成**に。
 > 全 13 を再検証・再アップロード（styleSha 変更のため全件 changed 扱い）。削除 0。
@@ -9,7 +15,7 @@ happy path（dist + .d.ts）から外れる。以下の仕掛けで同期して�
 
 ## 構成の要点
 
-- **synth-entry**: dist が無いので `.design-sync/entry.ts` が 9 コンポーネントを再 export し、
+- **synth-entry**: dist が無いので `.design-sync/entry.ts` が 13 コンポーネントを再 export し、
   `--entry .design-sync/entry.ts` で渡す。これが PKG_DIR をリポジトリルートに解決させる
   役目も兼ねる（`package.json` の name を walk-up で発見）。
 - **Next 依存の stub**: `GlassCard`（useRouter）・`SiteNav`（usePathname + next/link +
@@ -26,9 +32,22 @@ happy path（dist + .d.ts）から外れる。以下の仕掛けで同期して�
 - **render check / capture のブラウザ**: `~/.cache/ms-playwright` にビルドが無い。
   `DS_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"` を
   環境変数で渡してシステム Chrome を使う（playwright-core は導入済み）。
-- **group は `general`**: コンポーネントが `components/` 直下にあり、汎用ディレクトリ名は
-  グループ化から除外されるため。旧プロトタイプは `core` だった。`core` に揃えたい場合は
-  各コンポーネントに `cfg.docsMap` のフロントマター stub（`---\ncategory: core\n---`）が必要。
+- **group は `commons`（10件）と `general`（3件）の2つ**。グループ名はソースの
+  ディレクトリ名から決まり、`components/` のような汎用名は除外されて `general` に落ちる。
+  DS プリミティブが `commons/` にあるので `commons` グループができ、`components/` 直下に
+  残る `PageHeading` / `SiteNav` / `SkillBar` だけが `general` になる。**2026-08-29 に
+  この2分割で確定**（ユーザー判断。リポジトリの依存の向き `commons/` ← `components/` が
+  そのままペインに出る）。1つに統一したい場合は各コンポーネントに `cfg.docsMap` の
+  フロントマター stub（`---\ncategory: <Group>\n---`）が13件ぶん必要。
+- **`guidelinesGlob` は空配列**。既定（`docs/*.md` ほか）だとリポジトリの `docs/` にある
+  ローカル作業メモまで `guidelines/` に載る。**2026-08-29 にユーザー判断で `[]` に固定**し、
+  リモートの `guidelines/` は削除した。ガイドラインを載せるなら送ってよい文書だけを
+  明示的に glob で指すこと。
+- **`componentSrcMap` / `entry.ts` / `compile-css.mjs` の3箇所はディレクトリ構成に連動する**。
+  DS プリミティブが `commons/` へ移ったとき、この3つが `components/` を指したまま陳腐化した
+  （2026-08-29 に修正）。コンポーネントを別ディレクトリへ動かしたら必ず3つとも直す。
+  compile-css.mjs の `@source` が漏れると**ビルドも検証も通るのに CSS だけが欠ける**
+  （このときは 35KB → 53KB、クラスセレクタ 237 → 432 の差だった）。
 
 ## Known render warns（再同期時に「新規」と誤認しないこと）
 
@@ -54,8 +73,17 @@ happy path（dist + .d.ts）から外れる。以下の仕掛けで同期して�
   これを怠ると古い（または存在しない）CSS で同期してしまう。
 - **stub の陳腐化**: `.design-sync/stubs/next-*.ts` は next の API 変更に追随しない。
   コンポーネントが next の別 API を使い始めたら stub を追記する。
-- Tailwind のコンテンツ走査は `components/` と `app/` を `@source` で明示している
+- Tailwind のコンテンツ走査は `commons/` と `components/` と `app/` を `@source` で明示している
   （compile-css.mjs 内）。走査対象ディレクトリが増えたら `@source` を追加する。
+- **`conventions.md` はコードの変化から静かにずれる**。デザインエージェントのシステム
+  プロンプトに入るので、ずれた記述はそのまま誤作動になる。再同期のたびに、そこで名指し
+  しているユーティリティ・トークン・コンポーネント名・パスを**ビルド成果物と突き合わせる**
+  こと。2026-08-29 には `rounded-btn` / `rounded-tag`（arbitrary value を廃したリファクタで
+  消滅。ボタン・タグは標準の `rounded-lg`）と、`components/general/<Name>/` という固定パスの
+  2箇所がずれていた。
+- **`DesignSync` は claude.ai アカウントの design-system 認可が要る**。切れていると
+  `get_project` などが認可エラーを返す。`/design-login` で通る（環境変数やスキルの
+  有効・無効とは別の話）。
 
 ## 再同期の手順
 

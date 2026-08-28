@@ -24,7 +24,7 @@
 | ユーティリティ | 用途 |
 | --- | --- |
 | `font-display` / `font-body` / `font-mono` | 見出し / 本文・UI / モノ・ラベル |
-| `rounded-card` / `rounded-btn` / `rounded-tag` | カード / ボタン / タグの角丸 |
+| `rounded-card` | カードの角丸（`--radius-card: 20px`）。ボタン・タグは標準の `rounded-lg` |
 | `shadow-card-hover` | カードのホバー影 |
 
 色は Tailwind 組み込みパレットに準拠する（custom 色トークンは無い）:
@@ -41,8 +41,10 @@
 ## 真実のある場所
 
 - `styles.css` … トークン・フォント・`_ds_bundle.css`（コンポーネント CSS）を束ねる入口。
-- `components/general/<Name>/<Name>.prompt.md` … 各コンポーネントの使い方。
-- `components/general/<Name>/<Name>.d.ts` … props の型契約。
+- `components/<group>/<Name>/<Name>.prompt.md` … 各コンポーネントの使い方。
+- `components/<group>/<Name>/<Name>.d.ts` … props の型契約。
+  `<group>` は `commons`（DS プリミティブ10件）か `general`（`PageHeading` /
+  `SiteNav` / `SkillBar` の3件）のどちらか。
 
 ## コンポーネント一覧
 

@@ -117,7 +117,8 @@ portfolio-site/
 ├── e2e/                     # Playwright E2E（smoke / navigation / motion / geometry / responsive）
 ├── eslint-rules/            # 独自 ESLint ルール（no-conditional-jsx）
 ├── public/works/brew/       # BREW ケーススタディの画像
-├── .design-sync/            # claude.ai/design 連携の入力（config / entry / stubs / previews）
+├── .design-sync/            # claude.ai/design 連携の入力（config / entry / sync-tsconfig /
+│                           #   compile-css / conventions / NOTES / stubs / previews）
 ├── WORK_LOG/                # 作業セッションのサマリー
 ├── Dockerfile / compose.yaml / Makefile
 ├── biome.json / eslint.config.mjs / playwright.config.ts / .mcp.json
