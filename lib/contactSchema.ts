@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// Zod は初回の parse で `Function("")` を試して JIT が使えるか判定する。CSP に
+// `'unsafe-eval'` を入れていないのでこれは必ず失敗し、Zod 自体は jitless に
+// フォールバックするものの、ブラウザには CSP 違反が1件記録される。
+// 4項目のフォームで JIT の速度差は問題にならないため、判定ごと止める。
+z.config({ jitless: true });
+
 /** 各入力の最大文字数。クライアントの maxLength と揃える */
 export const CONTACT_LIMITS = {
     name: 100,

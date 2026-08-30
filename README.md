@@ -408,13 +408,43 @@ OGP 画像がここを参照します。URL は `SITE_URL` → `VERCEL_PROJECT_P
 
 | ヘッダー | 値 |
 | --- | --- |
+| `Content-Security-Policy` | 下記 |
 | `X-Content-Type-Options` | `nosniff` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), browsing-topics=()` |
 | `X-Frame-Options` | `DENY` |
 
-**CSP は持ちません。** Turnstile（`challenges.cloudflare.com` の script / frame / connect）と
-Google Fonts、Next のインラインスタイルを許可する設定が要り、導入するなら実挙動の確認とセットで行います。
+### CSP
+
+```
+default-src 'self';
+script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com;
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+font-src 'self' https://fonts.gstatic.com;
+img-src 'self' data: blob:;
+connect-src 'self' https://challenges.cloudflare.com;
+frame-src https://challenges.cloudflare.com;
+frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';
+upgrade-insecure-requests
+```
+
+外部の配信元は Turnstile（script / frame / connect）と Google Fonts（`globals.css` の `@import` で
+読む CSS が `fonts.googleapis.com`、実フォントが `fonts.gstatic.com`）の2つだけです。
+
+**`script-src` に `'unsafe-inline'` が残っているのは意図的です。** Next はページごとに
+インラインの `self.__next_f.push(...)` を吐き、Home には JSON-LD の `<script>` もあります。
+これを nonce で許可するにはリクエストごとに値を変える必要があり `middleware.ts` が要りますが、
+middleware を置くと全ページが dynamic レンダリングに落ちて SSG が効かなくなります。
+このサイトはユーザー入力を描画する箇所を持たない（`dangerouslySetInnerHTML` は自前定数の
+JSON-LD 1箇所のみ）ため、**インライン script の遮断より SSG を採り**、CSP の役割は
+読み込み元オリジンの限定と、XSS を前提としない指示（`frame-ancestors` / `base-uri` /
+`form-action` / `object-src`）に置いています。
+
+開発時だけ `script-src` に `'unsafe-eval'`（React Refresh）、`connect-src` に `ws:`（HMR）を足します。
+
+`lib/contactSchema.ts` の `z.config({ jitless: true })` はこの CSP とセットです。Zod は初回の parse で
+`Function("")` を試して JIT の可否を判定するため、これを止めないと `/contact` で CSP 違反が1件記録されます
+（Zod 自体は jitless にフォールバックするので動作は壊れません）。
 
 **レート制限はアプリ側に持ちません。** Serverless では実行インスタンスをまたげず、モジュールスコープの
 カウンタが当てにならないためです。正規の Turnstile トークンを取ったうえでの連投は、ホスティング基盤側
@@ -457,7 +487,7 @@ Project → Firewall → Custom Rules に `/api/contact` 宛のルールを1つ�
 
 ```bash
 # セキュリティヘッダー
-curl -sSI https://megumi-ayuha-v2.vercel.app/ | grep -iE 'x-content-type-options|referrer-policy|permissions-policy|x-frame-options'
+curl -sSI https://megumi-ayuha-v2.vercel.app/ | grep -iE 'content-security-policy|x-content-type-options|referrer-policy|permissions-policy|x-frame-options'
 
 # レート制限（Honeypot 欄を埋めるとメール送信はスキップされる）
 for i in $(seq 1 8); do curl -s -o /dev/null -w "%{http_code}\n" -X POST https://megumi-ayuha-v2.vercel.app/api/contact \
@@ -488,7 +518,8 @@ npm run test:e2e:report    # 直近の HTML レポート
 プロジェクトは4つ。`chromium` / `webkit`（いずれも 1280px）はデスクトップ幅の期待値で書かれた spec を
 走らせ、`testIgnore` で `responsive.spec.ts` を外します。`mobile-chrome`（Pixel 5）と
 `mobile-safari`（iPhone 13）は `testMatch` で `responsive.spec.ts` だけを拾います。
-`smoke.spec.ts` は表示に加えて **canonical / OGP / sitemap / robots / セキュリティヘッダー**も見ます
+`smoke.spec.ts` は表示に加えて **canonical / OGP / sitemap / robots / セキュリティヘッダー / CSP**も見ます
+（CSP はヘッダーをディレクティブ単位に分解して、配信元が正しいディレクティブに載っているかまで見ます）
 （画面に出ないため、抜けても目視では気づけないものです）。
 
 `e2e/` と `playwright.config.ts` は `tsconfig.json` の `exclude` に入れて `next build` の型チェックから

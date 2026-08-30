@@ -163,3 +163,52 @@ test("セキュリティヘッダーが付く", async ({ request }) => {
     expect(headers["permissions-policy"]).toContain("camera=()");
     expect(headers["x-frame-options"]).toBe("DENY");
 });
+
+/**
+ * CSP ヘッダーを「ディレクティブ名 → 配信元の配列」に均す。
+ * ヘッダー全体への部分一致だと、配信元を別のディレクティブへ移してしまう取り違え
+ * （例: fonts.gstatic.com を font-src から外して style-src にだけ残す）を検知できない。
+ */
+function parseCsp(csp: string): Map<string, string[]> {
+    const directives = new Map<string, string[]>();
+    for (const part of csp.split(";")) {
+        const [name, ...sources] = part.trim().split(/\s+/);
+        if (name) {
+            directives.set(name, sources);
+        }
+    }
+    return directives;
+}
+
+test("CSP がディレクティブ単位で正しい", async ({ request }) => {
+    const res = await request.get("/");
+    const csp = res.headers()["content-security-policy"];
+    expect(csp).toBeTruthy();
+    const directives = parseCsp(csp);
+
+    expect(directives.get("default-src")).toEqual(["'self'"]);
+
+    // 外部の配信元。置き場所を間違えると本番でだけ読み込みが落ちる
+    expect(directives.get("style-src")).toContain("https://fonts.googleapis.com");
+    expect(directives.get("font-src")).toContain("https://fonts.gstatic.com");
+    for (const name of ["script-src", "connect-src", "frame-src"]) {
+        expect(directives.get(name)).toContain("https://challenges.cloudflare.com");
+    }
+
+    // Next のインラインブートストラップ・JSON-LD と、Next / next/image / Turnstile の
+    // style 属性。外すと本番の全ページが壊れる
+    expect(directives.get("script-src")).toContain("'unsafe-inline'");
+    expect(directives.get("style-src")).toContain("'unsafe-inline'");
+
+    // next/image の最適化結果は同一オリジン、data: は blur placeholder
+    expect(directives.get("img-src")).toEqual(expect.arrayContaining(["'self'", "data:"]));
+
+    // XSS を前提としない指示
+    expect(directives.get("frame-ancestors")).toEqual(["'none'"]);
+    expect(directives.get("base-uri")).toEqual(["'self'"]);
+    expect(directives.get("form-action")).toEqual(["'self'"]);
+    expect(directives.get("object-src")).toEqual(["'none'"]);
+    expect(directives.has("upgrade-insecure-requests")).toBe(true);
+
+    // 'unsafe-eval'（React Refresh）と ws:（HMR）は dev だけで付くので有無を問わない
+});

@@ -174,6 +174,19 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
   しか持たず豆腐になる）。レイアウトエンジンは Flexbox のサブセットで **Tailwind のクラスは効かない**
   ため inline style で書く（`background-size` も解釈しないので格子は div を並べている）。
 
+### CSP（`next.config.mjs`）
+
+- **外部の配信元を増やしたら `contentSecurityPolicy()` にも足す**。CSP は `next.config.mjs` の1箇所に
+  表として書き下してある。外すと本番でだけリソースが読めなくなる（`default-src 'self'` に落ちる）。
+- **dev 側の `'unsafe-eval'` と `ws:` を消さない**。`headers()` は dev サーバーにも効くので、
+  消すと React Refresh と HMR が動かなくなる（`make up` の画面が更新されなくなる）。
+- **`script-src` の `'unsafe-inline'` は外せない**。Next のインライン `self.__next_f.push(...)` と
+  Home の JSON-LD がある。nonce にすると `middleware.ts` が要り、全ページが dynamic に落ちて
+  SSG が効かなくなる。
+- **`lib/contactSchema.ts` の `z.config({ jitless: true })` を消さない**。Zod は初回 parse で
+  `Function("")` を試して JIT の可否を判定するため、消すと /contact で CSP 違反が1件記録される
+  （Zod 自体は jitless にフォールバックするので動作は壊れない）。
+
 ### お問い合わせフォーム
 
 - **`<form>` には `noValidate` が必須**（無いとブラウザ標準の検証 UI が先に出て Zod のメッセージまで
