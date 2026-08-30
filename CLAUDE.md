@@ -186,6 +186,10 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
 - **`lib/contactSchema.ts` の `z.config({ jitless: true })` を消さない**。Zod は初回 parse で
   `Function("")` を試して JIT の可否を判定するため、消すと /contact で CSP 違反が1件記録される
   （Zod 自体は jitless にフォールバックするので動作は壊れない）。
+- **`vercel.live`（Vercel Toolbar）は入れていない**。Vercel の Toolbar 設定が Pre-Production /
+  Production とも `Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても
+  CSP 違反が出ないことを実測済み。Toolbar を有効化したら `vercel.live` ほか複数の配信元が要るので、
+  そのときは `process.env.VERCEL_ENV !== "production"` の分岐で足す（本番の CSP は変えない）。
 
 ### お問い合わせフォーム
 

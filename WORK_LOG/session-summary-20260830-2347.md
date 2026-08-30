@@ -63,9 +63,10 @@ Codex（gpt-5.2-codex / read-only）に差分をレビューさせ、指摘を�
 | 指摘 | 検証結果 |
 | --- | --- |
 | `e2e/smoke.spec.ts` の CSP テストが退行を検知できない | **本物**。修正した |
-| Vercel Preview の Toolbar（`vercel.live`）が `script-src` に無い | **判断保留 → 今回は対応しない** |
+| Vercel Preview の Toolbar（`vercel.live`）が `script-src` に無い | **false positive**（プレビューで実測し決着） |
 
-false positive はなし。
+Toolbar の指摘はコード上は成立するが、このプロジェクトでは Toolbar 自体が無効なため実害がない。
+プレビューデプロイを Vercel にログインした状態で開き、Console に CSP 違反が出ないことで決着させた。
 
 ### 5. E2E テストの修正（`e2e/smoke.spec.ts`）
 
@@ -88,6 +89,7 @@ false positive はなし。
 | `README.md`「公開後の確認」 | `curl` の `grep -iE` に `content-security-policy` を追加 |
 | `README.md`「E2E」 | `smoke.spec.ts` の守備範囲に CSP を追記 |
 | `CLAUDE.md`「変更時に壊しやすい箇所」 | 「CSP（`next.config.mjs`）」を新設。配信元を増やしたら足すこと、dev 側の `'unsafe-eval'` / `ws:` を消さないこと、`'unsafe-inline'` は外せないこと、`z.config({ jitless: true })` を消さないことの4点 |
+| `README.md` / `CLAUDE.md`（プレビュー確認後） | `vercel.live` を入れていない理由（Toolbar がチームレベルで無効・実測で確認）を追記 |
 
 ### 7. 依頼スコープ外の修正（承認済み）
 
@@ -104,23 +106,19 @@ lint を通さないと検証が進まないため `biome check --write` で2行
   **インライン script の遮断より SSG を採り**、CSP の役割は
   「読み込み元オリジンの限定」と「XSS を前提としない指示（`frame-ancestors` / `base-uri` /
   `form-action` / `object-src`）」に置く。
-- **Vercel Toolbar（`vercel.live`）は今回対応しない。** プロジェクトの Toolbar 設定は
-  Pre-Production / Production とも `Default（controlled at the team level）`。既定どおりなら
-  プレビューでだけ注入され、かつ **Vercel にログインしてアクセス権を持つ人にしか出ない**ため、
-  本番と一般の訪問者には影響しない。必要な配信元（`vercel.live` のほか
-  `wss://ws-us3.pusher.com`・`assets.vercel.com` など）を**未検証のまま CSP に足したくない**ので、
-  対応するならプレビュー URL をログイン状態で開き、コンソールに出るブロック先を実測してから。
-  足す場合も `process.env.VERCEL_ENV !== "production"` の分岐で閉じられ、本番の CSP は変わらない。
+- **Vercel Toolbar（`vercel.live`）は CSP に足さない。** Codex が「プレビューで Toolbar が
+  ブロックされる」と指摘したが、**プレビューデプロイを Vercel にログインした状態で開いて実測し、
+  コンソールに CSP 違反が出ないことを確認した**ので不要と判断した。プロジェクトの Toolbar 設定は
+  Pre-Production / Production とも `Default（controlled at the team level）`で、チーム側で
+  無効になっているとみられる。**未検証の配信元を CSP に足さない**方針を採り、実測で決着させた。
+  将来 Toolbar を有効化する場合は `process.env.VERCEL_ENV !== "production"` の分岐で足せば、
+  本番の CSP は変えずに済む。
 - **Zod は jitless に固定する。** グローバル設定だが、`lib/contactSchema.ts` は
   Route Handler と ContactForm の両方から import され、JIT 判定は初回 parse 時の遅延評価なので
   モジュールトップの設定が必ず先に効く。
 
 ## 未完了・残タスク
 
-- **Vercel Preview の Toolbar と CSP**（今回は意図的に見送り）— プレビュー URL を Vercel に
-  ログインした状態で開き、コンソールに `Refused to load the script 'https://vercel.live/...'` が
-  出るかを確認する。出るなら、そこに列挙されるブロック先を `VERCEL_ENV !== "production"` の
-  分岐で追加する。プレビューの作り方は「`main` 以外のブランチを push」または `npx vercel`
 - `/api/contact` の自動返信メールは未実装
 - 独自ドメインの取得（Resend のドメイン検証が可能になり `CONTACT_TO_EMAIL` の宛先制限が外れる）
 - `commons/` は21種あるが design-sync の同期対象は13種のまま。`BackLink` / `BulletList` /
@@ -141,3 +139,9 @@ lint を通さないと検証が進まないため `biome check --write` で2行
 - `make lint` … green
 - `npx playwright test` … **121 passed / 1 skipped**。dev サーバー・本番ビルドの両方で実行。
   skip は `webkit` の Turnstile ウィジェットテスト1件で、既存のもの（`chromium` では pass）
+- **本番デプロイ後にヘッダーを実測**（`curl -sSI https://megumi-ayuha-v2.vercel.app/`）…
+  CSP を含む5ヘッダーがすべて期待どおり。`'unsafe-eval'` と `ws:` は入っておらず、
+  ローカルの本番ビルドと完全に一致した（`NODE_ENV` の分岐が Vercel のビルド時・実行時とも正しく効いている）
+- **プレビューデプロイを Vercel にログインした状態で開き、DevTools の Console に
+  エラーが無いことを確認**。Toolbar が注入されていれば `vercel.live` のスクリプトが必ず
+  ブロックされるため、Codex の指摘が false positive であることの決着となった

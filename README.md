@@ -430,6 +430,9 @@ upgrade-insecure-requests
 
 外部の配信元は Turnstile（script / frame / connect）と Google Fonts（`globals.css` の `@import` で
 読む CSS が `fonts.googleapis.com`、実フォントが `fonts.gstatic.com`）の2つだけです。
+Vercel Toolbar（`vercel.live`）は含めていません。Toolbar 設定が Pre-Production / Production とも
+`Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても CSP 違反が
+出ないことを確認済みです。
 
 **`script-src` に `'unsafe-inline'` が残っているのは意図的です。** Next はページごとに
 インラインの `self.__next_f.push(...)` を吐き、Home には JSON-LD の `<script>` もあります。
