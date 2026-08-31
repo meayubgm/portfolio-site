@@ -9,6 +9,14 @@ const isDev = process.env.NODE_ENV !== "production";
 const TURNSTILE = "https://challenges.cloudflare.com";
 
 /**
+ * Vercel Analytics が **development のときだけ** 読むデバッグ用スクリプトの配信元。
+ * 本番の `<Analytics />` は同一オリジンの `/_vercel/insights/script.js` を読み、
+ * 計測ビーコンも同じ `/_vercel/insights/` 配下（ページビューは `view`）へ送るので
+ * `'self'` で足りる。
+ */
+const VERCEL_ANALYTICS_DEV = "https://va.vercel-scripts.com";
+
+/**
  * Content-Security-Policy を組み立てる。
  *
  * `script-src` に `'unsafe-inline'` が残っているのは意図的。Next はページごとに
@@ -23,11 +31,12 @@ const TURNSTILE = "https://challenges.cloudflare.com";
  */
 function contentSecurityPolicy() {
     // dev サーバーにもこのヘッダーは付く。React Refresh は eval を、HMR は WebSocket を使うので、
-    // 開発時だけ緩める（消すと `make up` の画面が固まる）
+    // 開発時だけ緩める（消すと `make up` の画面が固まる）。
+    // Vercel Analytics のデバッグ用スクリプトも dev でしか読まれないのでここに置く
     const scriptSrc = ["'self'", "'unsafe-inline'", TURNSTILE];
     const connectSrc = ["'self'", TURNSTILE];
     if (isDev) {
-        scriptSrc.push("'unsafe-eval'");
+        scriptSrc.push("'unsafe-eval'", VERCEL_ANALYTICS_DEV);
         connectSrc.push("ws:");
     }
 

@@ -70,6 +70,8 @@ import は `@/` エイリアス。
 
 - ページ本体とほとんどのコンポーネントは Server Component。`"use client"` は7つだけ
   （`GlassCard` / `Typewriter` / `RiseIn` / `Wireframe` / `ScrollToTarget` / `SiteNav` / `ContactForm`）。
+  `app/layout.tsx` の `<Analytics />`（`@vercel/analytics/next`）も client だが**外部パッケージ側**で、
+  `layout.tsx` に `"use client"` は付けない（付けると全ページが SSG から落ちる）。
 - カード全体をリンクにするときはページを Server に保つため `GlassCard` に `href` を渡す
   （内部で `useRouter().push`。カード内に `<a>` が入るので `<a>` のネストは不可）。
 - `GlassCard` の `span` / `start` は `lg:col-span-*` / `lg:col-start-*` なので **lg 以上でだけ効く**。
@@ -180,6 +182,8 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
   表として書き下してある。外すと本番でだけリソースが読めなくなる（`default-src 'self'` に落ちる）。
 - **dev 側の `'unsafe-eval'` と `ws:` を消さない**。`headers()` は dev サーバーにも効くので、
   消すと React Refresh と HMR が動かなくなる（`make up` の画面が更新されなくなる）。
+  同じ分岐の `va.vercel-scripts.com` は Vercel Analytics が**dev でだけ**読むデバッグ用スクリプト用。
+  **本番側には足さない**（本番は同一オリジンの `/_vercel/insights/*` を読むので `'self'` で足りる）。
 - **`script-src` の `'unsafe-inline'` は外せない**。Next のインライン `self.__next_f.push(...)` と
   Home の JSON-LD がある。nonce にすると `middleware.ts` が要り、全ページが dynamic に落ちて
   SSG が効かなくなる。

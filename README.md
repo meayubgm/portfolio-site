@@ -24,6 +24,7 @@ Next.js (App Router) + Tailwind CSS v4 で実装しています。
 | メール送信 | Resend + Cloudflare Turnstile |
 | 開発環境 | Docker（`node:24-alpine`）+ Make |
 | ホスティング | Vercel |
+| アクセス解析 | Vercel Web Analytics（`@vercel/analytics`。cookieless・同一オリジン配信） |
 
 ## 動作要件
 
@@ -282,6 +283,8 @@ font-family）と `tone`（文字色）から選びます。h1 だけレスポ�
   `Typewriter`（タイピング）・`RiseIn`（浮き上がり）・`Wireframe`（正多面体の自転）・
   `ScrollToTarget`（遷移先へのスムーススクロール）・`SiteNav`（`usePathname` とスクロール連動）・
   `ContactForm`（フォーム状態と Turnstile）。
+  これに加えて `app/layout.tsx` が `@vercel/analytics` の `<Analytics />`（client）を置いていますが、
+  `layout.tsx` 自体は Server Component のままです。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡します
   （内部で `useRouter().push`。カード内に `<a>` が入るため `<a>` のネストは避けています）。
 
@@ -443,7 +446,10 @@ JSON-LD 1箇所のみ）ため、**インライン script の遮断より SSG �
 読み込み元オリジンの限定と、XSS を前提としない指示（`frame-ancestors` / `base-uri` /
 `form-action` / `object-src`）に置いています。
 
-開発時だけ `script-src` に `'unsafe-eval'`（React Refresh）、`connect-src` に `ws:`（HMR）を足します。
+開発時だけ `script-src` に `'unsafe-eval'`（React Refresh）と `https://va.vercel-scripts.com`
+（Vercel Analytics のデバッグ用スクリプト）、`connect-src` に `ws:`（HMR）を足します。
+**本番の CSP はアクセス解析の導入前後で変わりません** — Vercel Analytics はスクリプトも計測ビーコンも
+同一オリジン（`/_vercel/insights/*`）なので `'self'` で足ります。
 
 `lib/contactSchema.ts` の `z.config({ jitless: true })` はこの CSP とセットです。Zod は初回の parse で
 `Function("")` を試して JIT の可否を判定するため、これを止めないと `/contact` で CSP 違反が1件記録されます
@@ -485,6 +491,26 @@ Project → Firewall → Custom Rules に `/api/contact` 宛のルールを1つ�
 
 ルールは **Save のあと Publish** して初めて反映されます。`Challenge` ではなく `Deny` を選ぶのは、
 `fetch` で叩く API にチャレンジ画面を返しても JSON にならないためです。
+
+### アクセス解析（Vercel Web Analytics）
+
+`app/layout.tsx` が `@vercel/analytics/next` の `<Analytics />` を置いています。**Project → Analytics
+から Web Analytics を Enable しないとデータが入りません**（有効化前は `/_vercel/insights/script.js` が
+404 を返します）。
+
+計測スクリプトは同一オリジンの `/_vercel/insights/script.js`、ビーコンの送信先も同じ
+`/_vercel/insights/` 配下（ページビューは `view`、`track()` のカスタムイベントは `event`）なので、
+**CSP に外部の配信元を足さずに済みます**。これが GA4 や
+Cloudflare Web Analytics ではなくこれを選んだ理由です。**cookie を使わない**ので同意バナーと
+プライバシーポリシーページも置いていません。取れるのはページビュー・リファラー・国・デバイス程度です。
+
+`<Analytics />` は client component ですが、`app/layout.tsx` 自体は Server Component のままなので
+**全ページが SSG のまま**です（`next build` の出力が `○ (Static)` であることで確認できます）。
+`make up`（`next dev`）ではデバッグ用スクリプト（`va.vercel-scripts.com`）が読まれるだけで、
+データは送られません。一方、Docker を起動せずに `npx playwright test` を実行したときや CI では
+`playwright.config.ts` の `webServer` が `npm run build && npm run start` で立ち上がるため、
+**本番と同じ `/_vercel/insights/script.js` を要求して 404 になります**（Vercel の外なので当然で、
+テストは落ちません）。ログに毎回この 404 が並ぶのはこの経路です。
 
 ### 公開後の確認
 

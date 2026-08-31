@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ScrollToTarget } from "@/commons/ScrollToTarget";
@@ -51,6 +52,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                         &copy; 2026 Megumi Ayuha
                     </Text>
                 </footer>
+                {/* Vercel Web Analytics。スクリプトも計測ビーコンも同一オリジン
+            （/_vercel/insights/*）なので CSP は 'self' のままで通る。cookieless。
+            client component だがページは Static のまま。 */}
+                <Analytics />
             </body>
         </html>
     );
