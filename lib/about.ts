@@ -78,11 +78,11 @@ export const favorites: Favorite[] = [
     },
     {
         name: "音楽",
-        note: "ライブやフェスに行くのが好きです",
+        note: "ライブやフェスによく行きます。People In The Box, THE NOVEMBERS, the cabs が好きです",
     },
     {
         name: "ゲーム",
-        note: "今はSwitch2のゲームを色々やっています",
+        note: "今はSwitch2でゲームを色々やっています。リズム天国, 塊魂, FFVI が好きです",
     },
 ];
 

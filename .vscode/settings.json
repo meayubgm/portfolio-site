@@ -2,5 +2,19 @@
     "editor.tabSize": 4,
     "editor.indentSize": "tabSize",
     "editor.detectIndentation": false,
-    "cSpell.words": ["budoux", "Flexbox"]
+    "cSpell.words": [
+        "artifactregistry",
+        "budoux",
+        "cookieless",
+        "FFVI",
+        "Flexbox",
+        "geolocation",
+        "Grotesk",
+        "gstatic",
+        "jitless",
+        "lastmod",
+        "nosniff",
+        "opengraph",
+        "Turbopack"
+    ]
 }
