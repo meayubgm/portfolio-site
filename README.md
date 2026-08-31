@@ -22,9 +22,9 @@ Next.js (App Router) + Tailwind CSS v4 で実装しています。
 | テスト | Playwright（E2E / デスクトップ2 + モバイル2プロジェクト） |
 | フォーム | React Hook Form + Zod |
 | メール送信 | Resend + Cloudflare Turnstile |
+| アクセス解析 | Vercel Web Analytics（`@vercel/analytics`。cookie 不使用・同一オリジン配信） |
 | 開発環境 | Docker（`node:24-alpine`）+ Make |
 | ホスティング | Vercel |
-| アクセス解析 | Vercel Web Analytics（`@vercel/analytics`。cookieless・同一オリジン配信） |
 
 ## 動作要件
 
@@ -73,7 +73,10 @@ npx playwright install chromium webkit
 make up        # コンテナ起動（docker compose up -d）→ http://localhost:3000
 make down      # 停止・削除
 make logs      # ログ追跡
+make ps        # 起動中のコンテナを表示
 make sh        # app コンテナのシェルに入る
+make restart   # コンテナを再起動
+make build     # イメージをビルド
 make rebuild   # キャッシュ無しで再ビルドして起動
 make install   # コンテナ内で npm install
 make lint      # Biome + ESLint（make lint-fix で自動修正）
@@ -99,7 +102,7 @@ import には `@/` エイリアスを使います（`tsconfig.json` の `paths` 
 ```
 portfolio-site/
 ├── app/                     # App Router
-│   ├── layout.tsx           # 共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ・フッター・ScrollToTarget）
+│   ├── layout.tsx           # 共通レイアウト（ナビ・アンビエントグロー・最大幅コンテナ・フッター・ScrollToTarget・Analytics）
 │   ├── globals.css          # Tailwind v4 の @theme にデザイントークンを統合
 │   ├── icon.svg / icon.png / apple-icon.png   # metadata ファイル
 │   ├── opengraph-image.tsx  # OGP 画像（next/og。全ルートに継承される）
@@ -279,12 +282,12 @@ font-family）と `tone`（文字色）から選びます。h1 だけレスポ�
 
 - ページ本体とほとんどのコンポーネントは Server Component で、全ページが静的生成されます。
   唯一の動的ルートが `app/api/contact/route.ts` です。
-- `"use client"` は7ファイル: `GlassCard`（マウス追従グロー・クリック遷移・scroll reveal）・
+- `"use client"` を持つのは7ファイル: `GlassCard`（マウス追従グロー・クリック遷移・scroll reveal）・
   `Typewriter`（タイピング）・`RiseIn`（浮き上がり）・`Wireframe`（正多面体の自転）・
   `ScrollToTarget`（遷移先へのスムーススクロール）・`SiteNav`（`usePathname` とスクロール連動）・
   `ContactForm`（フォーム状態と Turnstile）。
-  これに加えて `app/layout.tsx` が `@vercel/analytics` の `<Analytics />`（client）を置いていますが、
-  `layout.tsx` 自体は Server Component のままです。
+- `app/layout.tsx` が置く `<Analytics />`（`@vercel/analytics`）も client component ですが、
+  境界はパッケージ側にあるため `layout.tsx` は Server Component のままです。
 - カード全体をリンクにする場合は、ページを Server のまま保つため `GlassCard` に `href` を渡します
   （内部で `useRouter().push`。カード内に `<a>` が入るため `<a>` のネストは避けています）。
 
@@ -361,6 +364,8 @@ Route Handler の双方が同じルールを参照します（Route Handler 側�
 `200 { ok: true }` を返してメール送信だけをスキップします。連投の抑止はホスティング基盤側の
 レート制限が担当します（「[セキュリティ](#セキュリティ)」参照）。
 
+訪問者への自動返信メールは送りません。送信の完了はフォームの画面表示で伝えます。
+
 > **送信元と宛先**: 独自ドメインを Resend で検証していないため、送信元は共有ドメインの
 > `onboarding@resend.dev` です。この構成では Resend の sandbox 制限により、**宛先は Resend アカウントの
 > 登録メールアドレスに限られます**。別のアドレスを `CONTACT_TO_EMAIL` に指定すると Resend が 403 を返し、
@@ -433,11 +438,14 @@ upgrade-insecure-requests
 
 外部の配信元は Turnstile（script / frame / connect）と Google Fonts（`globals.css` の `@import` で
 読む CSS が `fonts.googleapis.com`、実フォントが `fonts.gstatic.com`）の2つだけです。
-Vercel Toolbar（`vercel.live`）は含めていません。Toolbar 設定が Pre-Production / Production とも
-`Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても CSP 違反が
-出ないことを確認済みです。
+アクセス解析は同一オリジンで完結するため、ここには現れません。
 
-**`script-src` に `'unsafe-inline'` が残っているのは意図的です。** Next はページごとに
+Vercel Toolbar（`vercel.live`）も許可しません。Toolbar 設定は Pre-Production / Production とも
+`Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても CSP 違反は出ません。
+Toolbar を有効化する場合は複数の配信元が要るので、`process.env.VERCEL_ENV !== "production"` の
+分岐で足し、本番の CSP は変えないでください。
+
+**`script-src` の `'unsafe-inline'` は意図して許可しています。** Next はページごとに
 インラインの `self.__next_f.push(...)` を吐き、Home には JSON-LD の `<script>` もあります。
 これを nonce で許可するにはリクエストごとに値を変える必要があり `middleware.ts` が要りますが、
 middleware を置くと全ページが dynamic レンダリングに落ちて SSG が効かなくなります。
@@ -448,8 +456,7 @@ JSON-LD 1箇所のみ）ため、**インライン script の遮断より SSG �
 
 開発時だけ `script-src` に `'unsafe-eval'`（React Refresh）と `https://va.vercel-scripts.com`
 （Vercel Analytics のデバッグ用スクリプト）、`connect-src` に `ws:`（HMR）を足します。
-**本番の CSP はアクセス解析の導入前後で変わりません** — Vercel Analytics はスクリプトも計測ビーコンも
-同一オリジン（`/_vercel/insights/*`）なので `'self'` で足ります。
+`headers()` は dev サーバーにも効くため、この分岐を外すと `make up` の画面が更新されなくなります。
 
 `lib/contactSchema.ts` の `z.config({ jitless: true })` はこの CSP とセットです。Zod は初回の parse で
 `Function("")` を試して JIT の可否を判定するため、これを止めないと `/contact` で CSP 違反が1件記録されます
@@ -495,22 +502,32 @@ Project → Firewall → Custom Rules に `/api/contact` 宛のルールを1つ�
 ### アクセス解析（Vercel Web Analytics）
 
 `app/layout.tsx` が `@vercel/analytics/next` の `<Analytics />` を置いています。**Project → Analytics
-から Web Analytics を Enable しないとデータが入りません**（有効化前は `/_vercel/insights/script.js` が
-404 を返します）。
+から Web Analytics を Enable しないとデータが入りません**（有効化前は計測スクリプトが 404 を返します）。
 
-計測スクリプトは同一オリジンの `/_vercel/insights/script.js`、ビーコンの送信先も同じ
-`/_vercel/insights/` 配下（ページビューは `view`、`track()` のカスタムイベントは `event`）なので、
-**CSP に外部の配信元を足さずに済みます**。これが GA4 や
-Cloudflare Web Analytics ではなくこれを選んだ理由です。**cookie を使わない**ので同意バナーと
-プライバシーポリシーページも置いていません。取れるのはページビュー・リファラー・国・デバイス程度です。
+計測スクリプトもビーコンの送信先も**同一オリジン**なので、**CSP に外部の配信元が要りません**。これが
+アクセス解析にこれを採る理由です。**cookie を使わない**ため同意バナーとプライバシーポリシーページも
+持ちません。取れるのはページビュー・リファラー・国・デバイス程度です。
+
+**計測スクリプトのパスは決め打ちにしないでください。** パスは Vercel のビルドが割り当て、広告
+ブロッカー回避のために難読化されたもの（例: `/6eed0cb42a34c6d1/script.js`）になることがあり、
+デプロイごとに変わりえます。CSP は「同一オリジンかどうか」だけで判断します。ビーコンはページビューが
+`view`、`track()` のカスタムイベントが `event` です。
 
 `<Analytics />` は client component ですが、`app/layout.tsx` 自体は Server Component のままなので
 **全ページが SSG のまま**です（`next build` の出力が `○ (Static)` であることで確認できます）。
-`make up`（`next dev`）ではデバッグ用スクリプト（`va.vercel-scripts.com`）が読まれるだけで、
-データは送られません。一方、Docker を起動せずに `npx playwright test` を実行したときや CI では
-`playwright.config.ts` の `webServer` が `npm run build && npm run start` で立ち上がるため、
-**本番と同じ `/_vercel/insights/script.js` を要求して 404 になります**（Vercel の外なので当然で、
-テストは落ちません）。ログに毎回この 404 が並ぶのはこの経路です。
+
+ローカルでの挙動は2通りです。`make up`（`next dev`）ではデバッグ用スクリプト
+（`va.vercel-scripts.com`）が読まれるだけで、データは送られません。Docker を起動せずに
+`npx playwright test` を実行したときや CI では `playwright.config.ts` の `webServer` が
+`npm run build && npm run start` で立ち上がるため、同一オリジンの `/_vercel/insights/script.js` を
+要求して 404 になります（Vercel の外なので当然で、テストは落ちません）。ログにこの 404 が並ぶのは
+この経路です。
+
+**Playwright など自動操作のブラウザでは計測されません。** 計測スクリプトは冒頭で
+`navigator.webdriver || navigator.userAgent.includes("Headless")` を見て、真なら何もせずに
+return します（ボット除外）。この場合スクリプトは 200 で読まれるのにビーコンが1本も飛ばないので、
+**E2E で「ビーコンが飛ばない」ことを不具合と見なさないでください**。ページビューは
+`window.vaq` に積まれたまま残ります。
 
 ### 公開後の確認
 
@@ -523,6 +540,8 @@ for i in $(seq 1 8); do curl -s -o /dev/null -w "%{http_code}\n" -X POST https:/
   -H 'Content-Type: application/json' \
   -d '{"name":"t","email":"t@example.com","message":"test","website":"bot"}'; done
 ```
+
+アクセス解析は実際のブラウザで数ページ巡回し、Vercel の Analytics タブに反映されることで確認します。
 
 OGP の見え方は Facebook Sharing Debugger（再取得ができます）や opengraph.xyz で確認します。
 X の Card Validator は提供が終了しているため、投稿画面のプレビューで代用します。

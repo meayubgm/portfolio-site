@@ -92,6 +92,36 @@ Resend アカウントの登録アドレスに限られる**（README.md:361-365
 | `CLAUDE.md`「CSP（`next.config.mjs`）」 | dev 分岐の `va.vercel-scripts.com` を**本番側に足さない**旨を追記 |
 | `CLAUDE.md`「Client / Server」 | `layout.tsx` に `"use client"` を付けると全ページが SSG から落ちる旨を追記 |
 
+### 6. コミット・デプロイと本番の実測
+
+`feat: Vercel Web Analytics を導入する`（`8555419`、7 files / +226 −3）としてコミットし、
+`main` へ push して Vercel の自動デプロイを流した。**Web Analytics のダッシュボードでの有効化は
+ユーザーが実施済み**。
+
+デプロイ後、本番（`https://megumi-ayuha-v2.vercel.app/`）を実測したところ**計測は正常に動いて
+いた**が、**直前に書いたドキュメントに事実と違う点が2つ**見つかったので直した。
+いずれもコメント・文書の修正で、コードの挙動は正しい。
+
+**(a) 本番の計測スクリプトのパスは `/_vercel/insights/script.js` ではなかった。**
+実際に配信されていたのは **`/6eed0cb42a34c6d1/script.js`** という難読化された同一オリジンのパス。
+Vercel のビルドが広告ブロッカー回避のために割り当てるもので、デプロイごとに変わりうる。
+**同一オリジンである点は変わらないので `'self'` で通り、CSP は正しいまま**だが、
+`next.config.mjs` のコメントと README・CLAUDE.md・`app/layout.tsx` にパスを決め打ちで書いていたため、
+「パスに依存した判断をしない」旨へ書き換えた。将来 `connect-src` をパス単位で絞るときに効いてくる。
+
+**(b) Playwright ではビーコンが1本も飛ばない。** 配信されているスクリプトの実物を取得して読むと、
+冒頭に `if (navigator.webdriver || navigator.userAgent.includes("Headless")) return;` 相当の
+ボット除外があった。スクリプトは 200 で読まれるのにビーコンが出ず、ページビューは `window.vaq` に
+積まれたまま残る。**不具合ではない**が、知らないと E2E で追いかけることになるため
+README と CLAUDE.md に明記した。
+
+| ファイル | 内容 |
+| --- | --- |
+| `next.config.mjs` | `VERCEL_ANALYTICS_DEV` の docblock から具体パスを外し、「パスは Vercel のビルドが決めるので決め打ちにしない」に変更 |
+| `app/layout.tsx` | 同上の趣旨でコメントを修正 |
+| `README.md`「アクセス解析」 | 難読化パスの例と「パスを決め打ちにした設定を書かない」旨、Playwright で計測されない理由を追記。有効化前の 404 の記述からも具体パスを外した |
+| `CLAUDE.md`「CSP（`next.config.mjs`）」 | 本番の計測スクリプトのパスを決め打ちにしないこと、`navigator.webdriver` によるボット除外を追記 |
+
 ## 主な決定事項
 
 - **`/api/contact` の自動返信メールは実装しない。独自ドメインの取得も行わない。** Resend の
@@ -107,12 +137,14 @@ Resend アカウントの登録アドレスに限られる**（README.md:361-365
 - **Cloudflare Web Analytics は次点。** Turnstile ですでにアカウントがあり無料枠も無制限だが、
   CSP に配信元を2ディレクティブ足す必要があり、`e2e/smoke.spec.ts` の更新も伴う。
 - **`va.vercel-scripts.com` は dev 分岐にだけ置く。** 本番は同一オリジンで完結するため。
+- **計測スクリプトのパスは決め打ちにしない。** 本番のパスは Vercel のビルドが割り当て、
+  難読化されることがある（実測で判明）。CSP は「同一オリジンかどうか」だけで判断し、
+  パス単位の設定を書かない。
 
 ## 未完了・残タスク
 
 - `commons/` は21種あるが design-sync の同期対象は13種のまま。`BackLink` / `BulletList` /
   `HoverCue` / `LearnMoreCue` / `TagList` / `Text` は追加候補（previews の作成が要る）
-- 本番デプロイ後の実測が未実施（下記「動作確認の状況」参照）
 
 ## 動作確認の状況
 
@@ -131,5 +163,19 @@ Resend アカウントの登録アドレスに限られる**（README.md:361-365
 - `make lint` … green
 - `npx playwright test` … **121 passed / 1 skipped**（従来どおり。skip は `webkit` の Turnstile 1件）
 - **Vercel ダッシュボードでの Web Analytics 有効化はユーザーが実施済み**
-- 本番デプロイ後の実測（`curl` で CSP に `va.vercel-scripts.com` が入っていないこと、
-  `/_vercel/insights/script.js` が 200 でビーコンが飛ぶこと、Analytics タブへの反映）は**未実施**
+
+### 本番デプロイ後（push 後の実測）
+
+| 確認項目 | 結果 |
+| --- | --- |
+| CSP ヘッダー | **導入前と完全に一致**。`va.vercel-scripts.com` / `'unsafe-eval'` / `ws:` のいずれも無い。ユーザーが `curl -sSI ... \| grep -i content-security-policy` を実行して同じ結果を確認 |
+| CSP 違反 | Home → /about を実ブラウザで遷移して **0件** |
+| 計測スクリプト | **200**（有効化が効いている。パスは `/6eed0cb42a34c6d1/script.js`） |
+| ページビューの捕捉 | `window.va` が生き、`window.vaq` に `pageview` が積まれることを確認 |
+| ビーコンの送信 | **自動操作のブラウザでは飛ばない**（`navigator.webdriver` によるボット除外） |
+| ダッシュボードへの反映 | **ユーザーが実訪問して Analytics タブにアクセスが記録されることを確認**。導入は end-to-end で成立 |
+
+- ドキュメント修正後の `make lint` … green
+
+**アクセス解析の導入はこれで完了**。CSP・SSG・依存ツリーのいずれも導入前の状態を保ったまま、
+本番で計測が動いていることまで確認できた。

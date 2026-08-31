@@ -47,6 +47,7 @@ docker compose exec app npm run build   # 本番ビルド。**型チェックは
 - preflight が `*` に `margin: 0; padding: 0` を当てるので **`p` / `h1`-`h6` / `ul` に `m-0` は書かない**。
   箇条書きは `commons/BulletList.tsx`。クラス結合は `lib/cn.ts` の `cn()`（clsx + tailwind-merge、
   衝突は後勝ち。カスタム字間は `extendTailwindMerge` に登録済み）。
+- **依存ツリーは細く保つ**。パッケージを足すときは transitive 依存の数まで見て報告する。
 
 ## アーキテクチャの要点
 
@@ -70,8 +71,9 @@ import は `@/` エイリアス。
 
 - ページ本体とほとんどのコンポーネントは Server Component。`"use client"` は7つだけ
   （`GlassCard` / `Typewriter` / `RiseIn` / `Wireframe` / `ScrollToTarget` / `SiteNav` / `ContactForm`）。
-  `app/layout.tsx` の `<Analytics />`（`@vercel/analytics/next`）も client だが**外部パッケージ側**で、
-  `layout.tsx` に `"use client"` は付けない（付けると全ページが SSG から落ちる）。
+- `app/layout.tsx` は Server Component。`<Analytics />`（`@vercel/analytics/next`）は client だが
+  **境界はパッケージ側にある**ので、**`layout.tsx` に `"use client"` は付けない**
+  （付けると全ページが SSG から落ちる）。
 - カード全体をリンクにするときはページを Server に保つため `GlassCard` に `href` を渡す
   （内部で `useRouter().push`。カード内に `<a>` が入るので `<a>` のネストは不可）。
 - `GlassCard` の `span` / `start` は `lg:col-span-*` / `lg:col-start-*` なので **lg 以上でだけ効く**。
@@ -182,18 +184,27 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
   表として書き下してある。外すと本番でだけリソースが読めなくなる（`default-src 'self'` に落ちる）。
 - **dev 側の `'unsafe-eval'` と `ws:` を消さない**。`headers()` は dev サーバーにも効くので、
   消すと React Refresh と HMR が動かなくなる（`make up` の画面が更新されなくなる）。
-  同じ分岐の `va.vercel-scripts.com` は Vercel Analytics が**dev でだけ**読むデバッグ用スクリプト用。
-  **本番側には足さない**（本番は同一オリジンの `/_vercel/insights/*` を読むので `'self'` で足りる）。
+  同じ分岐の `va.vercel-scripts.com` は Vercel Analytics が dev でだけ読むデバッグ用スクリプト用で、
+  **本番側には足さない**（本番はスクリプトもビーコンも同一オリジンなので `'self'` で足りる）。
 - **`script-src` の `'unsafe-inline'` は外せない**。Next のインライン `self.__next_f.push(...)` と
   Home の JSON-LD がある。nonce にすると `middleware.ts` が要り、全ページが dynamic に落ちて
   SSG が効かなくなる。
 - **`lib/contactSchema.ts` の `z.config({ jitless: true })` を消さない**。Zod は初回 parse で
   `Function("")` を試して JIT の可否を判定するため、消すと /contact で CSP 違反が1件記録される
   （Zod 自体は jitless にフォールバックするので動作は壊れない）。
-- **`vercel.live`（Vercel Toolbar）は入れていない**。Vercel の Toolbar 設定が Pre-Production /
-  Production とも `Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても
-  CSP 違反が出ないことを実測済み。Toolbar を有効化したら `vercel.live` ほか複数の配信元が要るので、
-  そのときは `process.env.VERCEL_ENV !== "production"` の分岐で足す（本番の CSP は変えない）。
+- **`vercel.live`（Vercel Toolbar）は許可しない**。Toolbar 設定は Pre-Production / Production とも
+  `Default`（チームレベルで無効）で、プレビューデプロイをログイン状態で開いても CSP 違反は出ない。
+  有効化するなら `vercel.live` ほか複数の配信元が要るので、`process.env.VERCEL_ENV !== "production"` の
+  分岐で足す（本番の CSP は変えない）。
+
+### アクセス解析（Vercel Web Analytics）
+
+- **計測スクリプトのパスを決め打ちにしない**。Vercel のビルドが割り当て、広告ブロッカー回避のため
+  難読化されたパス（`/6eed0cb42a34c6d1/script.js` 等）になることがあり、デプロイごとに変わりうる。
+  CSP は**同一オリジンかどうかだけで判断する**。
+- **Playwright ではビーコンが飛ばない**。計測スクリプトが冒頭で `navigator.webdriver` を見てボットを
+  弾くため、スクリプトは 200 で読まれるのに1本も送信されず `window.vaq` に積まれたまま残る
+  （不具合ではない）。E2E で送信を期待するテストを書かない。
 
 ### お問い合わせフォーム
 
@@ -212,6 +223,9 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
 - **「送信までの経過時間が短すぎたら弾く」判定は入れない**（クライアントが値を作れるので
   素通しされる一方、オートフィルで素早く送った訪問者のメールを捨てる）。連投の抑止は
   Vercel Firewall のレート制限が持つ。
+- **訪問者への自動返信メールは実装しない**。送信元が共有ドメインの `onboarding@resend.dev` で、
+  Resend の sandbox 制限により宛先はアカウントの登録アドレスに限られるため、任意の宛先へは送れない
+  （独自ドメインの取得と検証が前提になる）。
 
 ### E2E
 
@@ -235,6 +249,8 @@ BudouX でビルド時に文節境界を求め、`<wbr>` として HTML に埋�
   （`@source` の漏れはビルドも検証も通るのに CSS だけが欠ける）。
 - `WORK_LOG/` — 作業セッションのサマリー。過去分は書き換えない。
 - `.next/` / `node_modules/` / `test-results/` / `playwright-report/` / `docs/` — 生成物とローカル資料。
+
+## リポジトリ
 
 コミット author はローカル設定の `user.email = meayubgm@gmail.com`（`user.name` はグローバルの
 `ayuha` を継承）。リモートは `git@github.com:meayubgm/portfolio-site.git`。

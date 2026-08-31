@@ -10,9 +10,10 @@ const TURNSTILE = "https://challenges.cloudflare.com";
 
 /**
  * Vercel Analytics が **development のときだけ** 読むデバッグ用スクリプトの配信元。
- * 本番の `<Analytics />` は同一オリジンの `/_vercel/insights/script.js` を読み、
- * 計測ビーコンも同じ `/_vercel/insights/` 配下（ページビューは `view`）へ送るので
- * `'self'` で足りる。
+ * 本番の `<Analytics />` はスクリプトも計測ビーコンも**同一オリジン**で完結するので
+ * `'self'` で足りる。パスは Vercel のビルドが決め、素の `/_vercel/insights/script.js` に
+ * なるとは限らない（広告ブロッカー回避のため難読化されたパスが割り当てられることがある）。
+ * **パスに依存した判断をしない**こと。
  */
 const VERCEL_ANALYTICS_DEV = "https://va.vercel-scripts.com";
 
